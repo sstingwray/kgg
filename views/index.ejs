@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <script src="/javascripts/jquery.min.js"></script>
+    <script src="/javascripts/tinysort.min.js.js"></script>
+    <script src="/javascripts/econ.js"></script>
+  </head>
+  <body>
+    <div class="flex row btn-panel">
+      <h1><%= title %></h1>
+      <div class="btn template"></div>
+      <div class="btn save-btn">Save</div>
+      <div class="btn load-btn">Load</div>
+      <div class="btn log-data-btn">Log Data</div>
+      <div class="btn add-new-btn">Add new City</div>
+      <div class="btn draw-events-btn">Draw 5 new Events</div>
+      <div class="btn calculate-btn">Calculate Cities</div>
+      <div class="btn next-turn-btn">Next Turn</div>
+      <h1>Turn:</h1><h1 class="turn-counter">0</h1>
+    </div>
+    <div class="flex row city-anchors container">
+      <a class="city-anchor-link mrg-1em template" href=""></a>
+    </div>
+    <div class="flex col city-list container">
+      <div class="flex row city-wrapper template">
+        <a class="city-anchor" id=""></a>
+        <table class="template">
+          <tr class="table-field generic template">
+            <td class="name"></td>
+            <td class="value"></td>
+            <td class="base"><input class="stat-input"></td>
+            <td hidden class="remove-btn"><div class="btn inline">X</div></td>
+          </tr>
+          <tr class="table-field production template">
+            <td class="name"></td>
+            <td class="mod"></td>
+            <td class="base"><input class="stat-input"></td>
+            <td class="inventory"><input class="stat-input"></td>
+            <td hidden class="remove-btn"><div class="btn inline">X</div></td>
+          </tr>
+          <tr class="table-field upkeep template">
+            <td class="name"></td>
+            <td class="mod"></td>
+            <td class="base"><input class="stat-input"></td>
+            <td class="value"></td>
+          </tr>
+          <tr class="table-field faction template">
+            <td class="name"><input class="stat-input w-14em"></td>
+            <td class="support"><input class="stat-input"></td>
+            <td class="trend"><input class="stat-input"></td>
+            <td class="opposition"><input class="stat-input"></td>
+            <td class="remove-btn"><div class="btn inline">X</div></td>
+          </tr>
+          <tr class="table-field price template">
+            <td class="name"></td>
+            <td class="buy"></td>
+            <td class="sell"></td>
+          </tr>
+          <tr class="table-field feature template">
+            <td class="name"><input class="stat-input w-10em"></td>
+            <td class="value"></td>
+            <td class="base"><input class="stat-input"></td>
+            <td hidden class="remove-btn"><div class="btn inline">X</div></td>
+          </tr>
+        </table>
+        <table class="card min-w-18em city-stats">
+          <tr>
+            <th>Stats</th>
+            <th>Value</th>
+            <th>Base</th>
+          </tr>
+          
+        </table>
+        <table class="card min-w-18em city-upkeep">
+          <tr>
+            <th>Upkeep</th>
+            <th>Mod</th>
+            <th>Base</th>
+            <th>Value</th>
+          </tr>
+        </table>
+        <table class="card min-w-18em city-production">
+          <tr>
+            <th>Production</th>
+            <th>Mod</th>
+            <th>Base</th>
+            <th>Current</th>
+          </tr>
+        </table>
+        <table class="card min-w-18em city-prices">
+          <tr>
+            <th>Prices</th>
+            <th>Buy</th>
+            <th>Sell</th>
+          </tr>
+        </table>
+        <table class="card min-w-30em city-politics">
+          <tr>
+            <th>Faction</th>
+            <th>Support</th>
+            <th>Trend</th>
+            <th>Opposition</th>
+          </tr>
+        </table>
+        <table class="card city-features">
+          <tr>
+            <th>Features</th>
+            <th></th>
+            <th>Factor</th>
+          </tr>
+        </table>
+        <div class="card min-w-12em city-controls"></div>
+      </div>
+
+    </div>
+  </body>
+</html>
