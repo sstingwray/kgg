@@ -1,0 +1,139 @@
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin-top: 6em;
+  padding: 30px;
+  font-family: 'Roboto';
+}
+
+h1 {
+  color: hsla(0, 0%, 95%, 1);
+}
+h2 {
+  text-align: center;
+  align-items: center;
+}
+
+p {
+  margin: 0.2em 1em;
+}
+
+th {
+  text-align: start;
+}
+
+tr:nth-child(even) {
+  background-color: hsla(0, 0%, 95%, 1);
+}
+
+a.city-anchor {
+  position: relative;
+  top: -9em;
+}
+
+.city-wrapper {
+  padding: 1em;
+  width: 100%;
+  border-bottom: 4px dashed hsl(259.8, 80.4%, 80%);
+  border-radius: 2px;
+}
+
+.template {
+  display: none !important;
+}
+
+.flex {
+  display: flex;
+  }
+  .flex.row {
+    flex-flow: row;
+  }
+  .flex.col {
+    flex-flow: column;
+  }
+
+.mrg-1em {
+  margin: 1em;
+}
+.mrg-2em {
+  margin: 2em;
+}
+
+  .flex.space-betw {
+    justify-content: space-between;
+  }
+
+.btn-panel {
+    top: 0;
+    left: 0;
+    width: 100%;
+    position: fixed;
+    align-items: center;
+    padding: 0em 1em;
+    background-color: hsla(0, 0%, 65%, 1);
+    z-index: 2;
+  }
+  .btn {
+    font-size: 0.9em;
+    border-radius: 2px;
+    margin: 1em 1em;
+    padding: 1em;
+    background-color: hsla(260, 80%, 80%, 1);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.19), 0 3px 6px rgba(0,0,0,0.23);
+    }
+    .btn:hover {
+      cursor: pointer;
+      background-color: hsla(260, 40%, 90%, 1);
+      box-shadow: 0 6px 9px rgba(0,0,0,0.19), 0 3px 6px rgba(0,0,0,0.23);
+      transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
+    }
+    .btn.inline {
+      padding: 0.25em 0.5em;
+      margin: 0.25em;
+    }
+
+.city-anchors {
+  top: 5em;
+  left: 0;
+  width: 100%;
+  position: fixed;
+  padding: 0em 1em;
+  background-color: hsla(0, 0%, 65%, 1);
+}
+
+.card {
+  margin: 0 1em;
+  padding: 1em;
+  border-radius: 2px;
+  box-shadow: 0 6px 9px rgba(0,0,0,0.19), 0 3px 6px rgba(0,0,0,0.23);
+  }
+  .card.min-w-30em {
+    min-width: 30em;
+  }
+  .card.min-w-18em {
+    min-width: 18em;
+  }
+  .card.min-w-12em {
+    min-width: 12em;
+  }
+
+.table-field:hover {
+  cursor: pointer;
+  background-color: hsla(0, 0%, 90%, 1);
+  transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
+}
+
+.stat-input {
+  width: 3em;
+  }
+  .stat-input.w-14em {
+    width: 14em;
+  }
+  .stat-input.w-10em {
+    width: 10em;
+  }
+  .stat-input.changed {
+    border-color: hsla(180, 77%, 50%, 0.67);
+  }
