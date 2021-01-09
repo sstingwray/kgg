@@ -218,7 +218,7 @@
                     ],
                     isUpkeep: true,
                     prosperityUpkeepMod: -0.04,
-                    popUpkeepMod: 1*7,
+                    popUpkeepMod: 0.5*7,
                 },
                 {
                     name: 'Industrial Ores',
@@ -556,7 +556,7 @@
                         result: 0
                     },
                     defences: {
-                        base: 0.2,
+                        base: 0.05,
                         result: 0
                     },
                     garrisonLimit: {
@@ -671,206 +671,643 @@
             features: [
                 {
                     name: 'Swamp',
-                    effect: '',
+                    produce: [
+                        {
+                            name: 'Water',
+                            value: 2
+                        }
+                    ],
+                    prodMod: [],
+                    statMod: [],
                     type: 'GEO',
                 },
                 {
                     name: 'Waterfall',
-                    effect: '',
+                    produce: [
+                        {
+                            name: 'Water',
+                            value: 16
+                        }
+                    ],
+                    prodMod: [],
+                    statMod: [],
                     type: 'GEO',
                 },
                 {
                     name: 'Vulcano',
-                    effect: '',
+                    produce: [],
+                    prodMod: [
+                        {
+                            name: 'Industrial Alloys',
+                            value: 0.05
+                        },
+                        {
+                            name: 'Specialized Alloys',
+                            value: 0.05
+                        },
+                        {
+                            name: 'Small Parts',
+                            value: 0.05
+                        },
+                        {
+                            name: 'Alchemical Tools',
+                            value: 0.05
+                        },
+                        {
+                            name: 'Large Parts',
+                            value: 0.05
+                        }
+                    ],
+                    statMod: [],
                     type: 'GEO',
                 },
                 {
                     name: 'Mountain',
-                    effect: '',
+                    produce: [
+                        {
+                            name: 'Water',
+                            value: 8
+                        },
+                    ],
+                    prodMod: [
+                        {
+                            name: 'Granite',
+                            value: 0.03
+                        },
+                        {
+                            name: 'Industrial Ores',
+                            value: 0.03
+                        },
+                        {
+                            name: 'Prima Ores',
+                            value: 0.03
+                        },
+                    ],
+                    statMod: [],
                     type: 'GEO',
                 },
                 {
                     name: 'Hot Spring',
-                    effect: '',
+                    produce: [
+                        {
+                            name: 'Water',
+                            value: 8
+                        }
+                    ],
+                    prodMod: [],
+                    statMod: [],
                     type: 'GEO',
                 },
                 {
                     name: 'Arid Highland',
-                    effect: '',
+                    produce: [
+                        {
+                            name: 'Water',
+                            value: 2
+                        }
+                    ],
+                    prodMod: [],
+                    statMod: [],
                     type: 'GEO',
                 },
                 {
                     name: 'Green Hill',
-                    effect: '',
+                    produce: [
+                        {
+                            name: 'Water',
+                            value: 4
+                        },
+                    ],
+                    prodMod: [],
+                    statMod: [],
                     type: 'GEO',
                 },
                 {
                     name: 'Glacier',
-                    effect: '',
+                    produce: [
+                        {
+                            name: 'Water',
+                            value: 16
+                        }
+                    ],
+                    prodMod: [],
+                    statMod: [],
                     type: 'GEO',
                 },
                 {
                     name: 'Oasis',
-                    effect: '',
+                    produce: [
+                        {
+                            name: 'Water',
+                            value: 4
+                        }
+                    ],
+                    prodMod: [],
+                    statMod: [],
                     type: 'GEO',
                 },
                 {
                     name: 'Searing Desert',
-                    effect: '',
+                    produce: [],
+                    prodMod: [],
+                    statMod: [],
                     type: 'GEO',
                 },
                 {
                     name: 'Cave System',
-                    effect: '',
+                    produce: [
+                        {
+                            name: 'Water',
+                            value: 2
+                        }
+                    ],
+                    prodMod: [],
+                    statMod: [],
                     type: 'GEO',
                 },
                 {
                     name: 'Bountiful Plain',
-                    effect: '',
+                    produce: [
+                        {
+                            name: 'Water',
+                            value: 4
+                        }
+                    ],
+                    prodMod: [],
+                    statMod: [],
                     type: 'GEO',
                 },
                 {
                     name: 'Dense Jungle',
-                    effect: '',
+                    produce: [
+                        {
+                            name: 'Water',
+                            value: 4
+                        }
+                    ],
+                    prodMod: [],
+                    statMod: [],
                     type: 'GEO',
                 },
                 {
                     name: 'Rugged Woods',
-                    effect: '',
+                    produce: [
+                        {
+                            name: 'Water',
+                            value: 4
+                        }
+                    ],
+                    prodMod: [],
+                    statMod: [],
                     type: 'GEO',
                 },
                 {
                     name: 'Sea Shore',
-                    effect: '',
+                    produce: [
+                        {
+                            name: 'Water',
+                            value: 2
+                        }
+                    ],
+                    prodMod: [],
+                    statMod: [],
                     type: 'GEO',
                 },
                 {
                     name: 'Great River',
-                    effect: '',
+                    produce: [
+                        {
+                            name: 'Water',
+                            value: 16
+                        }
+                    ],
+                    prodMod: [],
+                    statMod: [],
                     type: 'GEO',
                 },
                 {
                     name: 'Prosperous Mesa',
-                    effect: '',
+                    produce: [
+                        {
+                            name: 'Water',
+                            value: 2
+                        }
+                    ],
+                    prodMod: [
+                        {
+                            name: 'Granite',
+                            value: 0.05
+                        },
+                        {
+                            name: 'Industrial Ores',
+                            value: 0.05
+                        },
+                        {
+                            name: 'Prima Ores',
+                            value: 0.05
+                        },
+                    ],
+                    statMod: [],
                     type: 'GEO',
                 },
                 {
                     name: 'Fuming Bog',
-                    effect: '',
+                    produce: [
+                        {
+                            name: 'Water',
+                            value: 2
+                        }
+                    ],
+                    prodMod: [],
+                    statMod: [],
                     type: 'GEO',
                 },
                 {
                     name: 'Fair Tundra',
-                    effect: '',
+                    produce: [
+                        {
+                            name: 'Water',
+                            value: 4
+                        }
+                    ],
+                    prodMod: [],
+                    statMod: [],
                     type: 'GEO',
                 },
                 {
                     name: 'Deep Sinkhole',
-                    effect: '',
+                    produce: [],
+                    prodMod: [],
+                    statMod: [],
                     type: 'GEO',
                 },
                 {
                     name: 'Fuel Station',
-                    effect: '',
+                    produce: [],
+                    prodMod: [
+                        {
+                            name: 'Ethanol',
+                            value: 0.1
+                        },
+                    ],
+                    statMod: [],
                     type: 'BUILD',
                 },
                 {
                     name: 'Prima Refiner',
-                    effect: '',
+                    produce: [],
+                    prodMod: [
+                        {
+                            name: 'Prima Diesel',
+                            value: 0.1
+                        },
+                    ],
+                    statMod: [],
                     type: 'BUILD',
                 },
                 {
                     name: 'Prima Condenser',
-                    effect: '',
+                    produce: [],
+                    prodMod: [
+                        {
+                            name: 'Prima Block',
+                            value: 0.1
+                        },
+                    ],
+                    statMod: [],
                     type: 'BUILD',
                 },
                 {
                     name: 'School',
-                    effect: '',
+                    produce: [],
+                    prodMod: [],
+                    statMod: [
+                        {
+                            name: 'socialTrust',
+                            value: 0.05
+                        },
+                        {
+                            name: 'prosperity',
+                            value: 1
+                        },
+                    ],
                     type: 'BUILD',
                 },
                 {
                     name: 'University',
-                    effect: '',
+                    produce: [],
+                    prodMod: [],
+                    statMod: [
+                        {
+                            name: 'socialTrust',
+                            value: 0.05
+                        },
+                        {
+                            name: 'prosperity',
+                            value: 2
+                        },
+                    ],
                     type: 'BUILD',
                 },
                 {
                     name: 'Court',
-                    effect: '',
+                    produce: [],
+                    prodMod: [],
+                    statMod: [
+                        {
+                            name: 'socialTrust',
+                            value: 0.05
+                        },
+                        {
+                            name: 'crime',
+                            value: -0.05
+                        },
+                    ],
                     type: 'BUILD',
                 },
                 {
                     name: 'Port',
-                    effect: '',
+                    produce: [],
+                    prodMod: [],
+                    statMod: [
+                        {
+                            name: 'productivity',
+                            value: 0.05
+                        },
+                    ],
                     type: 'BUILD',
                 },
                 {
                     name: 'Wharf',
-                    effect: '',
+                    produce: [],
+                    prodMod: [],
+                    statMod: [
+                        {
+                            name: 'integration',
+                            value: 0.05
+                        },
+                    ],
                     type: 'BUILD',
                 },
                 {
                     name: 'Trading Depo',
-                    effect: '',
+                    produce: [],
+                    prodMod: [],
+                    statMod: [
+                        {
+                            name: 'integration',
+                            value: 0.1
+                        },
+                    ],
                     type: 'BUILD',
                 },
                 {
                     name: 'Fortification',
-                    effect: '',
+                    produce: [],
+                    prodMod: [],
+                    statMod: [
+                        {
+                            name: 'defences',
+                            value: 0.1
+                        },
+                    ],
                     type: 'BUILD',
                 },
                 {
-                    name: 'Farm Stead',
-                    effect: '',
-                    type: 'BUILD',
-                    variants: ['Grains', 'Miscanthus', 'Textile Plants', 'Fruits and Veggies', 'Forestry', 'Alchemical Gardens']
+                    name: 'Agricultural Farm',
+                    produce: [],
+                    prodMod: [
+                        {
+                            name: 'Farming Produce',
+                            value: 0.05
+                        },
+                    ],
+                    statMod: [],
+                    type: 'BUILD'
                 },
                 {
-                    name: 'Factory',
-                    effect: '',
-                    type: 'BUILD',
-                    variants: ['Small Craft', 'Large Craft', 'Composites', 'Alchemical Machines', 'Salvage', 'Weapons', 'Textiles', 'Industrial Goods']
+                    name: 'Biomass Farm',
+                    produce: [],
+                    prodMod: [
+                        {
+                            name: 'Biomass',
+                            value: 0.05
+                        },
+                    ],
+                    statMod: [],
+                    type: 'BUILD'
                 },
                 {
-                    name: 'Mine',
-                    effect: '',
-                    type: 'BUILD',
-                    variants: ['Prima Ores', 'Industrial Ores', 'Granite', 'Sand']
+                    name: 'Textiles Farm',
+                    produce: [],
+                    prodMod: [
+                        {
+                            name: 'Textiles',
+                            value: 0.05
+                        },
+                    ],
+                    statMod: [],
+                    type: 'BUILD'
                 },
                 {
-                    name: 'Autopark',
-                    effect: '',
+                    name: 'Medical Gardens',
+                    produce: [],
+                    prodMod: [
+                        {
+                            name: 'Medical Supplies',
+                            value: 0.05
+                        },
+                    ],
+                    statMod: [],
+                    type: 'BUILD'
+                },
+                {
+                    name: 'Tree Plantation',
+                    produce: [],
+                    prodMod: [
+                        {
+                            name: 'Wood',
+                            value: 0.05
+                        },
+                    ],
+                    statMod: [],
+                    type: 'BUILD'
+                },
+                {
+                    name: 'Fertilizers Factory',
+                    produce: [],
+                    prodMod: [
+                        {
+                            name: 'Fertilizers',
+                            value: 0.05
+                        },
+                    ],
+                    statMod: [],
+                    type: 'BUILD'
+                },
+                {
+                    name: 'Medical Lab',
+                    produce: [],
+                    prodMod: [
+                        {
+                            name: 'Medical Supplies',
+                            value: 0.05
+                        },
+                    ],
+                    statMod: [],
+                    type: 'BUILD'
+                },
+                {
+                    name: 'MRE Factory',
+                    produce: [],
+                    prodMod: [
+                        {
+                            name: 'Ready Meals',
+                            value: 0.05
+                        },
+                    ],
+                    statMod: [],
+                    type: 'BUILD'
+                },
+                {
+                    name: 'Textiles Factory',
+                    produce: [],
+                    prodMod: [
+                        {
+                            name: 'Textiles',
+                            value: 0.05
+                        },
+                    ],
+                    statMod: [],
+                    type: 'BUILD'
+                },
+                {
+                    name: 'Goods Factory',
+                    produce: [],
+                    prodMod: [
+                        {
+                            name: 'Industrial Goods',
+                            value: 0.1
+                        },
+                    ],
+                    statMod: [],
+                    type: 'BUILD'
+                },
+                {
+                    name: 'Granite Quarry',
+                    produce: [],
+                    prodMod: [
+                        {
+                            name: 'Granite',
+                            value: 0.1
+                        },
+                    ],
+                    statMod: [],
                     type: 'BUILD',
                 },
                 {
-                    name: 'Foundry',
-                    effect: '',
-                    type: 'BUILD',
+                    name: 'Industrial Ore Mine',
+                    produce: [],
+                    prodMod: [
+                        {
+                            name: 'Industrial Ores',
+                            value: 0.1
+                        },
+                    ],
+                    statMod: [],
+                    type: 'BUILD'
                 },
                 {
-                    name: 'Alchemical Station',
-                    effect: '',
-                    type: 'BUILD',
+                    name: 'Prima Ore Mine',
+                    produce: [],
+                    prodMod: [
+                        {
+                            name: 'Prima Ores',
+                            value: 0.05
+                        },
+                    ],
+                    statMod: [],
+                    type: 'BUILD'
                 },
                 {
-                    name: 'Weaponry',
-                    effect: '',
-                    type: 'BUILD',
+                    name: 'Industrial Alloy Foundry',
+                    produce: [],
+                    prodMod: [
+                        {
+                            name: 'Industrial Alloys',
+                            value: 0.05
+                        },
+                    ],
+                    statMod: [],
+                    type: 'BUILD'
+                },
+                {
+                    name: 'Specialized Alloy Foundry',
+                    produce: [],
+                    prodMod: [
+                        {
+                            name: 'Specialized Alloys',
+                            value: 0.05
+                        },
+                    ],
+                    statMod: [],
+                    type: 'BUILD'
                 },
                 {
                     name: 'Slums',
-                    effect: '',
+                    produce: [],
+                    prodMod: [],
+                    statMod: [
+                        {
+                            name: 'population',
+                            value: 0.1
+                        },
+                    ],
                     type: 'BUILD',
                 },
                 {
-                    name: 'Illegal Factory',
-                    effect: '',
-                    type: 'BUILD',
-                    variants: ['Small Craft', 'Large Craft', 'Composites', 'Alchemical Machines', 'Salvage', 'Weapons', 'Textiles', 'Industrial Goods']
+                    name: 'Illegal Chem Lab',
+                    produce: [],
+                    prodMod: [
+                        {
+                            name: 'Fertilizers',
+                            value: 0.02
+                        },
+                        {
+                            name: 'Medical Supplies',
+                            value: 0.02
+                        },
+                    ],
+                    statMod: [
+                        {
+                            name: 'crime',
+                            value: 0.05
+                        },
+                    ],
+                    type: 'BUILD'
                 },
                 {
                     name: 'Gang Hideout',
-                    effect: '',
+                    produce: [],
+                    prodMod: [],
+                    statMod: [
+                        {
+                            name: 'crime',
+                            value: 0.1
+                        },
+                    ],
+                    type: 'BUILD',
+                },
+                {
+                    name: 'Artesian Pump',
+                    produce: [
+                        {
+                            name: 'Water',
+                            value: 16
+                        },
+                    ],
+                    prodMod: [],
+                    statMod: [],
                     type: 'BUILD',
                 },
             ],
@@ -939,7 +1376,8 @@
             actions: [
                 'Remove City',
                 'Add Political Agent',
-                'Add Feature'
+                'Add Feature',
+                'Test Water'
             ]
         },
         containers: {
@@ -978,6 +1416,7 @@
         Object.keys(cityData.stats).forEach(key => {
             let newField = genericField.cloneNode(true);
             let baseInput = newField.querySelector('.base').querySelector('input');
+            let statIsInt = false;
 
             newField.classList.add('generated');
             newField.classList.remove('template');
@@ -991,10 +1430,10 @@
             };
 
             newField.querySelector('.name').innerHTML = key;
-            newField.querySelector('.base').querySelector('input').value = cityData.stats[key].base;
-            newField.querySelector('.value').innerHTML = cityData.stats[key].result;
+            newField.querySelector('.base').querySelector('input').value = (parseFloat(cityData.stats[key].base) ? round(cityData.stats[key].base, 2) : cityData.stats[key].base);
+            newField.querySelector('.value').innerHTML = (parseFloat(cityData.stats[key].result) ? round(cityData.stats[key].result, 2) : cityData.stats[key].result);
             $(baseInput).on('change', () => {
-                cityData.stats[key].base = parseFloat($(baseInput).val());
+                cityData.stats[key].base = (parseFloat($(baseInput).val()) ? parseFloat($(baseInput).val()) : $(baseInput).val());
                 $(baseInput).addClass('changed');
             });
 
@@ -1009,9 +1448,9 @@
             newField.classList.remove('template');
 
             newField.querySelector('.name').innerHTML = upkeepItem.name;
-            newField.querySelector('.mod').innerHTML = upkeepItem.mod;
-            baseInput.value = upkeepItem.base;
-            newField.querySelector('.value').innerHTML = upkeepItem.value;
+            newField.querySelector('.mod').innerHTML = round(upkeepItem.mod, 2);
+            baseInput.value = round(upkeepItem.base, 2);
+            newField.querySelector('.value').innerHTML = round(upkeepItem.value, 0);
 
             $(baseInput).on('change', () => {
                 upkeepItem.base = parseFloat($(baseInput).val());
@@ -1029,12 +1468,12 @@
             newField.classList.remove('template');
 
             newField.querySelector('.name').innerHTML = productionItem.name;
-            baseInput.value = productionItem.base;
-            newField.querySelector('.mod').innerHTML = productionItem.mod;
-            newField.querySelector('.inventory').innerHTML = cityData.agent.inventories.filter(x => x.name == productionItem.name)[0].value;
+            baseInput.value = round(productionItem.base, 2);
+            newField.querySelector('.mod').innerHTML = round(productionItem.mod, 2);
+            newField.querySelector('.inventory').innerHTML = round(cityData.agent.inventories.filter(x => x.name == productionItem.name)[0].value, 0);
 
             $(baseInput).on('change', () => {
-                cityData.production[key].base = parseFloat($(baseInput).val());
+                productionItem.base = parseFloat($(baseInput).val());
                 $(baseInput).addClass('changed');
             });
 
@@ -1048,8 +1487,8 @@
             newField.classList.remove('template');
 
             newField.querySelector('.name').innerHTML = price.name;
-            newField.querySelector('.buy').innerHTML = price.buy;
-            newField.querySelector('.sell').innerHTML = price.sell;
+            newField.querySelector('.buy').innerHTML = round(price.buy, 2);
+            newField.querySelector('.sell').innerHTML = round(price.sell, 2);
 
             newCityWrapper.querySelector('.city-prices').querySelector('tbody').appendChild(newField);
         });
@@ -1066,9 +1505,9 @@
             newField.classList.remove('template');
 
             nameInput.value = item.name;
-            supportInput.value = item.support;
-            trendInput.value = item.trend;
-            oppositionInput.value = item.opposition;
+            supportInput.value = round(item.support, 2);
+            trendInput.value = round(item.trend, 2);
+            oppositionInput.value = round(item.opposition, 2);
 
             $(nameInput).on('change', () => {
                 item.name = $(nameInput).val();
@@ -1110,7 +1549,16 @@
             removeBtn.hidden = false;
 
             nameInput.value = item.name;
-            baseInput.value = item.factor;
+            baseInput.value = round(item.factor, 2);
+
+            $(nameInput).on('change', () => {
+                item.name = $(nameInput).val();
+                if (app.staticData.features.filter(x => x.name == $(nameInput).val()).length > 0) {
+                    item = app.staticData.features.filter(x => x.name == $(nameInput).val())[0];
+                };
+                $(nameInput).addClass('changed');
+                
+            });
 
             $(baseInput).on('change', () => {
                 item.factor = parseFloat($(baseInput).val());
@@ -1156,6 +1604,11 @@
                         $('.calculate-btn').trigger('click');
                     });
                     break;
+                case 'Test Water':
+                    $(newBtn).on('click', () => {
+                        console.log(app.getWaterGainForCIty(cityData));
+                    });
+                    break;
                 default:
                     break;
             };
@@ -1187,34 +1640,34 @@
             cityData.stats.devastation.result = cityData.stats.devastation.base;
             cityData.stats.garrisonLimit.result = round(0.18*cityData.stats.population.result + 10*cityData.stats.prosperity.result, 0);
             cityData.stats.manpowerLimit.result = round(parseInt(cityData.stats.garrisonLimit.result) + 0.18*cityData.stats.population.result, 0);
-            cityData.stats.currentManpower.result = round(Math.min(cityData.stats.currentManpower.base, cityData.stats.manpowerLimit.result), 0);
-            cityData.stats.mobilization.result = round(cityData.stats.currentManpower.result / cityData.stats.manpowerLimit.result, 2);
-            cityData.stats.defences.result = round(parseFloat(cityData.stats.defences.base) + parseFloat(cityData.stats.mobilization.result), 2);
-            cityData.stats.socialTrust.result = round(Math.min(2, cityData.stats.socialTrust.base - 1*factionTotal + 0.02*cityData.stats.prosperity.result - cityData.stats.devastation.result*(cityData.stats.devastation.result <= 0.2 ? 0.5 : (cityData.stats.devastation.result <= 0.33 ? 0.4 : 0.3))), 2);
-            cityData.stats.crime.result = round(Math.max(cityData.stats.crime.base + (0.5 - cityData.stats.socialTrust.result**2)*0.8, cityData.stats.crime.base), 2);
+            cityData.stats.currentManpower.result = Math.min(cityData.stats.currentManpower.base, cityData.stats.manpowerLimit.result);
+            cityData.stats.mobilization.result = cityData.stats.currentManpower.result / cityData.stats.manpowerLimit.result;
+            cityData.stats.defences.result = parseFloat(cityData.stats.defences.base) + parseFloat(cityData.stats.mobilization.result);
+            cityData.stats.socialTrust.result = Math.min(2, cityData.stats.socialTrust.base - 1*factionTotal + 0.02*cityData.stats.prosperity.result - cityData.stats.devastation.result*(cityData.stats.devastation.result <= 0.2 ? 0.5 : (cityData.stats.devastation.result <= 0.33 ? 0.4 : 0.3)));
+            cityData.stats.crime.result = Math.max(cityData.stats.crime.base + (0.5 - cityData.stats.socialTrust.result**2)*0.8, cityData.stats.crime.base);
             //econ stats
             cityData.stats.keyRate.result = cityData.stats.keyRate.base;
             cityData.stats.tarrifs.result = cityData.stats.tarrifs.base;
             cityData.stats.rent.result = cityData.stats.rent.base;
             cityData.stats.services.result = cityData.stats.services.base;
-            cityData.stats.corruption.result = round(cityData.stats.corruption.base + 0.05*(1 + cityData.stats.crime.result), 2);
-            cityData.stats.basicIncomePerTurn.result = round(cityData.stats.population.result*0.65*cityData.stats.keyRate.result*(1 + cityData.stats.prosperity.result*0.1)*(1 - cityData.stats.corruption.result)*(1 - 2*cityData.stats.mobilization.result)*(1 - cityData.stats.devastation.result) + parseInt(cityData.stats.rent.result) + parseInt(cityData.stats.services.result), 2);
+            cityData.stats.corruption.result = cityData.stats.corruption.base + 0.05*(1 + cityData.stats.crime.result);
+            cityData.stats.basicIncomePerTurn.result = cityData.stats.population.result*0.65*cityData.stats.keyRate.result*(1 + cityData.stats.prosperity.result*0.1)*(1 - cityData.stats.corruption.result)*(1 - 2*cityData.stats.mobilization.result)*(1 - cityData.stats.devastation.result) + parseInt(cityData.stats.rent.result) + parseInt(cityData.stats.services.result);
             cityData.stats.currentBudget.result = cityData.stats.currentBudget.base;
             cityData.stats.productivity.result = cityData.stats.productivity.base;
             cityData.stats.integration.result = cityData.stats.integration.base;
 
             cityData.upkeep.forEach(upkeep => {
-                upkeep.mod = round(upkeep.base*(1 + cityData.stats.crime.result/4)*(cityData.stats.currentManpower.result < cityData.stats.garrisonLimit.result ? 1 + cityData.stats.mobilization.result/4 : 1), 2);
-                upkeep.value = round(((upkeep.prosperityUpkeepMod*cityData.stats.prosperity.result + upkeep.popUpkeepMod)*cityData.stats.population.result)*upkeep.packageSize*upkeep.mod, 0);
+                upkeep.mod = upkeep.base*(1 + cityData.stats.crime.result/4)*(cityData.stats.currentManpower.result < cityData.stats.garrisonLimit.result ? 1 + cityData.stats.mobilization.result/4 : 1);
+                upkeep.value = ((upkeep.prosperityUpkeepMod*cityData.stats.prosperity.result + upkeep.popUpkeepMod)*cityData.stats.population.result)*upkeep.packageSize*upkeep.mod;
                 switch (upkeep.name) {
                     case 'Granite':
-                        upkeep.value = upkeep.value + round(4*cityData.features.filter(x => x.type == 'BUILD').length*upkeep.packageSize*upkeep.mod, 0);
+                        upkeep.value = upkeep.value + 4*cityData.features.filter(x => x.type == 'BUILD').length*upkeep.packageSize*upkeep.mod;
                         break;
                     case 'Wood':
-                        upkeep.value = upkeep.value + round(8*cityData.features.filter(x => x.type == 'BUILD').length*upkeep.packageSize*upkeep.mod, 0);
+                        upkeep.value = upkeep.value + 8*cityData.features.filter(x => x.type == 'BUILD').length*upkeep.packageSize*upkeep.mod, 0;
                         break;
                     case 'Weapon Parts':
-                        upkeep.value = upkeep.value*round((1 + parseFloat(cityData.stats.mobilization.result)), 2);
+                        upkeep.value = upkeep.value*(1 + parseFloat(cityData.stats.mobilization.result));
                         break;
                     default:
                         break;
@@ -1222,11 +1675,33 @@
             });
 
             cityData.production.forEach(production => {
-                production.mod = round(production.base*(1 - cityData.stats.crime.result)*(1 + cityData.stats.prosperity.result*0.02)*(1 + parseInt(cityData.stats.productivity.result))*(cityData.stats.currentManpower.result < cityData.stats.garrisonLimit.result ? 1 - cityData.stats.mobilization.result : 1), 2);
+                production.mod = production.base*(1 - cityData.stats.crime.result)*(1 + cityData.stats.prosperity.result*0.02)*(1 + parseInt(cityData.stats.productivity.result))*(cityData.stats.currentManpower.result < cityData.stats.garrisonLimit.result ? 1 - cityData.stats.mobilization.result : 1);
             });
 
             resolve();
         });
+        return promise;
+    };
+
+    app.calculateCityFeatures = function(cityData) {
+        let promise = new Promise (resolve => {
+            cityData.features.forEach(feature => {
+                feature.prodMod.forEach(prodMod => {
+                    cityData.production.filter(x => x.name == prodMod.name)[0].mod += prodMod.value*feature.factor;
+                });
+                feature.statMod.forEach(statMod => {
+                    cityData.stats[statMod.name].result += statMod.value*feature.factor;
+                    if (
+                        statMod.name == 'popularity' ||
+                        statMod.name == 'prosperity'
+                    ) {
+                        cityData.stats[statMod.name].result = round(cityData.stats[statMod.name].result, 0);
+                    };
+                });
+            });
+            resolve();
+        });
+
         return promise;
     };
 
@@ -1238,17 +1713,17 @@
             newCityData.id = app.cityData.length + 1;
 
             //Generating stats
-            newCityData.stats.government.base = app.staticData.governmentTypes[round(Math.max(0, Math.random()*app.staticData.governmentTypes.length - 1), 0)].name;
-            newCityData.stats.property.base = app.staticData.propertyTypes[round(Math.max(0, Math.random()*app.staticData.propertyTypes.length - 1), 0)].name;
+            newCityData.stats.government.base = app.staticData.governmentTypes[Math.max(0, round(Math.random()*app.staticData.governmentTypes.length - 1, 0))].name;
+            newCityData.stats.property.base = app.staticData.propertyTypes[Math.max(0, round(Math.random()*app.staticData.propertyTypes.length - 1, 0))].name;
             newCityData.stats.population.base = round(300 + 200*(Math.random()*19 + 1) + 10*(Math.random()*19 + 1), 0);
-            newCityData.stats.prosperity.base = round((Math.random()*9 + 1), 0);
-            newCityData.stats.defences.base = round((newCityData.stats.defences.base + 0.09 - Math.random()*0.04), 2);
-            newCityData.stats.keyRate.base = round((newCityData.stats.keyRate.base + 0.09 - Math.random()*0.04), 2);
-            newCityData.stats.tarrifs.base = round((newCityData.stats.tarrifs.base + 0.09 - Math.random()*0.04), 2);
-            newCityData.stats.rent.base = round((newCityData.stats.rent.base + Math.random()*9 + 1), 0);
-            newCityData.stats.services.base = round((newCityData.stats.services.base + Math.random()*9 + 1), 0);
-            newCityData.stats.productivity.base = round((newCityData.stats.productivity.base + 0.09 - Math.random()*0.04), 2);
-            newCityData.stats.integration.base = round((newCityData.stats.integration.base + 0.09 - Math.random()*0.04), 2);
+            newCityData.stats.prosperity.base = round(Math.random()*9 + 1, 0);
+            newCityData.stats.defences.base = newCityData.stats.defences.base + 0.09 - Math.random()*0.04;
+            newCityData.stats.keyRate.base = newCityData.stats.keyRate.base + 0.09 - Math.random()*0.04;
+            newCityData.stats.tarrifs.base = newCityData.stats.tarrifs.base + 0.09 - Math.random()*0.04;
+            newCityData.stats.rent.base = newCityData.stats.rent.base + Math.random()*9 + 1;
+            newCityData.stats.services.base = newCityData.stats.services.base + Math.random()*9 + 1;
+            newCityData.stats.productivity.base = newCityData.stats.productivity.base + 0.09 - Math.random()*0.04;
+            newCityData.stats.integration.base = newCityData.stats.integration.base + 0.09 - Math.random()*0.04;
 
             //Generating upkeep
             app.market.goods.forEach(good => {
@@ -1256,7 +1731,7 @@
                     let upkeepItem = {
                         name: good.name,
                         mod: 0,
-                        base: round(1 + 0.04 - Math.random()*0.09, 2),
+                        base: 1 + 0.04 - Math.random()*0.09,
                         value: 0
                     };
 
@@ -1273,7 +1748,7 @@
                 let productionItem = {
                     name: good.name,
                     mod: 0,
-                    base: (Math.random() > 0.5 ? round(Math.max(1.1 - Math.random()*0.2, 0), 2) : 0)
+                    base: Math.max(1.1 - Math.random()*0.2, 0)
                 };
 
                 Object.keys(good).forEach(key => {
@@ -1285,11 +1760,11 @@
 
             //Generating political agents
             for (let index = 0; index < Math.random()*2 + 1; index++) {
-                let randomIndex = round(Math.max(Math.random()*app.staticData.syndicates.length - 1, 0), 0);
+                let randomIndex = Math.max(0, round(Math.random()*app.staticData.syndicates.length - 1, 0));
                 let randomSyndicate = JSON.parse(JSON.stringify(app.staticData.syndicates[randomIndex]));
-                randomSyndicate.support = round((Math.random()), 2);
-                randomSyndicate.trend = round((Math.random()*0.04 + 0.01), 2);
-                randomSyndicate.opposition = round((Math.random()), 2);
+                randomSyndicate.support = Math.random();
+                randomSyndicate.trend = Math.random()*0.04 + 0.01;
+                randomSyndicate.opposition = Math.random();
                 randomSyndicate.id = newCityData.politics.length;
 
                 newCityData.politics.push(randomSyndicate);
@@ -1297,9 +1772,9 @@
 
             //Generating geo features
             for (let index = 0; index < Math.random()*2 + 2; index++) {
-                let randomIndex = round(Math.max(Math.random()*app.staticData.features.filter(x => x.type == 'GEO').length - 1, 0), 0);
+                let randomIndex = Math.max(0, round(Math.random()*app.staticData.features.filter(x => x.type == 'GEO').length - 1, 0));
                 let randomFeature = JSON.parse(JSON.stringify(app.staticData.features.filter(x => x.type == 'GEO')[randomIndex]));
-                randomFeature.factor = round((Math.random() + 1 ), 2);
+                randomFeature.factor = Math.random() + 1;
                 randomFeature.id = newCityData.features.length;
 
                 newCityData.features.push(randomFeature);
@@ -1307,9 +1782,9 @@
 
             //Generating buildings
             for (let index = 0; index < Math.random()*2 + 2; index++) {
-                let randomIndex = round(Math.max(Math.random()*app.staticData.features.filter(x => x.type == 'BUILD').length - 1, 0), 0);
+                let randomIndex = Math.max(0, round(Math.random()*app.staticData.features.filter(x => x.type == 'BUILD').length - 1, 0));
                 let randomFeature = JSON.parse(JSON.stringify(app.staticData.features.filter(x => x.type == 'BUILD')[randomIndex]));
-                randomFeature.factor = round((Math.random() + 1 ), 2);
+                randomFeature.factor = Math.random() + 1;
                 randomFeature.id = newCityData.features.length;
 
                 newCityData.features.push(randomFeature);
@@ -1319,8 +1794,8 @@
             app.market.goods.forEach(good => {
                 let priceBelief = {
                     name: good.name,
-                    upper: round((good.basePrice + Math.random()*good.basePrice*0.1 + good.basePrice*0.05), 2),
-                    lower: round((good.basePrice - Math.random()*good.basePrice*0.1 - good.basePrice*0.05), 2)
+                    upper: good.basePrice + Math.random()*good.basePrice*0.1 + good.basePrice*0.05,
+                    lower: good.basePrice - Math.random()*good.basePrice*0.1 - good.basePrice*0.05,
                 };
                 newCityData.agent.priceBeliefs.push(priceBelief);
             });
@@ -1335,6 +1810,8 @@
                 newCityData.prices.push(price);
             });
 
+            app.generateInitialCityInventoriesBasedOnUpkeep(newCityData);
+
             app.cityData.push(newCityData);
             newCityData = {};
             resolve();
@@ -1347,7 +1824,7 @@
             city.production.forEach(production => {
                 let inventory = {
                     name: production.name,
-                    value: round(Math.random()*1000*production.mod + (production.isUpkeep ? city.upkeep.filter(x => x.name == production.name)[0].value : 0), 0)
+                    value: Math.random()*1000*production.mod + (production.isUpkeep ? city.upkeep.filter(x => x.name == production.name)[0].value : 0)
                 }
                 city.agent.inventories.push(inventory);
             });
@@ -1356,20 +1833,20 @@
     };
 
     app.addNewPoliticalAgent = function (city) {
-        let randomIndex = round(Math.max(Math.random()*app.staticData.syndicates.length - 1, 0), 0);
+        let randomIndex = Math.max(0, round(Math.random()*app.staticData.syndicates.length - 1, 0));
         let randomSyndicate = JSON.parse(JSON.stringify(app.staticData.syndicates[randomIndex]));
-        randomSyndicate.support = round((Math.random()), 2);
-        randomSyndicate.trend = round((Math.random()*0.04 + 0.01), 2);
-        randomSyndicate.opposition = round((Math.random()), 2);
+        randomSyndicate.support = (Math.random()), 2;
+        randomSyndicate.trend = (Math.random()*0.04 + 0.01);
+        randomSyndicate.opposition = (Math.random());
         randomSyndicate.id = city.politics.length;
 
         city.politics.push(randomSyndicate);
     };
 
     app.addNewFeature = function (city) {
-        let randomIndex = round(Math.max(Math.random()*app.staticData.features.length - 1, 0), 0);
+        let randomIndex = Math.max(0, round(Math.random()*app.staticData.features.length - 1, 0));
         let randomFeature = JSON.parse(JSON.stringify(app.staticData.features[randomIndex]));
-        randomFeature.factor = round((Math.random() + 1 ), 2);
+        randomFeature.factor = (Math.random() + 1 );
         randomFeature.id = city.features.length;
 
         city.features.push(randomFeature);
@@ -1378,7 +1855,7 @@
     app.calculateBaseProductionCost = function() {
         app.market.goods.forEach(good => {
             good.production.forEach(item => {
-                good.basePrice += round(app.market.goods.filter(x => x.name == item.good)[0].basePrice*item.quantity, 2);
+                good.basePrice += app.market.goods.filter(x => x.name == item.good)[0].basePrice*item.quantity;
             });
         });
     };
@@ -1393,7 +1870,7 @@
                     total += deal.pricePerUnit;
                 };
             });
-            good.historicalMean[app.currentTurn].value = (total == 0 ? good.basePrice : round(total/count, 2));
+            good.historicalMean[app.currentTurn].value = (total == 0 ? good.basePrice : total/count);
         });
     };
 
@@ -1404,7 +1881,16 @@
             count++;
             total += turnData.value;
         });
-        return round(total/count, 2);
+        return total/count;
+    };
+
+    app.getWaterGainForCIty = function(city) {
+        let total = 0;
+        city.features.forEach(feature => {
+            let waterProducingFeatures = feature.produce.filter(x => x.name == 'Water');
+            total += (waterProducingFeatures.length > 0 ? 500*city.production.filter(x => x.name == 'Water')[0].mod*(waterProducingFeatures[0].value)*feature.factor : 0);
+        });
+        return round(total, 0);
     };
 
     app.econCityAgentProduction = function(city) {
@@ -1482,30 +1968,36 @@
             app.calculateBaseProductionCost();
             app.calculateHistoricalMean();
             app.generateNewCity();
-            app.generateNewCity();
-            app.generateNewCity();
-            app.cityData.forEach(city => {
-                app.calculateCity(city).then(() => {
-                    app.generateInitialCityInventoriesBasedOnUpkeep(city);
-                });
-            });
             resolve();
         });
         
         initPromise.then(() => {
+            app.cityData.forEach(city => {
+                app.calculateCity(city).then(() => {
+                    app.calculateCityFeatures(city);
+                    app.generateInitialCityInventoriesBasedOnUpkeep(city);
+                });
+            });
             app.refreshCards();
         });
         
         $('.calculate-btn').on('click', () => {
             app.cityData.forEach(city => {
-                app.calculateCity(city);
+                app.calculateCity(city).then(() => {
+                    app.calculateCityFeatures(city).then(() => {
+                        app.generateInitialCityInventoriesBasedOnUpkeep(city);
+                        app.refreshCards();
+                    });
+                });
             });
-            app.refreshCards();
         });
 
         $('.add-new-btn').on('click', () => {
             app.generateNewCity();
-            app.refreshCards();
+            app.calculateCity(app.cityData[(app.cityData.length > 0 ? app.cityData.length - 1 : app.cityData.length)]).then(() => {
+                app.calculateCityFeatures(app.cityData[(app.cityData.length > 0 ? app.cityData.length - 1 : app.cityData.length)]);
+                app.refreshCards();
+            });
         });
 
         $('.save-btn').on('click', () => {
