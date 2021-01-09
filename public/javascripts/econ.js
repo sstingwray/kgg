@@ -1426,10 +1426,11 @@
                                     upkeep.production.forEach(item => {
                                         city.agent.inventories.filter(x => x.name == item.good).value -= item.quantity;
                                     });
-                                } else {
-                                    break;
-                                }
+                                };
                             });
+                            if (!canProduce) {
+                                break;
+                            };
                         };
                     };
                 });
@@ -1438,23 +1439,23 @@
             loopUpkeep.then(() => {
                 let sortedGoods = 
                 app.market.goods.forEach(good => {
-                    let canProduce = true;
-                    let countProductionCost = new Promise (resolve => {
-                        good.production.forEach(item => {
-                            (city.agent.inventories.filter(x => x.name == item.good).value < item.quantity ? canProduce = false : '');
-                        });
-                        resolve();
-                    });
-                    
-                    countProductionCost.then(() => {
-                        if (canProduce) {
+                    while (canProduce) {
+                        let canProduce = true;
+                        let countProductionCost = new Promise (resolve => {
                             good.production.forEach(item => {
-                                city.agent.inventories.filter(x => x.name == item.good).value -= item.quantity;
+                                (city.agent.inventories.filter(x => x.name == item.good).value < item.quantity ? canProduce = false : '');
                             });
-                        } else {
-                            break;
-                        }
-                    });
+                            resolve();
+                        });
+                        
+                        countProductionCost.then(() => {
+                            if (canProduce) {
+                                good.production.forEach(item => {
+                                    city.agent.inventories.filter(x => x.name == item.good).value -= item.quantity;
+                                });
+                            };
+                        });
+                    };
                 });
             });
 
