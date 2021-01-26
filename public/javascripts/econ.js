@@ -21,6 +21,7 @@
                     isUpkeep: true,
                     prosperityUpkeepMod: 0.01,
                     popUpkeepMod: 2*7,
+                    isFuel: false
                 },
                 {
                     name: 'Biomass',
@@ -36,12 +37,13 @@
                     production: [
                         {
                             good: 'Water',
-                            quantity: 4 
+                            quantity: 2
                         },
                     ],
                     isUpkeep: true,
                     prosperityUpkeepMod: -0.08,
                     popUpkeepMod: 0.5*7,
+                    isFuel: false
                 },
                 {
                     name: 'Fertilizers',
@@ -57,10 +59,11 @@
                     production: [
                         {
                             good: 'Water',
-                            quantity: 4
+                            quantity: 2
                         },
                     ],
-                    isUpkeep: false
+                    isUpkeep: false,
+                    isFuel: false
                 },
                 {
                     name: 'Ethanol',
@@ -76,12 +79,13 @@
                     production: [
                         {
                             good: 'Biomass',
-                            quantity: 4
+                            quantity: 1
                         },
                     ],
                     isUpkeep: true,
                     prosperityUpkeepMod: -0.04,
                     popUpkeepMod: 0.25*7,
+                    isFuel: true
                 },
                 {
                     name: 'Farming Produce',
@@ -97,7 +101,7 @@
                     production: [
                         {
                             good: 'Water',
-                            quantity: 4
+                            quantity: 2
                         },
                         {
                             good: 'Fertilizers',
@@ -111,6 +115,7 @@
                     isUpkeep: true,
                     prosperityUpkeepMod: 0.04,
                     popUpkeepMod: 0.75*7,
+                    isFuel: false
                 },
                 {
                     name: 'Wood',
@@ -126,7 +131,7 @@
                     production: [
                         {
                             good: 'Water',
-                            quantity: 4
+                            quantity: 2
                         },
                         {
                             good: 'Fertilizers',
@@ -140,6 +145,7 @@
                     isUpkeep: true,
                     prosperityUpkeepMod: 0.02,
                     popUpkeepMod: 0.1,
+                    isFuel: false
                 },
                 {
                     name: 'Medical Supplies',
@@ -155,7 +161,7 @@
                     production: [
                         {
                             good: 'Water',
-                            quantity: 2
+                            quantity: 1
                         },
                         {
                             good: 'Farming Produce',
@@ -169,6 +175,7 @@
                     isUpkeep: true,
                     prosperityUpkeepMod: 0.01,
                     popUpkeepMod: 0.05*7,
+                    isFuel: false
                 },
                 {
                     name: 'Prima Diesel',
@@ -184,12 +191,13 @@
                     production: [
                         {
                             good: 'Ethanol',
-                            quantity: 4
+                            quantity: 2
                         },
                     ],
                     isUpkeep: true,
                     prosperityUpkeepMod: 0.02,
                     popUpkeepMod: 0.05*7,
+                    isFuel: true
                 },
                 {
                     name: 'Ready Meals',
@@ -205,7 +213,7 @@
                     production: [
                         {
                             good: 'Water',
-                            quantity: 2
+                            quantity: 1
                         },
                         {
                             good: 'Prima Diesel',
@@ -219,6 +227,7 @@
                     isUpkeep: true,
                     prosperityUpkeepMod: -0.04,
                     popUpkeepMod: 0.5*7,
+                    isFuel: false
                 },
                 {
                     name: 'Industrial Ores',
@@ -237,7 +246,8 @@
                             quantity: 2
                         },
                     ],
-                    isUpkeep: false
+                    isUpkeep: false,
+                    isFuel: false
                 },
                 {
                     name: 'Textiles',
@@ -267,6 +277,7 @@
                     isUpkeep: true,
                     prosperityUpkeepMod: 0.04,
                     popUpkeepMod: 0.1,
+                    isFuel: false
                 },
                 {
                     name: 'Granite',
@@ -288,6 +299,7 @@
                     isUpkeep: true,
                     prosperityUpkeepMod: 0.04,
                     popUpkeepMod: 0.1,
+                    isFuel: false
                 },
                 {
                     name: 'Industrial Alloys',
@@ -310,7 +322,8 @@
                             quantity: 4
                         },
                     ],
-                    isUpkeep: false
+                    isUpkeep: false,
+                    isFuel: false
                 },
                 {
                     name: 'Small Parts',
@@ -336,6 +349,7 @@
                     isUpkeep: true,
                     prosperityUpkeepMod: 0.04,
                     popUpkeepMod: 0.05,
+                    isFuel: false
                 },
                 {
                     name: 'Industrial Goods',
@@ -369,6 +383,7 @@
                     isUpkeep: true,
                     prosperityUpkeepMod: 0.04,
                     popUpkeepMod: 0.025*7,
+                    isFuel: false
                 },
                 {
                     name: 'Weapon Parts',
@@ -394,6 +409,7 @@
                     isUpkeep: true,
                     prosperityUpkeepMod: 0.02,
                     popUpkeepMod: 0,
+                    isFuel: false
                 },
                 {
                     name: 'Prima Block',
@@ -409,12 +425,13 @@
                     production: [
                         {
                             good: 'Prima Diesel',
-                            quantity: 4
+                            quantity: 2
                         },
                     ],
                     isUpkeep: true,
                     prosperityUpkeepMod: 0.01,
                     popUpkeepMod: 0,
+                    isFuel: true
                 },
                 {
                     name: 'Prima Ores',
@@ -433,7 +450,8 @@
                             quantity: 2
                         },
                     ],
-                    isUpkeep: false
+                    isUpkeep: false,
+                    isFuel: false
                 },
                 {
                     name: 'Specialized Alloys',
@@ -460,7 +478,8 @@
                             quantity: 2
                         },
                     ],
-                    isUpkeep: false
+                    isUpkeep: false,
+                    isFuel: false
                 },
                 {
                     name: 'Alchemical Tools',
@@ -486,11 +505,13 @@
                     isUpkeep: true,
                     prosperityUpkeepMod: 0.02,
                     popUpkeepMod: 0,
+                    isFuel: false
                 },
                 {
                     name: 'Large Parts',
                     basePrice: 1,
                     packageSize: 1,
+                    tier: 4,
                     historicalMean: [
                         {
                             turn: 0,
@@ -514,10 +535,11 @@
                     isUpkeep: true,
                     prosperityUpkeepMod: 0.04,
                     popUpkeepMod: 0,
+                    isFuel: false
                 },
             ],
-            currentBids: [],
             currentAsks: [],
+            currentLots: [],
             dealHistoryPerTurn: [
                 {
                     turn: 0,
@@ -947,7 +969,7 @@
                     prodMod: [
                         {
                             name: 'Ethanol',
-                            value: 0.1
+                            value: 0.5
                         },
                     ],
                     statMod: [],
@@ -959,7 +981,7 @@
                     prodMod: [
                         {
                             name: 'Prima Diesel',
-                            value: 0.1
+                            value: 0.5
                         },
                     ],
                     statMod: [],
@@ -971,7 +993,7 @@
                     prodMod: [
                         {
                             name: 'Prima Block',
-                            value: 0.1
+                            value: 0.5
                         },
                     ],
                     statMod: [],
@@ -1056,7 +1078,7 @@
                     statMod: [
                         {
                             name: 'integration',
-                            value: 0.1
+                            value: 0.5
                         },
                     ],
                     type: 'BUILD',
@@ -1079,7 +1101,7 @@
                     prodMod: [
                         {
                             name: 'Farming Produce',
-                            value: 0.05
+                            value: 0.5
                         },
                     ],
                     statMod: [],
@@ -1091,7 +1113,7 @@
                     prodMod: [
                         {
                             name: 'Biomass',
-                            value: 0.05
+                            value: 0.5
                         },
                     ],
                     statMod: [],
@@ -1103,7 +1125,7 @@
                     prodMod: [
                         {
                             name: 'Textiles',
-                            value: 0.05
+                            value: 0.5
                         },
                     ],
                     statMod: [],
@@ -1115,7 +1137,7 @@
                     prodMod: [
                         {
                             name: 'Medical Supplies',
-                            value: 0.05
+                            value: 0.5
                         },
                     ],
                     statMod: [],
@@ -1127,7 +1149,7 @@
                     prodMod: [
                         {
                             name: 'Wood',
-                            value: 0.05
+                            value: 0.5
                         },
                     ],
                     statMod: [],
@@ -1139,7 +1161,7 @@
                     prodMod: [
                         {
                             name: 'Fertilizers',
-                            value: 0.05
+                            value: 0.5
                         },
                     ],
                     statMod: [],
@@ -1151,7 +1173,7 @@
                     prodMod: [
                         {
                             name: 'Medical Supplies',
-                            value: 0.05
+                            value: 0.5
                         },
                     ],
                     statMod: [],
@@ -1163,7 +1185,7 @@
                     prodMod: [
                         {
                             name: 'Ready Meals',
-                            value: 0.05
+                            value: 0.5
                         },
                     ],
                     statMod: [],
@@ -1175,7 +1197,7 @@
                     prodMod: [
                         {
                             name: 'Textiles',
-                            value: 0.05
+                            value: 0.5
                         },
                     ],
                     statMod: [],
@@ -1187,7 +1209,7 @@
                     prodMod: [
                         {
                             name: 'Industrial Goods',
-                            value: 0.1
+                            value: 0.5
                         },
                     ],
                     statMod: [],
@@ -1199,7 +1221,7 @@
                     prodMod: [
                         {
                             name: 'Granite',
-                            value: 0.1
+                            value: 0.5
                         },
                     ],
                     statMod: [],
@@ -1211,7 +1233,7 @@
                     prodMod: [
                         {
                             name: 'Industrial Ores',
-                            value: 0.1
+                            value: 0.5
                         },
                     ],
                     statMod: [],
@@ -1223,7 +1245,7 @@
                     prodMod: [
                         {
                             name: 'Prima Ores',
-                            value: 0.05
+                            value: 0.5
                         },
                     ],
                     statMod: [],
@@ -1235,7 +1257,7 @@
                     prodMod: [
                         {
                             name: 'Industrial Alloys',
-                            value: 0.05
+                            value: 0.5
                         },
                     ],
                     statMod: [],
@@ -1247,23 +1269,11 @@
                     prodMod: [
                         {
                             name: 'Specialized Alloys',
-                            value: 0.05
+                            value: 0.5
                         },
                     ],
                     statMod: [],
                     type: 'BUILD'
-                },
-                {
-                    name: 'Slums',
-                    produce: [],
-                    prodMod: [],
-                    statMod: [
-                        {
-                            name: 'population',
-                            value: 0.1
-                        },
-                    ],
-                    type: 'BUILD',
                 },
                 {
                     name: 'Illegal Chem Lab',
@@ -1271,11 +1281,11 @@
                     prodMod: [
                         {
                             name: 'Fertilizers',
-                            value: 0.02
+                            value: 0.25
                         },
                         {
                             name: 'Medical Supplies',
-                            value: 0.02
+                            value: 0.25
                         },
                     ],
                     statMod: [
@@ -1376,8 +1386,10 @@
             actions: [
                 'Remove City',
                 'Add Political Agent',
-                'Add Feature',
-                'Test Water'
+                'Add Geo Feature',
+                'Add Building',
+                'Test Water',
+                'Log City Data'
             ]
         },
         containers: {
@@ -1391,7 +1403,7 @@
     }
 
 
-    app.generateCityCards = function (cityData) {
+    app.generateCityCards = function(cityData) {
         let newCityWrapper = app.templates.cityWrapper.cloneNode(true);
 
         let genericField = newCityWrapper.querySelector('.generic.template');
@@ -1416,7 +1428,6 @@
         Object.keys(cityData.stats).forEach(key => {
             let newField = genericField.cloneNode(true);
             let baseInput = newField.querySelector('.base').querySelector('input');
-            let statIsInt = false;
 
             newField.classList.add('generated');
             newField.classList.remove('template');
@@ -1435,6 +1446,7 @@
             $(baseInput).on('change', () => {
                 cityData.stats[key].base = (parseFloat($(baseInput).val()) ? parseFloat($(baseInput).val()) : $(baseInput).val());
                 $(baseInput).addClass('changed');
+                $('.calculate-btn')[0].click();
             });
 
             newCityWrapper.querySelector('.city-stats').querySelector('tbody').appendChild(newField);
@@ -1455,6 +1467,7 @@
             $(baseInput).on('change', () => {
                 upkeepItem.base = parseFloat($(baseInput).val());
                 $(baseInput).addClass('changed');
+                $('.calculate-btn')[0].click();
             });
 
             newCityWrapper.querySelector('.city-upkeep').querySelector('tbody').appendChild(newField);
@@ -1470,11 +1483,12 @@
             newField.querySelector('.name').innerHTML = productionItem.name;
             baseInput.value = round(productionItem.base, 2);
             newField.querySelector('.mod').innerHTML = round(productionItem.mod, 2);
-            newField.querySelector('.inventory').innerHTML = round(cityData.agent.inventories.filter(x => x.name == productionItem.name)[0].value, 0);
+            newField.querySelector('.inventory').innerHTML = round((cityData.agent.inventories.length > 0 ? cityData.agent.inventories.filter(x => x.name == productionItem.name)[0].value : 0), 0);
 
             $(baseInput).on('change', () => {
                 productionItem.base = parseFloat($(baseInput).val());
                 $(baseInput).addClass('changed');
+                $('.calculate-btn')[0].click();
             });
 
             newCityWrapper.querySelector('.city-production').querySelector('tbody').appendChild(newField);
@@ -1506,39 +1520,44 @@
 
             nameInput.value = item.name;
             supportInput.value = round(item.support, 2);
-            trendInput.value = round(item.trend, 2);
+            trendInput.value = round(item.trend, 3);
             oppositionInput.value = round(item.opposition, 2);
 
             $(nameInput).on('change', () => {
                 item.name = $(nameInput).val();
                 $(nameInput).addClass('changed');
+                $('.calculate-btn')[0].click();
             });
 
             $(supportInput).on('change', () => {
                 item.support = parseFloat($(supportInput).val());
                 $(supportInput).addClass('changed');
+                $('.calculate-btn')[0].click();
             });
 
             $(trendInput).on('change', () => {
                 item.trend = parseFloat($(trendInput).val());
                 $(trendInput).addClass('changed');
+                $('.calculate-btn')[0].click();
             });
 
             $(oppositionInput).on('change', () => {
                 item.opposition = parseFloat($(oppositionInput).val());
+                $(oppositionInput).addClass('changed');
+                $('.calculate-btn')[0].click();
             });
 
             $(removeBtn.querySelector('.btn')).on('click', () => {
                 let cityIndex = app.cityData.findIndex(city => city.id === cityData.id);
                 let agentIndex = app.cityData[cityIndex].politics.findIndex(feature => feature.id === item.id);
                 app.cityData[cityIndex].politics.splice(agentIndex, 1);
-                app.refreshCards();
+                $('.calculate-btn')[0].click();
             });
 
             newCityWrapper.querySelector('.city-politics').querySelector('tbody').appendChild(newField);
         });
         //======================================= FEATURES =======================================
-        cityData.features.forEach(item => {
+        cityData.features.forEach((item, index) => {
             let newField = featureField.cloneNode(true);
             let nameInput = newField.querySelector('.name').querySelector('input');
             let baseInput = newField.querySelector('.base').querySelector('input');
@@ -1554,23 +1573,24 @@
             $(nameInput).on('change', () => {
                 item.name = $(nameInput).val();
                 if (app.staticData.features.filter(x => x.name == $(nameInput).val()).length > 0) {
-                    item = app.staticData.features.filter(x => x.name == $(nameInput).val())[0];
+                    Object.assign(item, app.staticData.features.filter(x => x.name == $(nameInput).val())[0]);
                 };
                 $(nameInput).addClass('changed');
+                $('.calculate-btn')[0].click();
                 
             });
 
             $(baseInput).on('change', () => {
                 item.factor = parseFloat($(baseInput).val());
                 $(baseInput).addClass('changed');
+                $('.calculate-btn')[0].click();
                 
             });
 
             $(removeBtn.querySelector('.btn')).on('click', () => {
                 let cityIndex = app.cityData.findIndex(city => city.id === cityData.id);
-                let featureIndex = app.cityData[cityIndex].features.findIndex(feature => feature.id === item.id);
-                app.cityData[cityIndex].features.splice(featureIndex, 1);
-                app.refreshCards();
+                app.cityData[cityIndex].features.splice(index, 1);
+                $('.calculate-btn')[0].click();
             });
 
             newCityWrapper.querySelector('.city-features').querySelector('tbody').appendChild(newField);
@@ -1589,24 +1609,35 @@
                     $(newBtn).on('click', () => {
                         let index = app.cityData.findIndex(city => city.id === cityData.id);
                         app.cityData.splice(index, 1);
-                        $('.calculate-btn').trigger('click');
+                        $('.calculate-btn')[0].click();
                     });
                     break;
                 case 'Add Political Agent':
                     $(newBtn).on('click', () => {
                         app.addNewPoliticalAgent(cityData);
-                        $('.calculate-btn').trigger('click');
+                        $('.calculate-btn')[0].click();
                     });
                     break;
-                case 'Add Feature':
+                case 'Add Geo Feature':
                     $(newBtn).on('click', () => {
-                        app.addNewFeature(cityData);
-                        $('.calculate-btn').trigger('click');
+                        app.addNewFeature(cityData, 'GEO');
+                        $('.calculate-btn')[0].click();
+                    });
+                    break;
+                case 'Add Building':
+                    $(newBtn).on('click', () => {
+                        app.addNewFeature(cityData, 'BUILD');
+                        $('.calculate-btn')[0].click();
                     });
                     break;
                 case 'Test Water':
                     $(newBtn).on('click', () => {
-                        console.log(app.getWaterGainForCIty(cityData));
+                        console.log(app.getWaterGainForCity(cityData));
+                    });
+                    break;
+                case 'Log City Data':
+                    $(newBtn).on('click', () => {
+                        console.log(cityData);
                     });
                     break;
                 default:
@@ -1620,7 +1651,7 @@
 
     };
 
-    app.calculateCity = function (cityData) {
+    app.calculateCity = function(cityData) {
         let promise = new Promise (resolve => {
         
             let factionTotal = 1;
@@ -1731,7 +1762,7 @@
                     let upkeepItem = {
                         name: good.name,
                         mod: 0,
-                        base: 1 + 0.04 - Math.random()*0.09,
+                        base: 1 + 0.8 - Math.random()*1.6,
                         value: 0
                     };
 
@@ -1748,7 +1779,7 @@
                 let productionItem = {
                     name: good.name,
                     mod: 0,
-                    base: Math.max(1.1 - Math.random()*0.2, 0)
+                    base: 1 + 0.8 - Math.random()*1.6,
                 };
 
                 Object.keys(good).forEach(key => {
@@ -1759,35 +1790,18 @@
             });
 
             //Generating political agents
-            for (let index = 0; index < Math.random()*2 + 1; index++) {
-                let randomIndex = Math.max(0, round(Math.random()*app.staticData.syndicates.length - 1, 0));
-                let randomSyndicate = JSON.parse(JSON.stringify(app.staticData.syndicates[randomIndex]));
-                randomSyndicate.support = Math.random();
-                randomSyndicate.trend = Math.random()*0.04 + 0.01;
-                randomSyndicate.opposition = Math.random();
-                randomSyndicate.id = newCityData.politics.length;
-
-                newCityData.politics.push(randomSyndicate);
+            for (let index = 0; index < Math.random()*4 + 4; index++) {
+                app.addNewPoliticalAgent(newCityData);
             };
 
             //Generating geo features
-            for (let index = 0; index < Math.random()*2 + 2; index++) {
-                let randomIndex = Math.max(0, round(Math.random()*app.staticData.features.filter(x => x.type == 'GEO').length - 1, 0));
-                let randomFeature = JSON.parse(JSON.stringify(app.staticData.features.filter(x => x.type == 'GEO')[randomIndex]));
-                randomFeature.factor = Math.random() + 1;
-                randomFeature.id = newCityData.features.length;
-
-                newCityData.features.push(randomFeature);
+            for (let index = 0; index < 4; index++) {
+                app.addNewFeature(newCityData, 'GEO');
             };
 
             //Generating buildings
-            for (let index = 0; index < Math.random()*2 + 2; index++) {
-                let randomIndex = Math.max(0, round(Math.random()*app.staticData.features.filter(x => x.type == 'BUILD').length - 1, 0));
-                let randomFeature = JSON.parse(JSON.stringify(app.staticData.features.filter(x => x.type == 'BUILD')[randomIndex]));
-                randomFeature.factor = Math.random() + 1;
-                randomFeature.id = newCityData.features.length;
-
-                newCityData.features.push(randomFeature);
+            for (let index = 0; index < 4; index++) {
+                app.addNewFeature(newCityData, 'BUILD');
             };
 
             //Generating econ agent price beliefs
@@ -1810,8 +1824,6 @@
                 newCityData.prices.push(price);
             });
 
-            app.generateInitialCityInventoriesBasedOnUpkeep(newCityData);
-
             app.cityData.push(newCityData);
             newCityData = {};
             resolve();
@@ -1819,37 +1831,59 @@
         return promise;
     };
 
-    app.generateInitialCityInventoriesBasedOnUpkeep = function (city) {
-        let promise = new Promise (resolve => {
-            city.production.forEach(production => {
+    app.generateInitialCityInventoriesBasedOnUpkeep = function(city) {
+        return new Promise (resolve => {
+            Promise.all(city.production.map(production => {
+                let baseValue = (production.isUpkeep ? city.upkeep.filter(x => x.name == production.name)[0].value : 500 - 100*production.tier);
                 let inventory = {
                     name: production.name,
-                    value: Math.random()*1000*production.mod + (production.isUpkeep ? city.upkeep.filter(x => x.name == production.name)[0].value : 0)
+                    value: Math.random()*baseValue*0.4*production.mod + baseValue - baseValue*0.2
                 }
                 city.agent.inventories.push(inventory);
+            })).then(() => {
+                city.agent.inventories.filter(x => x.name == 'Water')[0].value += app.getWaterGainForCity(city);
+                resolve();
             });
         });
-        return promise;
     };
 
-    app.addNewPoliticalAgent = function (city) {
+    app.addNewPoliticalAgent = function(city) {
         let randomIndex = Math.max(0, round(Math.random()*app.staticData.syndicates.length - 1, 0));
         let randomSyndicate = JSON.parse(JSON.stringify(app.staticData.syndicates[randomIndex]));
-        randomSyndicate.support = (Math.random()), 2;
+        randomSyndicate.support = (Math.random())*0.2, 2;
         randomSyndicate.trend = (Math.random()*0.04 + 0.01);
-        randomSyndicate.opposition = (Math.random());
+        randomSyndicate.opposition = (Math.random()*0.5);
         randomSyndicate.id = city.politics.length;
 
-        city.politics.push(randomSyndicate);
+        if (city.politics.filter(x => x.name == randomSyndicate.name).length > 0) {
+            city.politics.filter(x => x.name == randomSyndicate.name)[0].support += (city.politics.filter(x => x.name == randomSyndicate.name)[0].support < 1 ? randomSyndicate.support : 0);
+        } else {
+            city.politics.push(randomSyndicate);
+        };
     };
 
-    app.addNewFeature = function (city) {
-        let randomIndex = Math.max(0, round(Math.random()*app.staticData.features.length - 1, 0));
-        let randomFeature = JSON.parse(JSON.stringify(app.staticData.features[randomIndex]));
-        randomFeature.factor = (Math.random() + 1 );
-        randomFeature.id = city.features.length;
+    app.addNewFeature = function(city, category) {
+        let randomIndex = 0;
+        let randomFeature = {};
 
-        city.features.push(randomFeature);
+        if (category !== '') {
+            randomIndex = Math.max(0, round(Math.random()*app.staticData.features.filter(x => x.type == category).length - 1, 0));
+            randomFeature = JSON.parse(JSON.stringify(app.staticData.features.filter(x => x.type == category)[randomIndex]));
+            randomFeature.factor = (category == 'BUILD' ? 1 : (Math.random() + 1 ));
+            randomFeature.id = city.features.length;
+        } else {
+            randomIndex = Math.max(0, round(Math.random()*app.staticData.features.length - 1, 0));
+            randomFeature = JSON.parse(JSON.stringify(app.staticData.features[randomIndex]));
+            randomFeature.factor = (category == 'BUILD' ? 1 : (Math.random() + 1 ));
+            randomFeature.id = city.features.length;
+        };
+
+        if (city.features.filter(x => x.name == randomFeature.name).length > 0) {
+            city.features.filter(x => x.name == randomFeature.name)[0].factor += randomFeature.factor;
+        } else {
+            city.features.push(randomFeature);
+        };
+        
     };
 
     app.calculateBaseProductionCost = function() {
@@ -1884,75 +1918,242 @@
         return total/count;
     };
 
-    app.getWaterGainForCIty = function(city) {
+    app.getWaterGainForCity = function(city) {
         let total = 0;
         city.features.forEach(feature => {
             let waterProducingFeatures = feature.produce.filter(x => x.name == 'Water');
-            total += (waterProducingFeatures.length > 0 ? 500*city.production.filter(x => x.name == 'Water')[0].mod*(waterProducingFeatures[0].value)*feature.factor : 0);
+            total += (waterProducingFeatures.length > 0 ? 2000*city.production.filter(x => x.name == 'Water')[0].mod*(waterProducingFeatures[0].value**1.5)*feature.factor : 0);
         });
         return round(total, 0);
     };
 
-    app.econCityAgentProduction = function(city) {
-        let promise = new Promise (resolve => {
-            let loopUpkeep = new Promise (resolve => {
-                city.upkeep.forEach(upkeep => {
-                    if (city.agent.inventories.filter(x => x.name == upkeep.name).value < upkeep.value) {
-                        while (city.agent.inventories.filter(x => x.name == upkeep.name).value < upkeep.value) {
-                            let canProduce = true;
-                            let countProductionCost = new Promise (resolve => {
-                                upkeep.production.forEach(item => {
-                                    (city.agent.inventories.filter(x => x.name == item.good).value < item.quantity ? canProduce = false : '');
-                                });
-                                resolve();
-                            });
-                            
-                            countProductionCost.then(() => {
-                                if (canProduce) {
-                                    upkeep.production.forEach(item => {
-                                        city.agent.inventories.filter(x => x.name == item.good).value -= item.quantity;
-                                    });
-                                };
-                            });
-                            if (!canProduce) {
-                                break;
-                            };
-                        };
+    app.canGoodBeProduced = function(city, goodName, quantity) {
+        //check how many 100-packs of a good can be produced, returns mod that has to multiplied by 10 to get the actual production volume
+        return new Promise (resolve => {
+            if (goodName !== 'Water') {
+                let good = app.market.goods.filter(x => x.name == goodName)[0];
+                let possibleProductionNumbers = new Array(good.production.length);
+                //console.log('Checking production of ' + good.name);
+                good.production.forEach((component, index) => {
+                    let ifUpkeepMinimum = (app.market.goods.filter(x => x.name == component.good)[0].isUpkeep ? city.upkeep.filter(x => x.name == component.good)[0].value : 0);
+                    let result = true;
+                    possibleProductionNumbers[index] = 0;
+                    //console.log('Iterating needed ' + component.good + ', have ' + city.agent.inventories.filter(x => x.name == component.good)[0].value + ', need at least ' + ifUpkeepMinimum);
+                    while (result == true && city.agent.inventories.filter(x => x.name == goodName)[0].value + possibleProductionNumbers[index]*100 < quantity) {                
+                        (city.agent.inventories.filter(x => x.name == component.good)[0].value > ifUpkeepMinimum + (possibleProductionNumbers[index] + 1)*component.quantity*100 ? possibleProductionNumbers[index]++ : result = false );   
                     };
                 });
-            });
-            
-            loopUpkeep.then(() => {
-                let sortedGoods = 
-                app.market.goods.forEach(good => {
-                    while (canProduce) {
-                        let canProduce = true;
-                        let countProductionCost = new Promise (resolve => {
-                            good.production.forEach(item => {
-                                (city.agent.inventories.filter(x => x.name == item.good).value < item.quantity ? canProduce = false : '');
-                            });
-                            resolve();
-                        });
-                        
-                        countProductionCost.then(() => {
-                            if (canProduce) {
-                                good.production.forEach(item => {
-                                    city.agent.inventories.filter(x => x.name == item.good).value -= item.quantity;
-                                });
-                            };
-                        });
-                    };
-                });
-            });
-
-            resolve();
+    
+                //console.log('Possible production of ' + good.name + ' is ' + Math.min(...possibleProductionNumbers) + ' out of ' + quantity);
+                resolve(Math.min(...possibleProductionNumbers));
+            } else {
+                resolve(0);
+            };
         });
-        
-        return promise;
     };
 
-    app.refreshCards = function () {
+    app.possibleProductionFromGood = function(city, good, minQuantity) {
+        return new Promise (resolve => {
+            let possibleProductionGoods = app.market.goods.filter(prodGood => prodGood.production.filter(component => component.good == good.name).length > 0);
+            possibleProductionGoods.forEach(prodGood => {
+                prodGood.possibleProductionNumber = (city.agent.inventories.filter(x => x.name == good.name)[0].value - minQuantity)/prodGood.production.filter(component => component.good == good.name)[0].quantity;
+            });
+            resolve(possibleProductionGoods);
+        });
+    };
+
+    app.produceGood = function(city, goodName, quantity) {
+        //quantity is gonna be multiplied by 10
+        let good = app.market.goods.filter(x => x.name == goodName)[0];
+        let productionMod = city.production.filter(x => x.name == goodName)[0].mod;
+        let consumptionList = '';
+        good.production.forEach(component => {
+            let previousInventoryValue = city.agent.inventories.filter(x => x.name == component.good)[0].value;
+            city.agent.inventories.filter(x => x.name == component.good)[0].value -= quantity*component.quantity*productionMod*100;
+            consumptionList = consumptionList + ' | ' + quantity*component.quantity*100 + ' of ' + component.good + ' out of ' + previousInventoryValue;
+        });
+        city.agent.inventories.filter(x => x.name == good.name)[0].value += quantity*100;
+        //console.log('Produced ' + quantity + ' of ' + goodName + ', used the following: ' + consumptionList);
+    };
+
+
+    //rewrite to instead go over goods looking what can be produced out of em,
+    //sort the resulting list by need, produce up to upkeep,
+    //then randomly shuffle and produce until current good is not at the minimum upkeep value
+    
+    app.econCityAgentProductionDEV = function(city) {
+        return new Promise (resolve => {
+            let calculateNextProduction = i => {
+                let marketGoodData = app.market.goods.filter(x => x.name == city.agent.inventories[i].name)[0];
+                let desiredInventory = (marketGoodData.isUpkeep ? city.upkeep.filter(x => x.name == marketGoodData.name)[0].value : 0);
+                app.possibleProductionFromGood(city, marketGoodData, desiredInventory).then(result => {
+                    (result.length > 0 ? console.log(city.stats.name.base + ' possible production from available ' + (city.agent.inventories[i].value - desiredInventory) + ' of ' + city.agent.inventories[i].name) : '');
+                    (result.length > 0 ? console.log(result) : '');
+                    i++;
+
+                    if (i < city.agent.inventories.length)
+                        calculateNextProduction(i)
+                    else
+                        resolve();
+                });
+            }
+            calculateNextProduction(0);
+        });
+    };
+
+    app.econCityAgentProduction = function(city) {
+        return new Promise (resolve => {
+            let doNextProduction = i => {
+                let marketGoodData = app.market.goods.filter(x => x.name == city.agent.inventories[i].name)[0];
+                let desiredInventory = (marketGoodData.isUpkeep ? city.upkeep.filter(x => x.name == marketGoodData.name)[0].value + 12000 - 400*(marketGoodData.tier**4) : 12000 - 400*(marketGoodData.tier**4));
+                //(marketGoodData.isFuel ? console.log(marketGoodData.name + ' is fuel, desired inventory is ' + desiredInventory) : '');
+                app.canGoodBeProduced(city, city.agent.inventories[i].name, desiredInventory).then(result => {
+                    //console.log('Producing ' + marketGoodData.name + ' up to a desired amount of ' + desiredInventory);
+                    app.produceGood(city, city.agent.inventories[i].name, result);
+                    i++;
+
+                    if (i < city.agent.inventories.length)
+                        doNextProduction(i)
+                    else
+                        resolve();
+                });
+            }
+            doNextProduction(0);
+        });
+    };
+
+    app.substractUpkeepFromAgent = function(agent, cityUpkeep) {
+        return new Promise (resolve => {
+            Promise.all(cityUpkeep.map(upkeepItem => {
+                return new Promise (resolve => {
+                    agent.inventories.filter(x => x.name == upkeepItem.name)[0].value -= upkeepItem.value;
+                    //console.log(upkeepItem.name + ' number after upkeep: ' + agent.inventories.filter(x => x.name == upkeepItem.name)[0].value);
+                    resolve();
+                });
+            })).then(() => {
+                resolve();
+            });
+        });
+    };
+
+    app.cityTaxCollection = function(city) {
+        return new Promise(resolve => {
+            city.stats.currentBudget.result += city.stats.basicIncomePerTurn.result;
+            resolve();
+        });
+    };
+
+    app.manageCityAgentsWallet = function(city) {
+        if (city.agent.capital < 0) {
+            console.log(city.stats.name.base + ' invests ' + Math.abs(city.agent.capital) + ' in its trade agent to compensate debt');
+            city.stats.currentBudget.result -= Math.abs(city.agent.capital);
+            city.agent.capital = 0;
+        } else if (city.agent.capital == 0) {
+            let subsidy = city.stats.currentBudget.result/3;
+            console.log(city.stats.name.base + ' invests ' + subsidy + ' in its trade agent to stimulate trade');
+            city.stats.currentBudget.result -= subsidy;
+            city.agent.capital += subsidy;
+        };
+        console.log(city.stats.name.base + ' resulting wallet is ' + city.agent.capital);
+    };
+
+    app.generateAgentListings = function(city) {
+        return new Promise(resolve => {
+            let tradeInventory = [];
+            let projectedCapital = city.agent.capital;
+            city.agent.inventories.forEach(item => {
+                let marketGoodData = app.market.goods.filter(x => x.name == item.name)[0];
+                tradeInventory.push({
+                    name: item.name,
+                    value: item.value - (marketGoodData.isUpkeep ? city.upkeep.filter(x => x.name == item.name)[0].value + 8000 - 400*(marketGoodData.tier*2) : 8000 - 400*(marketGoodData.tier*2))
+                });
+            });
+            tradeInventory.forEach(item => {
+                //console.log(city.stats.name.base + ' projected capital is ' + projectedCapital + '$');
+                let lowerPrice = city.agent.priceBeliefs.filter(x => x.name == item.name)[0].lower;
+                let upperPrice = city.agent.priceBeliefs.filter(x => x.name == item.name)[0].upper;
+                if (item.value > 0) {
+                    app.market.currentLots.push({
+                        cityID: city.id,
+                        goodName: item.name,
+                        quantity: item.value,
+                        price: upperPrice,
+                    });
+                    //console.log(city.stats.name.base + ' wants to sell ' + item.value + ' units of ' + item.name + ' for a total of ' + upperPrice*item.value + '$');
+                } else {
+                    if (projectedCapital > Math.abs(item.value)*lowerPrice) {
+                        app.market.currentAsks.push({
+                            cityID: city.id,
+                            goodName: item.name,
+                            quantity: Math.abs(item.value),
+                            price: lowerPrice,
+                        });
+                        //console.log(city.stats.name.base + ' wants to buy ' + Math.abs(item.value) + ' units of ' + item.name + ' for a total of ' + lowerPrice*Math.abs(item.value) + '$');
+                        projectedCapital -= Math.abs(item.value)*lowerPrice;
+                        //console.log(city.stats.name.base + ' projected capital is now ' + projectedCapital + '$');
+                    } else if (projectedCapital > 0) {
+                        app.market.currentAsks.push({
+                            cityID: city.id,
+                            goodName: item.name,
+                            quantity: Math.min(Math.abs(item.value), projectedCapital/lowerPrice),
+                            price: lowerPrice,
+                        });
+                        //console.log(city.stats.name.base + ' wants to buy ' + Math.min(Math.abs(item.value), projectedCapital/lowerPrice) + ' units of ' + item.name + ' for a total of ' + Math.min(Math.abs(item.value), projectedCapital/lowerPrice)*lowerPrice + '$');
+                        projectedCapital -= Math.min(Math.abs(item.value), projectedCapital/lowerPrice)*lowerPrice;
+                        //console.log(city.stats.name.base + ' projected capital is now ' + projectedCapital + '$');
+                    };
+                    
+                };
+            });
+            
+            resolve();
+        });
+    };
+
+    app.marketMatchListings = function() {
+        return Promise.all(app.market.goods.map(good => {
+            let shuffledLots = shuffle(app.market.currentLots.filter(x => x.goodName == good.name));
+            let shuffledAsks = shuffle(app.market.currentAsks.filter(x => x.goodName == good.name));
+            let sortedLots = shuffledLots.sort((a, b) => (a.price > b.price) ? 1 : -1);
+            let sortedAsks = shuffledAsks.sort((a, b) => (a.price < b.price) ? 1 : -1);
+            let currentTurnMeanPrice = [];
+
+            while (sortedLots.length > 0 && sortedAsks.length > 0) {
+                let buyer = sortedAsks[0];
+                let buyerAgent = app.cityData.filter(x => x.id == buyer.cityID)[0].agent;
+                let seller = sortedLots[0];
+                let sellerAgent = app.cityData.filter(x => x.id == seller.cityID)[0].agent;
+                let quantity = Math.min(buyer.quantity, seller.quantity);
+                let clearingPrice = (buyer.price + seller.price)/2;
+                if (quantity > 0) {
+                    buyer.quantity -= quantity;
+                    seller.quantity -= quantity;
+                    buyerAgent.inventories.filter(x => x.name == buyer.goodName)[0].value += quantity;
+                    sellerAgent.inventories.filter(x => x.name == seller.goodName)[0].value -= quantity;
+                    buyerAgent.capital -= quantity*clearingPrice;
+                    sellerAgent.capital += quantity*clearingPrice;
+                    currentTurnMeanPrice.push(clearingPrice);
+                    console.log(app.cityData.filter(x => x.id == buyer.cityID)[0].stats.name.base + ' made a deal!');
+                    console.log('This happened when buying ' + quantity + ' units of ' + good.name + ' for ' + quantity*clearingPrice + ' from ' + app.cityData.filter(x => x.id == seller.cityID)[0].stats.name.base);
+                };
+                (buyer.quantity == 0 ? sortedLots.shift() : '');
+                (seller.quantity == 0 ? sortedAsks.shift() : '');
+            };
+            if (currentTurnMeanPrice.length > 0) {
+                app.market.goods.filter(x => x.name == good.name)[0].historicalMean.push({
+                    turn: app.currentTurn,
+                    value: currentTurnMeanPrice.reduce((a, b) => a + b)/currentTurnMeanPrice.length
+                });
+            };
+            app.market.currentLots = [];
+            app.market.currentAsks = [];
+        }));
+        
+    };
+
+    app.refreshCards = function() {
         $('.generated').remove();
+        $('.turn-counter').text(app.currentTurn);
         app.cityData.forEach(city => {
             app.generateCityCards(city);
         });
@@ -1964,39 +2165,77 @@
         app.containers.cityContainer = document.querySelector('.city-list.container');
         app.containers.anchorsContainer = document.querySelector('.city-anchors.container');
 
-        let initPromise = new Promise (resolve => {
-            app.calculateBaseProductionCost();
-            app.calculateHistoricalMean();
-            app.generateNewCity();
-            resolve();
-        });
         
-        initPromise.then(() => {
-            app.cityData.forEach(city => {
-                app.calculateCity(city).then(() => {
-                    app.calculateCityFeatures(city);
-                    app.generateInitialCityInventoriesBasedOnUpkeep(city);
-                });
-            });
-            app.refreshCards();
-        });
+        setTimeout(() => {
+            for (let i = 0; i < 3; i++) {
+                    $('.add-new-btn')[0].click();
+            };
+        }, 100);
         
         $('.calculate-btn').on('click', () => {
-            app.cityData.forEach(city => {
-                app.calculateCity(city).then(() => {
-                    app.calculateCityFeatures(city).then(() => {
-                        app.generateInitialCityInventoriesBasedOnUpkeep(city);
+            Promise.all(app.cityData.map(city => {
+                return new Promise (resolve => {
+                    app.calculateCity(city).then(() => {
+                        app.calculateCityFeatures(city).then(() => {
+                            resolve();
+                        });
+                    });
+                });
+            })).then(() => {
+                app.refreshCards();
+            });
+        });
+
+        $('.add-new-btn').on('click', () => {
+            app.generateNewCity();
+            let newCity = app.cityData[(app.cityData.length > 0 ? app.cityData.length - 1 : app.cityData.length)];
+            app.calculateCity(newCity).then(() => {
+                app.calculateCityFeatures(newCity).then(() => {
+                    app.generateInitialCityInventoriesBasedOnUpkeep(newCity).then(() => {
                         app.refreshCards();
                     });
                 });
             });
         });
 
-        $('.add-new-btn').on('click', () => {
-            app.generateNewCity();
-            app.calculateCity(app.cityData[(app.cityData.length > 0 ? app.cityData.length - 1 : app.cityData.length)]).then(() => {
-                app.calculateCityFeatures(app.cityData[(app.cityData.length > 0 ? app.cityData.length - 1 : app.cityData.length)]);
+        $('.debug-fn-btn').on('click', () => {
+            app.currentTurn++;
+            Promise.all(app.cityData.map(city => {
+                return new Promise (resolve => {
+                    city.agent.inventories.filter(x => x.name == 'Water')[0].value += app.getWaterGainForCity(city);
+                    //console.log(city.stats.name.base + ' got ' + app.getWaterGainForCity(city) + ' water from its features');
+                    app.substractUpkeepFromAgent(city.agent, city.upkeep).then(() => {
+                        let promise = new Promise(resolve => {
+                            let iterateProduction = i => {
+                                app.econCityAgentProductionDEV(city).then(() => {
+                                    //console.log(city.stats.name.base + ' is doing ' + i + ' production iteration, results:');
+                                    //console.log(city.agent.inventories.sort((a, b) => (a.value > b.value) ? 1 : -1));
+                                    i++;
+                                    if (i < 10)
+                                        iterateProduction(i)
+                                    else
+                                        resolve();
+                                });
+                            };
+
+                            iterateProduction(0);
+                        });
+                        
+                        promise.then(() => {
+                            app.generateAgentListings(city).then(() => {
+                                app.marketMatchListings().then(() => {
+                                    app.cityTaxCollection(city).then(() => {
+                                        app.manageCityAgentsWallet(city);
+                                    });
+                                    resolve();
+                                });
+                            });
+                        });
+                    });
+                });
+            })).then(() => {
                 app.refreshCards();
+                console.log(app.market);
             });
         });
 
@@ -2019,5 +2258,25 @@
     function round(value, decimals) {
         return Number(Math.round(value + 'e' + decimals) + 'e-' + decimals);
     };
+
+    function shuffle(array) {
+        let shuffledArray = array;
+        let currentIndex = shuffledArray.length, temporaryValue, randomIndex;
+      
+        // While there remain elements to shuffle...
+        while (0 !== currentIndex) {
+      
+          // Pick a remaining element...
+          randomIndex = Math.floor(Math.random() * currentIndex);
+          currentIndex -= 1;
+      
+          // And swap it with the current element.
+          temporaryValue = shuffledArray[currentIndex];
+          shuffledArray[currentIndex] = shuffledArray[randomIndex];
+          shuffledArray[randomIndex] = temporaryValue;
+        }
+      
+        return shuffledArray;
+      }
 
 })();
