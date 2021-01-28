@@ -53,6 +53,15 @@ a.city-anchor {
   .flex.col {
     flex-flow: column;
   }
+  .flex.space-betw {
+    justify-content: space-between;
+  }
+  .flex.just-center {
+    justify-content: center;
+  }
+  .flex.align-center {
+    align-items: center;
+  }
 
 .mrg-1em {
   margin: 1em;
@@ -61,9 +70,56 @@ a.city-anchor {
   margin: 2em;
 }
 
-  .flex.space-betw {
-    justify-content: space-between;
-  }
+  
+
+  
+
+
+
+  .spinner-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background-color: hsla(180, 100%, 0%, 0.5);
+    z-index: 3;
+    }
+    .lds-ring {
+      display: inline-block;
+      position: relative;
+      width: 80px;
+      height: 80px;
+    }
+    .lds-ring div {
+      box-sizing: border-box;
+      display: block;
+      position: absolute;
+      width: 64px;
+      height: 64px;
+      margin: 8px;
+      border: 8px solid #fff;
+      border-radius: 50%;
+      animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+      border-color: #fff transparent transparent transparent;
+    }
+    .lds-ring div:nth-child(1) {
+      animation-delay: -0.45s;
+    }
+    .lds-ring div:nth-child(2) {
+      animation-delay: -0.3s;
+    }
+    .lds-ring div:nth-child(3) {
+      animation-delay: -0.15s;
+    }
+    @keyframes lds-ring {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
 
 .btn-panel {
     top: 0;
@@ -137,3 +193,4 @@ a.city-anchor {
   .stat-input.changed {
     border-color: hsla(180, 77%, 50%, 0.67);
   }
+  

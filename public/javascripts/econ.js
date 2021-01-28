@@ -20,7 +20,7 @@
                     production: [],
                     isUpkeep: true,
                     prosperityUpkeepMod: 0.01,
-                    popUpkeepMod: 2*7,
+                    popUpkeepMod: 0.5*7,
                     isFuel: false
                 },
                 {
@@ -37,16 +37,16 @@
                     production: [
                         {
                             good: 'Water',
-                            quantity: 2
+                            quantity: 1
                         },
                     ],
                     isUpkeep: true,
                     prosperityUpkeepMod: -0.08,
-                    popUpkeepMod: 0.5*7,
+                    popUpkeepMod: 0.15*7,
                     isFuel: false
                 },
                 {
-                    name: 'Fertilizers',
+                    name: 'Ready Meals',
                     basePrice: 1,
                     packageSize: 1,
                     historicalMean: [
@@ -59,10 +59,20 @@
                     production: [
                         {
                             good: 'Water',
-                            quantity: 2
+                            quantity: 1
+                        },
+                        {
+                            good: 'Biomass',
+                            quantity: 1
+                        },
+                        {
+                            good: 'Farming Produce',
+                            quantity: 1
                         },
                     ],
-                    isUpkeep: false,
+                    isUpkeep: true,
+                    prosperityUpkeepMod: -0.04,
+                    popUpkeepMod: 0.4*7,
                     isFuel: false
                 },
                 {
@@ -104,17 +114,13 @@
                             quantity: 2
                         },
                         {
-                            good: 'Fertilizers',
-                            quantity: 1
-                        },
-                        {
                             good: 'Ethanol',
                             quantity: 1
                         },
                     ],
                     isUpkeep: true,
                     prosperityUpkeepMod: 0.04,
-                    popUpkeepMod: 0.75*7,
+                    popUpkeepMod: 0.1*7,
                     isFuel: false
                 },
                 {
@@ -132,10 +138,6 @@
                         {
                             good: 'Water',
                             quantity: 2
-                        },
-                        {
-                            good: 'Fertilizers',
-                            quantity: 1
                         },
                         {
                             good: 'Ethanol',
@@ -174,7 +176,7 @@
                     ],
                     isUpkeep: true,
                     prosperityUpkeepMod: 0.01,
-                    popUpkeepMod: 0.05*7,
+                    popUpkeepMod: 0.01*7,
                     isFuel: false
                 },
                 {
@@ -191,43 +193,13 @@
                     production: [
                         {
                             good: 'Ethanol',
-                            quantity: 2
+                            quantity: 1
                         },
                     ],
                     isUpkeep: true,
                     prosperityUpkeepMod: 0.02,
                     popUpkeepMod: 0.05*7,
                     isFuel: true
-                },
-                {
-                    name: 'Ready Meals',
-                    basePrice: 1,
-                    packageSize: 1,
-                    historicalMean: [
-                        {
-                            turn: 0,
-                            value: 0
-                        }
-                    ],
-                    tier: 3,
-                    production: [
-                        {
-                            good: 'Water',
-                            quantity: 1
-                        },
-                        {
-                            good: 'Prima Diesel',
-                            quantity: 1
-                        },
-                        {
-                            good: 'Farming Produce',
-                            quantity: 2
-                        },
-                    ],
-                    isUpkeep: true,
-                    prosperityUpkeepMod: -0.04,
-                    popUpkeepMod: 0.5*7,
-                    isFuel: false
                 },
                 {
                     name: 'Industrial Ores',
@@ -271,7 +243,7 @@
                         },
                         {
                             good: 'Farming Produce',
-                            quantity: 4
+                            quantity: 2
                         },
                     ],
                     isUpkeep: true,
@@ -293,7 +265,7 @@
                     production: [
                         {
                             good: 'Prima Diesel',
-                            quantity: 1
+                            quantity: 2
                         },
                     ],
                     isUpkeep: true,
@@ -553,7 +525,7 @@
                 id: 0,
                 stats: {
                     name: {
-                        base: 'Agandor',
+                        base: 'City',
                         result: ''
                     },
                     government: {
@@ -648,7 +620,7 @@
                 politics: [],
                 features: [],
                 agent: {
-                    capital: 1000,
+                    capital: 10000,
                     priceBeliefs: [],
                     inventories: []
                 },
@@ -1160,8 +1132,16 @@
                     produce: [],
                     prodMod: [
                         {
-                            name: 'Fertilizers',
-                            value: 0.5
+                            name: 'Biomass',
+                            value: 0.15
+                        },
+                        {
+                            name: 'Farming Produce',
+                            value: 0.15
+                        },
+                        {
+                            name: 'Wood',
+                            value: 0.15
                         },
                     ],
                     statMod: [],
@@ -1280,12 +1260,8 @@
                     produce: [],
                     prodMod: [
                         {
-                            name: 'Fertilizers',
-                            value: 0.25
-                        },
-                        {
                             name: 'Medical Supplies',
-                            value: 0.25
+                            value: 0.5
                         },
                     ],
                     statMod: [
@@ -1400,6 +1376,9 @@
             cityWrapper: {},
             btn: {}
         },
+        components: {
+            spinner: {}
+        }
     }
 
 
@@ -1689,7 +1668,7 @@
 
             cityData.upkeep.forEach(upkeep => {
                 upkeep.mod = upkeep.base*(1 + cityData.stats.crime.result/4)*(cityData.stats.currentManpower.result < cityData.stats.garrisonLimit.result ? 1 + cityData.stats.mobilization.result/4 : 1);
-                upkeep.value = ((upkeep.prosperityUpkeepMod*cityData.stats.prosperity.result + upkeep.popUpkeepMod)*cityData.stats.population.result)*upkeep.packageSize*upkeep.mod;
+                upkeep.value = Math.ceil(((upkeep.prosperityUpkeepMod*cityData.stats.prosperity.result + upkeep.popUpkeepMod)*cityData.stats.population.result)*upkeep.packageSize*upkeep.mod);
                 switch (upkeep.name) {
                     case 'Granite':
                         upkeep.value = upkeep.value + 4*cityData.features.filter(x => x.type == 'BUILD').length*upkeep.packageSize*upkeep.mod;
@@ -1795,21 +1774,25 @@
             };
 
             //Generating geo features
-            for (let index = 0; index < 4; index++) {
+            for (let index = 0; index < 6; index++) {
                 app.addNewFeature(newCityData, 'GEO');
             };
 
             //Generating buildings
-            for (let index = 0; index < 4; index++) {
+            for (let index = 0; index < 8; index++) {
                 app.addNewFeature(newCityData, 'BUILD');
             };
+
+            app.addNewFeature(newCityData, 'BUILD', 'Agricultural Farm');
+            app.addNewFeature(newCityData, 'BUILD', 'Biomass Farm');
+            app.addNewFeature(newCityData, 'BUILD', 'MRE Factory');
 
             //Generating econ agent price beliefs
             app.market.goods.forEach(good => {
                 let priceBelief = {
                     name: good.name,
-                    upper: good.basePrice + Math.random()*good.basePrice*0.1 + good.basePrice*0.05,
-                    lower: good.basePrice - Math.random()*good.basePrice*0.1 - good.basePrice*0.05,
+                    upper: Math.max(round(good.basePrice*(good.tier**2) + Math.random()*good.basePrice*0.1 + good.basePrice*0.05, 2), 0),
+                    lower: Math.max(round(good.basePrice*(good.tier**2) - Math.random()*good.basePrice*0.1 - good.basePrice*0.05, 2), 0),
                 };
                 newCityData.agent.priceBeliefs.push(priceBelief);
             });
@@ -1834,10 +1817,10 @@
     app.generateInitialCityInventoriesBasedOnUpkeep = function(city) {
         return new Promise (resolve => {
             Promise.all(city.production.map(production => {
-                let baseValue = (production.isUpkeep ? city.upkeep.filter(x => x.name == production.name)[0].value : 500 - 100*production.tier);
+                let baseValue = (production.isUpkeep ? city.upkeep.filter(x => x.name == production.name)[0].value + 10000*(5 - production.tier): 500*(5 - production.tier));
                 let inventory = {
                     name: production.name,
-                    value: Math.random()*baseValue*0.4*production.mod + baseValue - baseValue*0.2
+                    value: Math.ceil(Math.random()*baseValue*0.4*production.mod + baseValue - baseValue*0.2)
                 }
                 city.agent.inventories.push(inventory);
             })).then(() => {
@@ -1862,19 +1845,24 @@
         };
     };
 
-    app.addNewFeature = function(city, category) {
+    app.addNewFeature = function(city, category, specificFeatureName = '') {
         let randomIndex = 0;
         let randomFeature = {};
-
-        if (category !== '') {
-            randomIndex = Math.max(0, round(Math.random()*app.staticData.features.filter(x => x.type == category).length - 1, 0));
-            randomFeature = JSON.parse(JSON.stringify(app.staticData.features.filter(x => x.type == category)[randomIndex]));
-            randomFeature.factor = (category == 'BUILD' ? 1 : (Math.random() + 1 ));
-            randomFeature.id = city.features.length;
+        if (specificFeatureName == '') {
+            if (category !== '') {
+                randomIndex = Math.max(0, round(Math.random()*app.staticData.features.filter(x => x.type == category).length - 1, 0));
+                randomFeature = JSON.parse(JSON.stringify(app.staticData.features.filter(x => x.type == category)[randomIndex]));
+                randomFeature.factor = (category == 'BUILD' ? 1 : (Math.random() + 1 ));
+                randomFeature.id = city.features.length;
+            } else {
+                randomIndex = Math.max(0, round(Math.random()*app.staticData.features.length - 1, 0));
+                randomFeature = JSON.parse(JSON.stringify(app.staticData.features[randomIndex]));
+                randomFeature.factor = (category == 'BUILD' ? 1 : (Math.random() + 1 ));
+                randomFeature.id = city.features.length;
+            };
         } else {
-            randomIndex = Math.max(0, round(Math.random()*app.staticData.features.length - 1, 0));
-            randomFeature = JSON.parse(JSON.stringify(app.staticData.features[randomIndex]));
-            randomFeature.factor = (category == 'BUILD' ? 1 : (Math.random() + 1 ));
+            randomFeature = app.staticData.features.filter(x => x.name == specificFeatureName)[0];
+            randomFeature.factor = 1;
             randomFeature.id = city.features.length;
         };
 
@@ -1922,103 +1910,124 @@
         let total = 0;
         city.features.forEach(feature => {
             let waterProducingFeatures = feature.produce.filter(x => x.name == 'Water');
-            total += (waterProducingFeatures.length > 0 ? 2000*city.production.filter(x => x.name == 'Water')[0].mod*(waterProducingFeatures[0].value**1.5)*feature.factor : 0);
+            total += (waterProducingFeatures.length > 0 ? 500*city.production.filter(x => x.name == 'Water')[0].mod*(waterProducingFeatures[0].value**1)*feature.factor : 0);
         });
         return round(total, 0);
     };
 
-    app.canGoodBeProduced = function(city, goodName, quantity) {
-        //check how many 100-packs of a good can be produced, returns mod that has to multiplied by 10 to get the actual production volume
-        return new Promise (resolve => {
-            if (goodName !== 'Water') {
-                let good = app.market.goods.filter(x => x.name == goodName)[0];
-                let possibleProductionNumbers = new Array(good.production.length);
-                //console.log('Checking production of ' + good.name);
-                good.production.forEach((component, index) => {
-                    let ifUpkeepMinimum = (app.market.goods.filter(x => x.name == component.good)[0].isUpkeep ? city.upkeep.filter(x => x.name == component.good)[0].value : 0);
-                    let result = true;
-                    possibleProductionNumbers[index] = 0;
-                    //console.log('Iterating needed ' + component.good + ', have ' + city.agent.inventories.filter(x => x.name == component.good)[0].value + ', need at least ' + ifUpkeepMinimum);
-                    while (result == true && city.agent.inventories.filter(x => x.name == goodName)[0].value + possibleProductionNumbers[index]*100 < quantity) {                
-                        (city.agent.inventories.filter(x => x.name == component.good)[0].value > ifUpkeepMinimum + (possibleProductionNumbers[index] + 1)*component.quantity*100 ? possibleProductionNumbers[index]++ : result = false );   
-                    };
-                });
-    
-                //console.log('Possible production of ' + good.name + ' is ' + Math.min(...possibleProductionNumbers) + ' out of ' + quantity);
-                resolve(Math.min(...possibleProductionNumbers));
-            } else {
-                resolve(0);
-            };
-        });
-    };
-
-    app.possibleProductionFromGood = function(city, good, minQuantity) {
+    app.possibleProductionFromGood = function(city, good, minBatchSize) {
         return new Promise (resolve => {
             let possibleProductionGoods = app.market.goods.filter(prodGood => prodGood.production.filter(component => component.good == good.name).length > 0);
-            possibleProductionGoods.forEach(prodGood => {
-                prodGood.possibleProductionNumber = (city.agent.inventories.filter(x => x.name == good.name)[0].value - minQuantity)/prodGood.production.filter(component => component.good == good.name)[0].quantity;
-            });
-            resolve(possibleProductionGoods);
+            Promise.all(possibleProductionGoods.map(prodGood => {
+                let cityProductionCap = (2000 + 2000*(5 - prodGood.tier) + 2000*city.stats.prosperity.result + 100*city.stats.population.result)*city.stats.productivity.result;
+                let cityWarehousingCapacity = 2000 + 2000*(5 - prodGood.tier) + 1000*city.stats.prosperity.result + 10*city.stats.population.result;
+                let productionMod = city.production.filter(x => x.name == prodGood.name)[0].mod;
+                let productionNumbers = [];
+                if (city.agent.inventories.filter(x => x.name == prodGood.name)[0].value < cityWarehousingCapacity) {
+                    Promise.all(prodGood.production.map(component => {
+                        let ifUpkeepMinimum = (app.market.goods.filter(x => x.name == component.good)[0].isUpkeep ? city.upkeep.filter(x => x.name == component.good)[0].value : 0);
+                        productionNumbers.push(Math.max(minBatchSize*Math.ceil((city.agent.inventories.filter(x => x.name == component.good)[0].value - ifUpkeepMinimum)/(minBatchSize*productionMod*component.quantity)), 0));
+                    })).then(() => prodGood.possibleProductionNumber = Math.min(...productionNumbers, cityProductionCap));
+                } else {
+                    prodGood.possibleProductionNumber = 0;
+                };
+                
+                //console.log(prodGood);
+            })).then(() => resolve(possibleProductionGoods));
         });
     };
 
-    app.produceGood = function(city, goodName, quantity) {
-        //quantity is gonna be multiplied by 10
-        let good = app.market.goods.filter(x => x.name == goodName)[0];
-        let productionMod = city.production.filter(x => x.name == goodName)[0].mod;
+    app.produceGood = function(city, good, quantity, iteratorLimit = 0) {
+        let productionMod = city.production.filter(x => x.name == good.name)[0].mod;
         let consumptionList = '';
+        let shortageStop = false;
+        let recalculatedQuantity = [];
+        iteratorLimit++;
+        console.log('Trying to produce ' + quantity + ' of ' + good.name);
         good.production.forEach(component => {
             let previousInventoryValue = city.agent.inventories.filter(x => x.name == component.good)[0].value;
-            city.agent.inventories.filter(x => x.name == component.good)[0].value -= quantity*component.quantity*productionMod*100;
-            consumptionList = consumptionList + ' | ' + quantity*component.quantity*100 + ' of ' + component.good + ' out of ' + previousInventoryValue;
+            if (previousInventoryValue > Math.ceil(quantity*component.quantity*productionMod)) {
+                city.agent.inventories.filter(x => x.name == component.good)[0].value -= Math.ceil(quantity*component.quantity*productionMod);
+                consumptionList = consumptionList + ' | ' + Math.ceil(quantity*component.quantity*productionMod) + ' of ' + component.good + ' out of ' + previousInventoryValue + ', the resulting inventory is ' + city.agent.inventories.filter(x => x.name == component.good)[0].value;
+            } else {
+                console.log(quantity + ' is too much!');
+                recalculatedQuantity.push(Math.ceil((previousInventoryValue*0.8)/component.quantity*productionMod));
+                shortageStop = true;
+            }
         });
-        city.agent.inventories.filter(x => x.name == good.name)[0].value += quantity*100;
-        //console.log('Produced ' + quantity + ' of ' + goodName + ', used the following: ' + consumptionList);
+        if (!shortageStop) {
+            console.log(city.stats.name.base + ' production of ' + quantity + ' of ' + good.name + ' will use ' + consumptionList);
+            city.agent.inventories.filter(x => x.name == good.name)[0].value += Math.ceil(quantity);
+        } else {
+            if (iteratorLimit < 3) app.produceGood(city, good, Math.min(...recalculatedQuantity), iteratorLimit);
+            console.log('Could not produce ' + good.name + ' due to shortage of components.');
+        };
     };
-
-
-    //rewrite to instead go over goods looking what can be produced out of em,
-    //sort the resulting list by need, produce up to upkeep,
-    //then randomly shuffle and produce until current good is not at the minimum upkeep value
     
-    app.econCityAgentProductionDEV = function(city) {
+    app.econCityAgentProduction = function(city) {
         return new Promise (resolve => {
+            const minBatchSize = 50;
+            //let shuffledAgentInventory = shuffle(city.agent.inventories);
+            let shuffledAgentInventory = city.agent.inventories;
             let calculateNextProduction = i => {
-                let marketGoodData = app.market.goods.filter(x => x.name == city.agent.inventories[i].name)[0];
-                let desiredInventory = (marketGoodData.isUpkeep ? city.upkeep.filter(x => x.name == marketGoodData.name)[0].value : 0);
-                app.possibleProductionFromGood(city, marketGoodData, desiredInventory).then(result => {
-                    (result.length > 0 ? console.log(city.stats.name.base + ' possible production from available ' + (city.agent.inventories[i].value - desiredInventory) + ' of ' + city.agent.inventories[i].name) : '');
-                    (result.length > 0 ? console.log(result) : '');
+                let marketGoodData = app.market.goods.filter(x => x.name == shuffledAgentInventory[i].name)[0];
+                let desiredInventory = (marketGoodData.isUpkeep ? city.upkeep.filter(x => x.name == marketGoodData.name)[0].value*2 : 0);
+                if (shuffledAgentInventory[i].value - desiredInventory > 0) {
+                    app.possibleProductionFromGood(city, marketGoodData, minBatchSize).then(result => {
+                        let promise = new Promise(resolve => {
+                            nextProductionFromGood(0, marketGoodData, result);
+                        });
+                        
+                        promise.then(() => {
+                            i++;
+                            if (i < shuffledAgentInventory.length)
+                                calculateNextProduction(i)
+                            else
+                                resolve();
+                        });
+                    });
+                } else {
                     i++;
-
-                    if (i < city.agent.inventories.length)
+                    if (i < shuffledAgentInventory.length)
                         calculateNextProduction(i)
                     else
                         resolve();
+                };
+            };
+
+            let nextProductionFromGood = (j, good, result) => {
+                //let shuffledResult = shuffle(result);
+                let sortedResult = result.sort((a, b) =>{
+                    //console.log('Comparing ' + a.name + ' ' + city.agent.inventories.filter(x => x.name == a.name)[0].value + ' vs ' + b.name + ' ' + city.agent.inventories.filter(x => x.name == b.name)[0].value);
+                    return city.agent.inventories.filter(x => x.name == a.name)[0].value*city.production.filter(x => x.name == a.name)[0].mod - city.agent.inventories.filter(x => x.name == b.name)[0].value*city.production.filter(x => x.name == b.name)[0].mod;
+                    /*if (a.isUpkeep && b.isUpkeep) {
+                        (city.agent.inventories.filter(x => x.name == a.name)[0].value > city.agent.inventories.filter(x => x.name == b.name)[0].value ? 1 : -1);
+                    } else if (a.isUpkeep && !b.isUpkeep) {
+                        return -1
+                    } else if (!a.isUpkeep && b.isUpkeep) {
+                        return 1
+                    } else {
+                        (city.production.filter(x => x.name == a.name)[0].mod < city.production.filter(x => x.name == b.name)[0].mod ? 1 : -1);
+                    };*/
                 });
-            }
+                let needToContinue = true;
+                //(sortedResult.length > 0 ? console.log(city.stats.name.base + ' possible production from available ' + (city.agent.inventories.filter(x => x.name == good.name)[0].value - (good.isUpkeep ? city.upkeep.filter(x => x.name == good.name)[0].value : 0)) + ' of ' + good.name) : '');
+                //console.log(sortedResult);
+                if (sortedResult[j]) {
+                    if (sortedResult[j].possibleProductionNumber > 0) {
+                        //console.log('Attempting to produce ' + sortedResult[j].possibleProductionNumber + ' of ' + sortedResult[j].name);
+                        app.produceGood(city, sortedResult[j], sortedResult[j].possibleProductionNumber);
+                        //if (city.agent.inventories.filter(x => x.name == sortedResult[j].name)[0].value < 0) console.log('Alarm! ' + city.agent.inventories.filter(x => x.name == sortedResult[j].name)[0].value);
+                        //needToContinue = false;
+                    };
+                };
+                j++;
+                if (j < result.length && needToContinue)
+                    nextProductionFromGood(j, good, result);
+                else
+                    resolve();
+            };
             calculateNextProduction(0);
-        });
-    };
-
-    app.econCityAgentProduction = function(city) {
-        return new Promise (resolve => {
-            let doNextProduction = i => {
-                let marketGoodData = app.market.goods.filter(x => x.name == city.agent.inventories[i].name)[0];
-                let desiredInventory = (marketGoodData.isUpkeep ? city.upkeep.filter(x => x.name == marketGoodData.name)[0].value + 12000 - 400*(marketGoodData.tier**4) : 12000 - 400*(marketGoodData.tier**4));
-                //(marketGoodData.isFuel ? console.log(marketGoodData.name + ' is fuel, desired inventory is ' + desiredInventory) : '');
-                app.canGoodBeProduced(city, city.agent.inventories[i].name, desiredInventory).then(result => {
-                    //console.log('Producing ' + marketGoodData.name + ' up to a desired amount of ' + desiredInventory);
-                    app.produceGood(city, city.agent.inventories[i].name, result);
-                    i++;
-
-                    if (i < city.agent.inventories.length)
-                        doNextProduction(i)
-                    else
-                        resolve();
-                });
-            }
-            doNextProduction(0);
         });
     };
 
@@ -2038,18 +2047,18 @@
 
     app.cityTaxCollection = function(city) {
         return new Promise(resolve => {
-            city.stats.currentBudget.result += city.stats.basicIncomePerTurn.result;
+            city.stats.currentBudget.result += Math.ceil(city.stats.basicIncomePerTurn.result);
             resolve();
         });
     };
 
     app.manageCityAgentsWallet = function(city) {
-        if (city.agent.capital < 0) {
+        if (city.agent.capital < 0 && city.stats.currentBudget.result >= Math.abs(city.agent.capital)) {
             console.log(city.stats.name.base + ' invests ' + Math.abs(city.agent.capital) + ' in its trade agent to compensate debt');
             city.stats.currentBudget.result -= Math.abs(city.agent.capital);
             city.agent.capital = 0;
-        } else if (city.agent.capital == 0) {
-            let subsidy = city.stats.currentBudget.result/3;
+        } else if (city.agent.capital == 0 && city.stats.currentBudget.result > 0) {
+            let subsidy = Math.ceil(city.stats.currentBudget.result/3);
             console.log(city.stats.name.base + ' invests ' + subsidy + ' in its trade agent to stimulate trade');
             city.stats.currentBudget.result -= subsidy;
             city.agent.capital += subsidy;
@@ -2059,54 +2068,58 @@
 
     app.generateAgentListings = function(city) {
         return new Promise(resolve => {
+            const minBatchSize = 5;
             let tradeInventory = [];
             let projectedCapital = city.agent.capital;
-            city.agent.inventories.forEach(item => {
+            app.market.currentLots = [];
+            app.market.currentAsks = [];
+            Promise.all(city.agent.inventories.map(item => {
                 let marketGoodData = app.market.goods.filter(x => x.name == item.name)[0];
                 tradeInventory.push({
                     name: item.name,
-                    value: item.value - (marketGoodData.isUpkeep ? city.upkeep.filter(x => x.name == item.name)[0].value + 8000 - 400*(marketGoodData.tier*2) : 8000 - 400*(marketGoodData.tier*2))
+                    value: item.value - (marketGoodData.isUpkeep ? city.upkeep.filter(x => x.name == item.name)[0].value : 0)
                 });
-            });
-            tradeInventory.forEach(item => {
-                //console.log(city.stats.name.base + ' projected capital is ' + projectedCapital + '$');
-                let lowerPrice = city.agent.priceBeliefs.filter(x => x.name == item.name)[0].lower;
-                let upperPrice = city.agent.priceBeliefs.filter(x => x.name == item.name)[0].upper;
-                if (item.value > 0) {
-                    app.market.currentLots.push({
-                        cityID: city.id,
-                        goodName: item.name,
-                        quantity: item.value,
-                        price: upperPrice,
-                    });
-                    //console.log(city.stats.name.base + ' wants to sell ' + item.value + ' units of ' + item.name + ' for a total of ' + upperPrice*item.value + '$');
-                } else {
-                    if (projectedCapital > Math.abs(item.value)*lowerPrice) {
-                        app.market.currentAsks.push({
+            })).then(() => {
+                tradeInventory.forEach(item => {
+                    //console.log(city.stats.name.base + ' projected capital is ' + projectedCapital + '$');
+                    let lowerPrice = city.agent.priceBeliefs.filter(x => x.name == item.name)[0].lower;
+                    let upperPrice = city.agent.priceBeliefs.filter(x => x.name == item.name)[0].upper;
+                    if (item.value > 0) {
+                        app.market.currentLots.push({
                             cityID: city.id,
                             goodName: item.name,
-                            quantity: Math.abs(item.value),
-                            price: lowerPrice,
+                            quantity: item.value,
+                            price: upperPrice,
                         });
-                        //console.log(city.stats.name.base + ' wants to buy ' + Math.abs(item.value) + ' units of ' + item.name + ' for a total of ' + lowerPrice*Math.abs(item.value) + '$');
-                        projectedCapital -= Math.abs(item.value)*lowerPrice;
-                        //console.log(city.stats.name.base + ' projected capital is now ' + projectedCapital + '$');
-                    } else if (projectedCapital > 0) {
-                        app.market.currentAsks.push({
-                            cityID: city.id,
-                            goodName: item.name,
-                            quantity: Math.min(Math.abs(item.value), projectedCapital/lowerPrice),
-                            price: lowerPrice,
-                        });
-                        //console.log(city.stats.name.base + ' wants to buy ' + Math.min(Math.abs(item.value), projectedCapital/lowerPrice) + ' units of ' + item.name + ' for a total of ' + Math.min(Math.abs(item.value), projectedCapital/lowerPrice)*lowerPrice + '$');
-                        projectedCapital -= Math.min(Math.abs(item.value), projectedCapital/lowerPrice)*lowerPrice;
-                        //console.log(city.stats.name.base + ' projected capital is now ' + projectedCapital + '$');
+                        //console.log(city.stats.name.base + ' wants to sell ' + item.value + ' units of ' + item.name + ' for a total of ' + upperPrice*item.value + '$');
+                    } else {
+                        if (projectedCapital > Math.abs(item.value)*lowerPrice) {
+                            app.market.currentAsks.push({
+                                cityID: city.id,
+                                goodName: item.name,
+                                quantity: Math.abs(item.value),
+                                price: lowerPrice,
+                            });
+                            //console.log(city.stats.name.base + ' wants to buy ' + Math.abs(item.value) + ' units of ' + item.name + ' for a total of ' + lowerPrice*Math.abs(item.value) + '$');
+                            projectedCapital -= Math.abs(item.value)*lowerPrice;
+                            //console.log(city.stats.name.base + ' projected capital is now ' + projectedCapital + '$');
+                        } else if (projectedCapital > 0) {
+                            app.market.currentAsks.push({
+                                cityID: city.id,
+                                goodName: item.name,
+                                quantity: Math.min(Math.abs(item.value), minBatchSize*Math.ceil(projectedCapital/(minBatchSize*lowerPrice))),
+                                price: lowerPrice,
+                            });
+                            //console.log(city.stats.name.base + ' wants to buy ' + Math.min(Math.abs(item.value), projectedCapital/lowerPrice) + ' units of ' + item.name + ' for a total of ' + Math.min(Math.abs(item.value), projectedCapital/lowerPrice)*lowerPrice + '$');
+                            projectedCapital -= Math.min(Math.abs(item.value), projectedCapital/lowerPrice)*lowerPrice;
+                            //console.log(city.stats.name.base + ' projected capital is now ' + projectedCapital + '$');
+                        };
+                        
                     };
-                    
-                };
+                });
+                
+                resolve();
             });
-            
-            resolve();
         });
     };
 
@@ -2117,6 +2130,17 @@
             let sortedLots = shuffledLots.sort((a, b) => (a.price > b.price) ? 1 : -1);
             let sortedAsks = shuffledAsks.sort((a, b) => (a.price < b.price) ? 1 : -1);
             let currentTurnMeanPrice = [];
+            
+            /*if (shuffledLots.length > 0) {
+                console.log(good.name + ' is being sold by:');
+                console.log(shuffledLots.map(x => app.cityData.filter(y => y.id == x.cityID)[0].stats.name.base + ', ' + x.goodName + ': ' + x.quantity + ', ' + x.quantity + '$').join(' | '));
+            };
+            
+            if (shuffledAsks.length > 0) {
+                console.log(good.name + ' is being bought by:');
+                console.log(shuffledAsks.map(x => app.cityData.filter(y => y.id == x.cityID)[0].stats.name.base + ', ' + x.goodName + ': ' + x.quantity + ', ' + x.quantity + '$').join(' | '));
+            };*/
+            
 
             while (sortedLots.length > 0 && sortedAsks.length > 0) {
                 let buyer = sortedAsks[0];
@@ -2125,37 +2149,62 @@
                 let sellerAgent = app.cityData.filter(x => x.id == seller.cityID)[0].agent;
                 let quantity = Math.min(buyer.quantity, seller.quantity);
                 let clearingPrice = (buyer.price + seller.price)/2;
+
+                let buyerAgentPriceBeliefs = buyerAgent.priceBeliefs.filter(x => x.name == buyer.goodName)[0];
+
+                //adjusting sellerAgent price beliefs
+                let sellerAgentPriceBeliefs = sellerAgent.priceBeliefs.filter(x => x.name == seller.goodName)[0];
+                let weight = seller.quantity/(seller.quantity + quantity);
+                let sellerDisplacment = weight*(sellerAgentPriceBeliefs.upper + sellerAgentPriceBeliefs.lower)/2
+                
                 if (quantity > 0) {
                     buyer.quantity -= quantity;
                     seller.quantity -= quantity;
-                    buyerAgent.inventories.filter(x => x.name == buyer.goodName)[0].value += quantity;
-                    sellerAgent.inventories.filter(x => x.name == seller.goodName)[0].value -= quantity;
-                    buyerAgent.capital -= quantity*clearingPrice;
-                    sellerAgent.capital += quantity*clearingPrice;
+                    buyerAgent.inventories.filter(x => x.name == buyer.goodName)[0].value += Math.ceil(quantity);
+                    sellerAgent.inventories.filter(x => x.name == seller.goodName)[0].value -= Math.ceil(quantity);
+                    buyerAgent.capital -= round(quantity*clearingPrice, 2);
+                    sellerAgent.capital += round(quantity*clearingPrice, 2);
                     currentTurnMeanPrice.push(clearingPrice);
-                    console.log(app.cityData.filter(x => x.id == buyer.cityID)[0].stats.name.base + ' made a deal!');
-                    console.log('This happened when buying ' + quantity + ' units of ' + good.name + ' for ' + quantity*clearingPrice + ' from ' + app.cityData.filter(x => x.id == seller.cityID)[0].stats.name.base);
+                    //console.log(app.cityData.filter(x => x.id == buyer.cityID)[0].stats.name.base + ' made a deal!');
+                    //console.log('This happened when buying ' + round(quantity, 0) + ' units of ' + good.name + ' for ' + round(quantity*clearingPrice, 2) + ' from ' + app.cityData.filter(x => x.id == seller.cityID)[0].stats.name.base);
+                    //adjusting buyerAgent price beliefs
+                    if ((buyer.quantity + quantity) / 2 > buyer.quantity - 15 && (buyer.quantity + quantity) / 2 < buyer.quantity + 15) {
+                        //console.log(app.cityData.filter(x => x.id == buyer.cityID)[0].stats.name.base + ' agent price beliefs for ' + good.name + ' changed from: lower -  ' + buyerAgentPriceBeliefs.lower + ', upper - ' + buyerAgentPriceBeliefs.upper);
+                        buyerAgentPriceBeliefs.lower += buyerAgentPriceBeliefs.upper/10;
+                        buyerAgentPriceBeliefs.upper -= buyerAgentPriceBeliefs.upper/10;
+                        //console.log('to: lower -  ' + buyerAgentPriceBeliefs.lower + ', upper - ' + buyerAgentPriceBeliefs.upper);
+                    } else {
+                        //console.log(app.cityData.filter(x => x.id == buyer.cityID)[0].stats.name.base + ' agent price beliefs for ' + good.name + ' changed from: lower -  ' + buyerAgentPriceBeliefs.lower + ', upper - ' + buyerAgentPriceBeliefs.upper);
+                        buyerAgentPriceBeliefs.upper += buyerAgentPriceBeliefs.upper/10;
+                        //console.log('to: lower -  ' + buyerAgentPriceBeliefs.lower + ', upper - ' + buyerAgentPriceBeliefs.upper);
+                    };
+
                 };
                 (buyer.quantity == 0 ? sortedLots.shift() : '');
                 (seller.quantity == 0 ? sortedAsks.shift() : '');
             };
+
+
             if (currentTurnMeanPrice.length > 0) {
                 app.market.goods.filter(x => x.name == good.name)[0].historicalMean.push({
                     turn: app.currentTurn,
                     value: currentTurnMeanPrice.reduce((a, b) => a + b)/currentTurnMeanPrice.length
                 });
             };
-            app.market.currentLots = [];
-            app.market.currentAsks = [];
         }));
         
     };
 
     app.refreshCards = function() {
-        $('.generated').remove();
-        $('.turn-counter').text(app.currentTurn);
-        app.cityData.forEach(city => {
-            app.generateCityCards(city);
+        return new Promise(resolve => {
+            $('.generated').remove();
+            $('.turn-counter').text(app.currentTurn);
+            Promise.all(app.cityData.map(city => {
+                app.generateCityCards(city);
+            })).then(() => {
+                $(app.components.spinner).hide();
+                resolve();
+            });
         });
     };
 
@@ -2164,15 +2213,16 @@
         app.templates.btn = document.querySelector('.btn.template');
         app.containers.cityContainer = document.querySelector('.city-list.container');
         app.containers.anchorsContainer = document.querySelector('.city-anchors.container');
-
+        app.components.spinner = document.querySelector('.spinner-container');
         
         setTimeout(() => {
-            for (let i = 0; i < 3; i++) {
-                    $('.add-new-btn')[0].click();
+            for (let i = 0; i < 1; i++) {
+                $('.add-new-btn')[0].click();
             };
         }, 100);
         
         $('.calculate-btn').on('click', () => {
+            $(app.components.spinner).show();
             Promise.all(app.cityData.map(city => {
                 return new Promise (resolve => {
                     app.calculateCity(city).then(() => {
@@ -2187,6 +2237,7 @@
         });
 
         $('.add-new-btn').on('click', () => {
+            $(app.components.spinner).show();
             app.generateNewCity();
             let newCity = app.cityData[(app.cityData.length > 0 ? app.cityData.length - 1 : app.cityData.length)];
             app.calculateCity(newCity).then(() => {
@@ -2198,7 +2249,8 @@
             });
         });
 
-        $('.debug-fn-btn').on('click', () => {
+        $('.debug-1-fn-btn').on('click', () => {
+            $(app.components.spinner).show();
             app.currentTurn++;
             Promise.all(app.cityData.map(city => {
                 return new Promise (resolve => {
@@ -2207,7 +2259,7 @@
                     app.substractUpkeepFromAgent(city.agent, city.upkeep).then(() => {
                         let promise = new Promise(resolve => {
                             let iterateProduction = i => {
-                                app.econCityAgentProductionDEV(city).then(() => {
+                                app.econCityAgentProduction(city).then(() => {
                                     //console.log(city.stats.name.base + ' is doing ' + i + ' production iteration, results:');
                                     //console.log(city.agent.inventories.sort((a, b) => (a.value > b.value) ? 1 : -1));
                                     i++;
@@ -2222,21 +2274,36 @@
                         });
                         
                         promise.then(() => {
-                            app.generateAgentListings(city).then(() => {
-                                app.marketMatchListings().then(() => {
-                                    app.cityTaxCollection(city).then(() => {
-                                        app.manageCityAgentsWallet(city);
-                                    });
-                                    resolve();
-                                });
+                            app.cityTaxCollection(city).then(() => {
+                                app.manageCityAgentsWallet(city);
                             });
+                            resolve();
                         });
                     });
                 });
             })).then(() => {
-                app.refreshCards();
-                console.log(app.market);
+                Promise.all(app.cityData.map(city => {
+                    app.generateAgentListings(city);
+                })).then(() => {
+                    app.marketMatchListings().then(() => {
+                        app.refreshCards();
+                    });
+                });
             });
+        });
+
+        $('.debug-2-fn-btn').on('click', () => {
+            let promise = new Promise(resolve => {
+                let loopClick = i => {
+                    setTimeout(() => {
+                        $('.debug-1-fn-btn')[0].click();
+                        i++;
+                        (i > 29 ? resolve() : loopClick(i));
+                    }, 700);
+                };
+                loopClick(0);
+            });
+            promise.then(() => console.log('Done clicking!'));
         });
 
         $('.save-btn').on('click', () => {
