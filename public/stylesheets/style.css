@@ -11,9 +11,8 @@ body {
 h1 {
   color: hsla(0, 0%, 95%, 1);
 }
-h2 {
-  text-align: center;
-  align-items: center;
+h3 {
+  margin: 0em 1em 1em 0em;
 }
 
 p {
@@ -47,6 +46,9 @@ a.city-anchor {
 .flex {
   display: flex;
   }
+  .flex.wrap {
+    flex-wrap: wrap !important;
+  }
   .flex.row {
     flex-flow: row;
   }
@@ -56,15 +58,30 @@ a.city-anchor {
   .flex.space-betw {
     justify-content: space-between;
   }
+  .flex.space-ar {
+    justify-content: space-around;
+  }
   .flex.just-center {
     justify-content: center;
   }
-  .flex.align-center {
+  .flex.align-i-center {
     align-items: center;
+  }
+  .flex.align-i-start {
+    align-items: flex-start;
+  }
+  .flex.align-c-center {
+    align-content: flex-start;
   }
 
 .mrg-1em {
   margin: 1em;
+}
+.mrg-01em {
+  margin: 0 1em;
+}
+.mrg-01em00 {
+  margin: 0 1em 0 0;
 }
 .mrg-2em {
   margin: 2em;
@@ -149,6 +166,9 @@ a.city-anchor {
       padding: 0.25em 0.5em;
       margin: 0.25em;
     }
+    .btn.w-100 {
+      width: 100%;
+    }
 
 .city-anchors {
   top: 5em;
@@ -160,8 +180,8 @@ a.city-anchor {
 }
 
 .card {
-  margin: 0 1em;
-  padding: 1em;
+  margin: 1em 1em;
+  padding: 0.5em;
   border-radius: 2px;
   box-shadow: 0 6px 9px rgba(0,0,0,0.19), 0 3px 6px rgba(0,0,0,0.23);
   }
@@ -184,13 +204,23 @@ a.city-anchor {
 .stat-input {
   width: 3em;
   }
+  .stat-input.w-18em {
+    width: 18em;
+  }
   .stat-input.w-14em {
     width: 14em;
   }
   .stat-input.w-10em {
     width: 10em;
   }
+  .stat-input.w-2em {
+    width: 2em;
+  }
   .stat-input.changed {
     border-color: hsla(180, 77%, 50%, 0.67);
   }
+
+table.table-100-w {
+  width: 100%;;
+}
   
