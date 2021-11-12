@@ -1,5 +1,5 @@
 (function() {
-    'use sctrict';
+    'use strict';
 
     let app = {
         currentTurn: 0,
@@ -15,8 +15,8 @@
                             value: 10
                         }
                     ],
-                    prosperityUpkeepMod: 0.005,
-                    popUpkeepMod: 0.001,
+                    prosperityUpkeepMod: 1,
+                    popUpkeepMod: 1,
                 },
                 {
                     name: 'Food',
@@ -27,8 +27,8 @@
                             value: 10
                         }
                     ],
-                    prosperityUpkeepMod: 0,
-                    popUpkeepMod: 0.005,
+                    prosperityUpkeepMod: 1,
+                    popUpkeepMod: 1,
                 },
                 {
                     name: 'Ores',
@@ -39,8 +39,8 @@
                             value: 10
                         }
                     ],
-                    prosperityUpkeepMod: 0,
-                    popUpkeepMod: 0,
+                    prosperityUpkeepMod: 1,
+                    popUpkeepMod: 1,
                 },
                 {
                     name: 'Alloys',
@@ -51,8 +51,8 @@
                             value: 10
                         }
                     ],
-                    prosperityUpkeepMod: 0.005,
-                    popUpkeepMod: 0,
+                    prosperityUpkeepMod: 1,
+                    popUpkeepMod: 1,
                 },
                 {
                     name: 'Goods',
@@ -63,8 +63,8 @@
                             value: 10
                         }
                     ],
-                    prosperityUpkeepMod: 0.005,
-                    popUpkeepMod: 0.0005,
+                    prosperityUpkeepMod: 1,
+                    popUpkeepMod: 1,
                 },
                 {
                     name: 'Amenities',
@@ -75,8 +75,8 @@
                             value: 10
                         }
                     ],
-                    prosperityUpkeepMod: 0.001,
-                    popUpkeepMod: 0.0005,
+                    prosperityUpkeepMod: 1,
+                    popUpkeepMod: 1,
                 },
             ],
             currentAsks: [],
@@ -87,7 +87,7 @@
                     deals: []
                 },
             ],
-            topAgentType: '',
+            topAgentType: 'Energy',
         },
         turnData: [],
         staticData: {
@@ -185,7 +185,7 @@
                 type: '',
                 adj: '',
                 syndicate: '',
-                wallet: 3000,
+                wallet: 5000,
                 inventories: [],
                 productionRules: [],
                 dealHistory: [],
@@ -241,6 +241,7 @@
                     ],
                     statMod: [],
                     type: 'GEO',
+                    category: ''
                 },
                 {
                     name: 'Bountiful Plains',
@@ -254,6 +255,7 @@
                     ],
                     statMod: [],
                     type: 'GEO',
+                    category: ''
                 },
                 {
                     name: 'Fair Tundra',
@@ -267,6 +269,7 @@
                     ],
                     statMod: [],
                     type: 'GEO',
+                    category: ''
                 },
                 {
                     name: 'Green Hills',
@@ -280,6 +283,7 @@
                     ],
                     statMod: [],
                     type: 'GEO',
+                    category: ''
                 },
                 {
                     name: 'Lichen Fields',
@@ -293,6 +297,7 @@
                     ],
                     statMod: [],
                     type: 'GEO',
+                    category: ''
                 },
                 {
                     name: 'Natural Farmland',
@@ -306,6 +311,7 @@
                     ],
                     statMod: [],
                     type: 'GEO',
+                    category: ''
                 },
                 {
                     name: 'Natural Farmland',
@@ -319,6 +325,7 @@
                     ],
                     statMod: [],
                     type: 'GEO',
+                    category: ''
                 },
                 {
                     name: 'Nutritious Mudlands',
@@ -332,6 +339,7 @@
                     ],
                     statMod: [],
                     type: 'GEO',
+                    category: ''
                 },
                 {
                     name: 'Rugged Woods',
@@ -345,6 +353,7 @@
                     ],
                     statMod: [],
                     type: 'GEO',
+                    category: ''
                 },
                 //=== AgriFeatures +2 ===
                 {
@@ -359,6 +368,7 @@
                     ],
                     statMod: [],
                     type: 'GEO',
+                    category: ''
                 },
                 {
                     name: 'Fungal Caves',
@@ -372,6 +382,7 @@
                     ],
                     statMod: [],
                     type: 'GEO',
+                    category: ''
                 },
                 {
                     name: 'Great River',
@@ -385,6 +396,7 @@
                     ],
                     statMod: [],
                     type: 'GEO',
+                    category: ''
                 },
                 {
                     name: 'Lush Jungle',
@@ -398,6 +410,7 @@
                     ],
                     statMod: [],
                     type: 'GEO',
+                    category: ''
                 },
                 //=== AgriFeatures +3 ===
                 {
@@ -412,6 +425,7 @@
                     ],
                     statMod: [],
                     type: 'GEO',
+                    category: ''
                 },
                 {
                     name: 'Fungal Forest',
@@ -425,6 +439,7 @@
                     ],
                     statMod: [],
                     type: 'GEO',
+                    category: ''
                 },
                 {
                     name: 'Marvelous Oasis',
@@ -438,6 +453,7 @@
                     ],
                     statMod: [],
                     type: 'GEO',
+                    category: ''
                 },
                 {
                     name: 'Teeming Reef',
@@ -451,6 +467,7 @@
                     ],
                     statMod: [],
                     type: 'GEO',
+                    category: ''
                 },
                 {
                     name: 'Tropical Island',
@@ -464,6 +481,7 @@
                     ],
                     statMod: [],
                     type: 'GEO',
+                    category: ''
                 },
                 //=== FuelFeatures +1 ===
                 {
@@ -478,6 +496,7 @@
                     ],
                     statMod: [],
                     type: 'GEO',
+                    category: ''
                 },
                 {
                     name: 'Buzzing Plains',
@@ -491,6 +510,7 @@
                     ],
                     statMod: [],
                     type: 'GEO',
+                    category: ''
                 },
                 {
                     name: 'Hot Springs',
@@ -504,6 +524,7 @@
                     ],
                     statMod: [],
                     type: 'GEO',
+                    category: ''
                 },
                 //=== FuelFeatures +2 ===
                 {
@@ -518,6 +539,7 @@
                     ],
                     statMod: [],
                     type: 'GEO',
+                    category: ''
                 },
                 {
                     name: 'Rushing Waterfall',
@@ -531,6 +553,7 @@
                     ],
                     statMod: [],
                     type: 'GEO',
+                    category: ''
                 },
                 {
                     name: 'Searing Desert',
@@ -544,6 +567,7 @@
                     ],
                     statMod: [],
                     type: 'GEO',
+                    category: ''
                 },
                 //=== FuelFeatures +3 ===
                 {
@@ -558,6 +582,7 @@
                     ],
                     statMod: [],
                     type: 'GEO',
+                    category: ''
                 },
                 {
                     name: 'Tempestous Mountain',
@@ -571,6 +596,7 @@
                     ],
                     statMod: [],
                     type: 'GEO',
+                    category: ''
                 },
                 {
                     name: 'Underwater Vents',
@@ -584,6 +610,7 @@
                     ],
                     statMod: [],
                     type: 'GEO',
+                    category: ''
                 },
                 //=== ExcavFeatures +1 ===
                 {
@@ -598,6 +625,7 @@
                     ],
                     statMod: [],
                     type: 'GEO',
+                    category: ''
                 },
                 {
                     name: 'Mineral Striations',
@@ -611,6 +639,7 @@
                     ],
                     statMod: [],
                     type: 'GEO',
+                    category: ''
                 },
                 {
                     name: 'Ore-Veined Cliffs',
@@ -624,6 +653,7 @@
                     ],
                     statMod: [],
                     type: 'GEO',
+                    category: ''
                 },
                 //=== ExcavFeatures +2 ===
                 {
@@ -638,6 +668,7 @@
                     ],
                     statMod: [],
                     type: 'GEO',
+                    category: ''
                 },
                 {
                     name: 'Ore-Rich Caverns',
@@ -651,6 +682,7 @@
                     ],
                     statMod: [],
                     type: 'GEO',
+                    category: ''
                 },
                 //=== ExcavFeatures +3 ===
                 {
@@ -665,6 +697,7 @@
                     ],
                     statMod: [],
                     type: 'GEO',
+                    category: ''
                 },
                 {
                     name: 'Submerged Ore Veins',
@@ -678,6 +711,7 @@
                     ],
                     statMod: [],
                     type: 'GEO',
+                    category: ''
                 },
                 //=== Buildings Food ===
                 {
@@ -938,7 +972,7 @@
                     category: 'Amenities'
                 },
                 //=== Buildings Misc ===
-                {
+                /*{
                     name: 'Gang Hideout',
                     produce: [],
                     prodMod: [],
@@ -949,7 +983,8 @@
                             factor: 0.2
                         }
                     ],
-                    type: 'BUILD'
+                    type: 'BUILD',
+                    category: ''
                 },
                 {
                     name: 'Black Market',
@@ -962,8 +997,9 @@
                             factor: 0.1
                         }
                     ],
-                    type: 'BUILD'
-                },
+                    type: 'BUILD',
+                    category: ''
+                },*/
             ],
             syndicates: [
                 {
@@ -1438,42 +1474,174 @@
                     adj: 'Farmers',
                     goods: [
                         'Food'
-                    ]
+                    ],
+                    names: [
+                        'Moonlight Grange',
+                        'Gilded Woods Gardens',
+                        'Green Haven Fields',
+                        'Lock, Stock & Barrel Farm',
+                        'Lone Wolf Gardens',
+                        'Hollybrook Nursery',
+                        'Rolling Hills Acres',
+                        'Whitewater Estate',
+                        'Wildflower Acres',
+                        'Rattlesnake Grange',
+                        "l'Acre de Mélodies",
+                        'la Ferme de Bourdons',
+                        'les Acres de Bêtes',
+                        "le Verger de l'Étoile Blanche",
+                        'les Jardins du Phénix',
+                        "le Pâturage de Feuille d'Érable",
+                        'le Champ du Ruisseau',
+                        'la Pépinière du Paon',
+                        'les Pâturages du Paon',
+                        'le Pâturage du Rossignol',
+                    ],
                 },
                 {
                     name: 'Energy',
                     adj: 'Technicians',
                     goods: [
                         'Fuel'
-                    ]
+                    ],
+                    names: [
+                        'Fortuna',
+                        'Prism',
+                        'Athena Station',
+                        'Ender',
+                        'Hemera Station',
+                        'Sol Station',
+                        'Inception',
+                        'Eternity',
+                        'Father Station',
+                        'Hermes Terminal',
+                        'Clarté',
+                        'Curateur',
+                        'Station Fable',
+                        'Station Tranquillité',
+                        'Station Luna',
+                        'Terminal Éclat',
+                        'Victoire',
+                        'Station Yggdrasil',
+                        'Arcadis',
+                        'Terminus Pionneer',
+                    ],
                 },
                 {
                     name: 'Excavation',
                     adj: 'Miners',
                     goods: [
                         'Ores'
-                    ]
+                    ],
+                    names: [
+                        'Iron Baron Corporation',
+                        'Prosperity Hill Mines',
+                        'Talc Treasures Mining Corporation',
+                        'Hope Downs Industries',
+                        'Minecorp Industries',
+                        'Grand Expedition Mining Corporation',
+                        'Elemental Fundamentals Mines',
+                        'Grimestone Mines',
+                        'Thunder Mines',
+                        'Mineral Picks Industries',
+                        'Prosperity Precipice Company',
+                        'Coal Field Mining Group',
+                        'Basic Burrows Company',
+                        'Echo Depths Mineshaft',
+                        'Dirty Depths Mining Group',
+                        'Draft Shaft Mineshaft',
+                        'Metal Picks Corporation',
+                        'Ebon Depths Industries',
+                        'Astral Minerals Industries',
+                        'Apex Empire Mining',
+                    ],
                 },
                 {
                     name: 'Heavy',
                     adj: 'Manufacturers',
                     goods: [
                         'Alloys'
-                    ]
+                    ],
+                    names: [
+                        'Flux Deluxe',
+                        'Forge and Fabricate',
+                        'Clamorize',
+                        'Phoenix Fire',
+                        'The Hot Ticket',
+                        'Steel Wings',
+                        'Beats of Fire',
+                        'Steel Show',
+                        'Hammer Out',
+                        'Making It Hot',
+                        'Ore Galore',
+                        'The Heat is On',
+                        'Blazing Glory',
+                        'Smite Thee',
+                        'Curious Forge',
+                        'Smith Thee',
+                        "The Iron's Hot",
+                        'Blue Blazes',
+                        'Rings True',
+                        'Steel Base',
+                    ],
                 },
                 {
                     name: 'Consumer',
                     adj: 'Artisans',
                     goods: [
                         'Goods'
-                    ]
+                    ],
+                    names: [
+                        'The Humming Gnome',
+                        'The Greedy Hammer',
+                        'The Searching Pen',
+                        'The Creeping Lemon',
+                        'The Admiring Blade Dairy',
+                        'The Yawning Hammer Tavern',
+                        'The Lazy Bowl Pet Store',
+                        'The Fading Shawl Dry Cleaner',
+                        'To Thai For',
+                        'Radio-Active',
+                        'The Royal Rocket',
+                        'The Ironclad Dress',
+                        'The Calm Pot',
+                        'The Velvet Missile',
+                        'The Smelly Growth Antique Store',
+                        'The Thunder Kettle Antique Store',
+                        'The Greedy Shrimp Gift Shop',
+                        'The Clever Face Tradepost',
+                        'Frame, Set and Match',
+                        'Clean Getaway',
+                    ],
                 },
                 {
                     name: 'Amenities',
                     adj: 'Artists',
                     goods: [
                         'Amenities'
-                    ]
+                    ],
+                    names: [
+                        'Obelisk',
+                        'Deviant',
+                        'Secret',
+                        'Club Climax',
+                        'Club Debut',
+                        'The Swan',
+                        'The Punch',
+                        'The Crowbar',
+                        'The Escape',
+                        'The Sun',
+                        'Habitude',
+                        'Chasse',
+                        'Paradis',
+                        'Club Couronne',
+                        'Club Incube',
+                        "L'Infinité",
+                        'Le Pétale',
+                        'La Pyramide',
+                        'Le Parangon',
+                        "L'Ironie",
+                    ],
                 },
             ],
             actions: [
@@ -1483,7 +1651,12 @@
                 'Add Building',
                 'Add Econ Agent',
                 'Log City Data'
-            ]
+            ],
+            taxData: {
+                taxMod: 0.5,
+                taxCeiling: 100000,
+                taxFLoor: 4000,
+            } 
         },
         containers: {
             cityContainer: {},
@@ -1508,11 +1681,11 @@
             //Generating stats
             newCityData.stats.government.base = app.staticData.governmentTypes[Math.max(0, round(Math.random()*app.staticData.governmentTypes.length - 1, 0))].name;
             newCityData.stats.property.base = app.staticData.propertyTypes[Math.max(0, round(Math.random()*app.staticData.propertyTypes.length - 1, 0))].name;
-            newCityData.stats.population.base = round(300 + 200*(Math.random()*19 + 1) + 10*(Math.random()*19 + 1), 0);
+            newCityData.stats.population.base = round(1200 + 300*(Math.random()*19 + 1) + 20*(Math.random()*19 + 1), 0);
             newCityData.stats.prosperity.base = round(Math.random()*4 + 1, 0);
             newCityData.stats.defences.base = 0.09 - Math.random()*0.06;
             newCityData.stats.socialTrust.base = 1 - Math.random()*0.06;
-            newCityData.stats.keyRate.base = 0.09 - Math.random()*0.06;
+            newCityData.stats.keyRate.base = 0.25 - Math.random()*0.1;
             newCityData.stats.crime.base = 0.09 - Math.random()*0.06;
             newCityData.stats.corruption.base = 0.09 - Math.random()*0.06;
             newCityData.stats.currentBudget.result = 7000;
@@ -1560,7 +1733,7 @@
             };
 
             //Generating buildings
-            for (let index = 0; index < 8; index++) {
+            for (let index = 0; index < 12; index++) {
                 app.addNewFeature(newCityData, 'BUILD');
             };
 
@@ -1575,12 +1748,7 @@
             });
             
             //Adding econ agents
-            app.addNewEconAgent(newCityData, 'Agricultural');
-            app.addNewEconAgent(newCityData, 'Agricultural');
-            app.addNewEconAgent(newCityData, 'Energy');
-            app.addNewEconAgent(newCityData, 'Energy');
-            app.addNewEconAgent(newCityData, 'Excavation');
-            for (let index = 0; index < 1 + 1*(round(newCityData.stats.population.result/2000, 0)); index++) {
+            for (let index = 0; index < 8 + 1*(round(newCityData.stats.population.base/2000, 0)); index++) {
                 app.addNewEconAgent(newCityData);
             };
 
@@ -1614,7 +1782,7 @@
 
         //======================================= CARD FIELDS =======================================
         newCityWrapper.querySelector('.city-name').innerHTML = cityData.stats.name.base;
-        newCityWrapper.querySelector('.manager-wallet').innerHTML = 'Current Funds: ' + round(cityData.cityManagerAgent.wallet, 2);
+        newCityWrapper.querySelector('.manager-wallet').title = 'Current Funds: ' + round(cityData.cityManagerAgent.wallet, 2);
         //newCityWrapper.querySelector('.city-pop').innerHTML = 'Population: ' + cityData.stats.population.result;
         //newCityWrapper.querySelector('.city-gov-type').innerHTML = 'Government Type: ' + cityData.stats.government.base;
         //newCityWrapper.querySelector('.city-prop-type').innerHTML = 'Property Relations: ' + cityData.stats.property.base;
@@ -1654,6 +1822,9 @@
             let baseInput = newField.querySelector('.base').querySelector('input');
             let agentInventory = cityData.cityManagerAgent.inventories.filter(x => x.name == upkeepItem.name)[0];
 
+            let good = app.market.goods.filter(x => x.name == upkeepItem.name)[0];
+            let currentHistoricalMean = (good.historicalMean.length > 0 ? good.historicalMean.reduce((a, b) => a + b.value, 0)/good.historicalMean.length : good.basePrice);
+
             newField.classList.add('generated');
             newField.classList.remove('template');
 
@@ -1661,8 +1832,7 @@
             newField.querySelector('.mod').innerHTML = round(upkeepItem.mod, 2);
             baseInput.value = round(upkeepItem.base, 2);
             newField.querySelector('.need').innerHTML = upkeepItem.need;
-            newField.querySelector('.lower-price').innerHTML = round(agentInventory.lowerPrice, 2);
-            newField.querySelector('.upper-price').innerHTML = round(agentInventory.upperPrice, 2);
+            newField.querySelector('.lower-price').innerHTML = round(currentHistoricalMean, 2);
             newField.querySelector('.inventory').innerHTML = agentInventory.inventory;
 
             $(baseInput).on('change', () => {
@@ -1840,10 +2010,13 @@
             newAgentCard.classList.remove('template');
             newAgentCard.classList.add('generated');
 
-            newAgentCard.querySelector('.title').innerHTML = '#' + (index + 1) + ' ' + agent.adj;
+            newAgentCard.querySelector('.title').innerHTML = '#' + (index + 1) + ' ' + agent.adj + ' from ' + agent.name;
+            newAgentCard.querySelector('.title').title = '#' + (index + 1) + ' ' + agent.adj + ' from ' + agent.name;
             newAgentCard.querySelector('.agent-type').innerHTML += agent.type;
-            newAgentCard.querySelector('.agent-syndicate').innerHTML += agent.syndicate;
+            newAgentCard.querySelector('.agent-syndicate').innerHTML = 'Syndicate: ' + agent.syndicate;
+            newAgentCard.querySelector('.agent-syndicate').title = 'Syndicate: ' + agent.syndicate;
             newAgentCard.querySelector('.agent-wallet').innerHTML += round(agent.wallet, 2);
+            newAgentCard.querySelector('.agent-age').innerHTML = 'In business for: ' + (app.currentTurn - agent.createdOn) + ' turns';
 
             agent.inventories.forEach(good => {
                 let newInventoryField = inventoryField.cloneNode(true);
@@ -1859,7 +2032,7 @@
             });
 
             $(bankruptBtn).on('click', () => {
-                cityData.agents.splice(index, 1);
+                app.retireAndReplaceBrokeAgents(cityData);
                 $('.calculate-btn')[0].click();
             })
             
@@ -1903,21 +2076,35 @@
 
             cityData.upkeep.forEach(upkeep => {
                 upkeep.mod = round(upkeep.base*(1 + cityData.stats.crime.result)*(1 + cityData.stats.prosperity.result*0.2), 2);
-                upkeep.need = round(((upkeep.prosperityUpkeepMod*cityData.stats.prosperity.result + upkeep.popUpkeepMod)*cityData.stats.population.result)*upkeep.mod, 0);
+                upkeep.need = round(((upkeep.prosperityUpkeepMod*cityData.stats.prosperity.result*0.001 + upkeep.popUpkeepMod*0.0005)*cityData.stats.population.result)*upkeep.mod, 0);
             });
 
             cityData.production.forEach(production => {
-                production.mod = round(production.base*(1 - cityData.stats.crime.result)*(1 + cityData.stats.prosperity.result*0.2), 0);
+                production.mod = round(production.base*(1 - cityData.stats.crime.result)*(1 + cityData.stats.prosperity.result*0.5), 0);
                 production.limit = cityData.stats.prosperity.base;
             });
 
-            resolve();
+            //checking if there is a building over the limit and we demolish it, for now by random
+            cityData.production.forEach(production => {
+                if (production.limit < cityData.features.filter(x => x.type == 'BUILD' && x.category == production.name).reduce((a,b) => a + b.factor, 0)) {
+                    console.log('There are buildings over limit in ' + cityData.stats.name.base);
+                    let listLength = cityData.features.filter(x => x.type == 'BUILD' && x.category == production.name).length - 1;
+                    cityData.features.filter(x => x.type == 'BUILD' && x.category == production.name).splice(round(Math.random()*listLength, 0), 1);
+                };
+            });
+
+            app.calculateCityFeatures(cityData).then(() => {
+                resolve();
+            });
         });
         return promise;
     };
-
+    
     app.calculateCityFeatures = function(cityData) {
         let promise = new Promise (resolve => {
+            cityData.production.forEach(production => {
+                production.limit = cityData.stats.prosperity.result;
+            });
             cityData.features.forEach(feature => {
                 feature.prodMod.forEach(prodMod => {
                     cityData.production.filter(x => x.name == prodMod.name)[0].mod += prodMod.factor;
@@ -1954,33 +2141,49 @@
         return new Promise (resolve => {
             let randomIndex = 0;
             let randomFeature = {};
-            let canAdd = true;
+            //in there is no specific name, try generating a random feature
             if (specificFeatureName == '') {
+                //if there is no specific category, try a random one and get a random feature from it
                 if (category !== '') {
                     randomIndex = round(Math.random()*(app.staticData.features.filter(x => x.type == category).length - 1), 0);
                     randomFeature = JSON.parse(JSON.stringify(app.staticData.features.filter(x => x.type == category)[randomIndex]));
                     randomFeature.factor = 1;
                     randomFeature.id = city.features.length;
                 } else {
+                    //if there is a specific category, use it to get a random feature
                     randomIndex = Math.max(0, round(Math.random()*app.staticData.features.length - 1, 0));
                     randomFeature = JSON.parse(JSON.stringify(app.staticData.features[randomIndex]));
                     randomFeature.factor = 1;
                     randomFeature.id = city.features.length;
                 };
             } else {
+                //if there is a specific name, find the feature and add it
                 randomFeature = app.staticData.features.filter(x => x.name == specificFeatureName)[0];
                 randomFeature.factor = 1;
                 randomFeature.id = city.features.length;
             };
 
-            if (randomFeature.hasOwnProperty('category')) {
-                if (city.production.filter(x => x.name == randomFeature.category)[0].limit < city.features.filter(x => x.type == 'BUILD' && x.category == randomFeature.category).reduce((a,b) => a + b.factor, 0)) {
+            //if there is a category with limits on this type of feature
+            if (randomFeature.category !== '') {
+                let limit = city.features.filter(x => x.type == 'BUILD' && x.category == randomFeature.category).reduce((a,b) => a + b.factor, 0);
+                //if the city is at the limit repeat random up to 3 times
+                if (city.production.filter(x => x.name == randomFeature.category)[0].limit < limit) {
                     (iteration < 3 ? app.addNewFeature(city, category, specificFeatureName, iteration + 1) : '');
-                    canAdd = false;
+                    resolve();
+                } else {
+                    //if not at the limit, see if such a building already exists
+                    if (city.features.filter(x => x.name == randomFeature.name).length > 0) {
+                        //if yes, increase its factor
+                        city.features.filter(x => x.name == randomFeature.name)[0].factor += randomFeature.factor;
+                        resolve();
+                    } else {
+                        //otherwise add new
+                        city.features.push(randomFeature);
+                        resolve();
+                    };
                 };
-            };
-
-            if (canAdd) {
+            } else {
+                //if there are no limits on this feature, do the duplicate check or add a new one as previously
                 if (city.features.filter(x => x.name == randomFeature.name).length > 0) {
                     city.features.filter(x => x.name == randomFeature.name)[0].factor += randomFeature.factor;
                     resolve();
@@ -2007,10 +2210,14 @@
             randomSyndicate = possibleSyndicates[round(Math.random()*(possibleSyndicates.length - 1), 0)];
         };
 
+        let listOfNames = app.staticData.agentTypes.filter(x => x.name == randomSyndicate.subType)[0].names;
+
+        newAgent.name = listOfNames[round(Math.random()*(listOfNames.length - 1), 0)];
         newAgent.type = randomSyndicate.subType;
         newAgent.adj = randomSyndicate.adj;
         newAgent.syndicate = randomSyndicate.name;
         newAgent.productionRules = randomSyndicate.productionRules;
+        newAgent.createdOn = app.currentTurn;
 
         if (newAgent.hasOwnProperty('productionRules')) {
             newAgent.productionRules.forEach(rule => {
@@ -2045,18 +2252,99 @@
 
     }
 
-    app.calculateHistoricalMean = function() {
-        app.market.goods.forEach(good => {
-            let total = 0;
-            let count = 0;
-            app.market.dealHistoryPerTurn[app.currentTurn].deals.filter(x => x.name == good.name).forEach(deal => {
-                if (deal.name == good.name) {
-                    count++;
-                    total += deal.pricePerUnit;
-                };
-            });
-            good.historicalMean[app.currentTurn].value = (total == 0 ? good.basePrice : total/count);
+    app.citySubstractUpkeep = function() {
+        app.cityData.forEach(city => {
+            city.upkeep.forEach(upkeep => {
+                city.cityManagerAgent.inventories.filter(x => x.name == upkeep.name)[0].inventory -= upkeep.need;
+                //console.log(city.stats.name.base + ' consumes ' + upkeep.need + ' units of ' + upkeep.name + ', resulting inventory is ' + city.cityManagerAgent.inventories.filter(x => x.name == upkeep.name)[0].inventory);
+            })
         });
+    };
+
+    app.cityUpgrade = function(city) {
+        let currentLength = city.features.filter(x => x.type == 'BUILD').length;
+        //checking if prosperity can be increased
+        if (city.stats.currentBudget.result >= 2000*city.stats.prosperity.base**2) {
+            city.stats.currentBudget.result -= 2000*city.stats.prosperity.base**2;
+            city.stats.prosperity.base++;
+        //checking if a new building can be built
+        } else if (city.stats.currentBudget.result >= 2000*currentLength) {
+            app.addNewFeature(city, 'BUILD').then(() => {
+                if (city.features.filter(x => x.type == 'BUILD').length > currentLength) city.stats.currentBudget.result -= 2000*currentLength;
+            });
+        };
+    };
+
+    app.cityTaxCollection = function(city) {
+        return new Promise(resolve => {
+            city.stats.currentBudget.result += Math.ceil(city.stats.incomePerTurn.result);
+            city.agents.forEach(agent => {
+                let tax = app.getTaxForAgent(agent, city);
+                agent.wallet -= tax;
+                city.stats.currentBudget.result += tax;
+            });
+            resolve();
+        });
+    };
+
+    app.manageCityAgentsWallet = function(city) {
+        //subsidy is a sum of all deals on the previous turn, which is calculated by taking filtering deal history by turn, then reducing it into a quantity*price, where price is a historical mean
+        let subsidy = city.cityManagerAgent.dealHistory
+            .filter(x => x.turn == (app.currentTurn - 1))
+            .reduce((a, b) => {
+                let good = app.market.goods.filter(y => y.name == b.good)[0];
+                return a + b.quantity*app.getAverageHistoricalMean(good);
+            }, 0);
+        if (city.cityManagerAgent.wallet < 0) subsidy += Math.abs(city.cityManagerAgent.wallet);
+        city.stats.currentBudget.result -= subsidy;
+        city.cityManagerAgent.wallet += subsidy;
+    };
+
+    app.generateCityListings = function(city, i = 0) {
+        let item = city.cityManagerAgent.inventories[i];
+        let upkeep = city.upkeep[i];
+        let good = app.market.goods[i];
+        let currentHistoricalMean = app.getAverageHistoricalMean(good);
+
+        if (item.inventory < upkeep.need)
+            app.market.currentAsks.push({
+                cityID: city.id,
+                agentIndex: -1,
+                goodName: item.name,
+                quantity: Math.max(upkeep.need*2 - item.inventory, 0),
+                price: currentHistoricalMean//item.lowerPrice,
+            });
+
+        i++;
+        if (i < city.cityManagerAgent.inventories.length) {
+            app.generateCityListings(city, i);
+        };
+    };
+
+    app.retireAndReplaceBrokeAgents = function(city) {
+        let sortedCityInventory = city.cityManagerAgent.inventories.sort((a, b) => (a.inventory > b.inventory) ? 1 : -1);
+        let cityRequestedAgentType = (sortedCityInventory[0].inventory < 0 ? app.staticData.agentTypes.filter(x => x.goods.includes(sortedCityInventory[0].name))[0].name : app.market.topAgentType);
+        
+        city.agents.forEach((agent, index) => {
+            if (agent.wallet < 0) {
+                city.agents.splice(index, 1);
+                app.addNewEconAgent(city, cityRequestedAgentType);
+            };
+        });
+    };
+
+
+
+    app.getTaxForAgent = function(agent, city) {
+        let tax = 0;
+        if (agent.wallet > app.staticData.taxData.taxCeiling) {
+            tax = round((city.stats.keyRate.result + app.staticData.taxData.taxMod)*agent.wallet, 2);
+        } else if (agent.wallet < app.staticData.taxData.taxFLoor) {
+            tax = 100;
+        } else {
+            tax = round(agent.wallet*(city.stats.keyRate.result + app.staticData.taxData.taxMod*agent.wallet)/app.staticData.taxData.taxCeiling, 2);
+        };
+        return tax;
     };
 
     app.getAverageHistoricalMean = function(good) {
@@ -2069,34 +2357,11 @@
         return total/count;
     };
 
-    app.cityTaxCollection = function(city) {
-        return new Promise(resolve => {
-            city.stats.currentBudget.result += Math.ceil(city.stats.incomePerTurn.result);
-            city.agents.forEach(agent => {
-                let tax = Math.max(round(city.stats.keyRate.result*agent.wallet, 2), 100);
-                agent.wallet -= tax;
-                city.stats.currentBudget.result += tax;
-            });
-            resolve();
-        });
-    };
-
-    app.manageCityAgentsWallet = function(city) {
-        if (city.cityManagerAgent.wallet < 0) {
-            //console.log(city.stats.name.base + ' invests ' + Math.abs(city.cityManagerAgent.wallet) + ' in its trade agent to compensate debt');
-            city.stats.currentBudget.result -= Math.abs(city.cityManagerAgent.wallet);
-            city.cityManagerAgent.wallet = 0;
-        } else if (city.cityManagerAgent.wallet == 0) {
-            let subsidy = city.stats.population.result//round(city.stats.currentBudget.result/3, 2);
-            //console.log(city.stats.name.base + ' invests ' + subsidy + ' in its trade agent to stimulate trade');
-            city.stats.currentBudget.result -= subsidy;
-            city.cityManagerAgent.wallet += subsidy;
-        };
-    };
 
     app.agentProduction = function(agent, city) {
         return new Promise(resolve => {
             let shuffledRules = shuffle(agent.productionRules);
+            let totalProduction = 0;
             let iterateOnProductionRule = (ruleIndex = 0, i = 1) => {
                 let haveEnough = true;
                 shuffledRules[ruleIndex].components.forEach(component => {
@@ -2110,9 +2375,15 @@
                         agent.inventories.filter(x => x.name == component.name)[0].inventory -= (i - 1)*component.quantity;
                     });
                     shuffledRules[ruleIndex].results.forEach(result => {
-                        agent.inventories.filter(x => x.name == result.name)[0].inventory += (i - 1)*result.quantity + city.production.filter(x => x.name == result.name)[0].mod;
+                        agent.inventories.filter(x => x.name == result.name)[0].inventory += (i - 1)*(result.quantity + city.production.filter(x => x.name == result.name)[0].mod);
+                        totalProduction += (i - 1)*(result.quantity + city.production.filter(x => x.name == result.name)[0].mod);
                     });
-                    (ruleIndex + 1 < shuffledRules.length ? iterateOnProductionRule(ruleIndex + 1, 0) : resolve('Production for agent is done!'));
+                    if (ruleIndex + 1 < shuffledRules.length) {
+                        iterateOnProductionRule(ruleIndex + 1, 0)
+                    } else {
+                        (totalProduction == 0 ? app.agentIdlePenalty(agent, city) : '');
+                        resolve('');
+                    };
                 };
             };
 
@@ -2120,46 +2391,22 @@
         });
     };
 
-    app.citySubstractUpkeep = function() {
-        app.cityData.forEach(city => {
-            city.upkeep.forEach(upkeep => {
-                city.cityManagerAgent.inventories.filter(x => x.name == upkeep.name)[0].inventory -= upkeep.need;
-                //console.log(city.stats.name.base + ' consumes ' + upkeep.need + ' units of ' + upkeep.name + ', resulting inventory is ' + city.cityManagerAgent.inventories.filter(x => x.name == upkeep.name)[0].inventory);
-            })
-        });
-    };
-
-    app.generateCityListings = function(city, i = 0) {
-        let item = city.cityManagerAgent.inventories[i];
-        let upkeep = city.upkeep[i];
-        let good = app.market.goods[i];
-        let currentHistoricalMean = (good.historicalMean.length > 0 ? good.historicalMean.reduce((a, b) => a + b.value, 0)/good.historicalMean.length : good.basePrice);
-
-        if (item.inventory < upkeep.need)
-            app.market.currentAsks.push({
-                cityID: city.id,
-                agentIndex: -1,
-                goodName: item.name,
-                quantity: upkeep.need - item.inventory,
-                price: currentHistoricalMean,
-            });
-
-        i++;
-        if (i < city.cityManagerAgent.inventories.length) {
-            app.generateCityListings(city, i);
-        };
+    app.agentIdlePenalty = function(agent, city) {
+        let penalty = app.getTaxForAgent(agent, city);
+        agent.wallet -= penalty;
+        city.stats.currentBudget.result += penalty;
     };
 
     app.generateAgentListings = function(agent, cityID, agentCityIndex, i = 0) {
         if (agent.inventories.length > 0) {
             let item = agent.inventories[i];
             let good = app.market.goods.filter(x => x.name == item.name)[0];
-            let mean = (good.historicalMean.length > 0 ? good.historicalMean.reduce((a, b) => a + b.value, 0)/good.historicalMean.length : good.basePrice);
+            let mean = app.getAverageHistoricalMean(good);
 
             if (item.type == 'product' && item.inventory > 0) {
                 //for sellers favorability is based on a mean, plus the check to not go into >1
                 //let favorability = Math.min(1, 1/((item.lowerPrice + (item.upperPrice + item.lowerPrice)/2)/(mean)));
-                let favorability = (mean > item.upperPrice ? 1 : (mean < item.lowerPrice ? 0 : findNumberPosition(mean, item.lowerPrice, item.upperPrice)));
+                let favorability = (mean > item.upperPrice ? 1 : (mean < item.lowerPrice ? 0.2 : Math.max(0.2, findNumberPosition(mean, item.lowerPrice, item.upperPrice))));
 
                 /*console.log('Seller favorability ' + favorability, 'lowerPrice ' + item.lowerPrice, 'mean ' + mean, 'upperPrice ' + item.upperPrice,);
                 console.log('inventory: ' + item.inventory);
@@ -2177,14 +2424,13 @@
                         cityID: cityID,
                         agentIndex: agentCityIndex,
                         goodName: item.name,
-                        quantity: round(favorability*item.inventory, 0),
+                        quantity: Math.max(round(favorability*item.inventory, 0), 0),
                         price: item.upperPrice,
                     });
             } else if (item.type == 'component') {
-                let mean = (good.historicalMean.length > 0 ? good.historicalMean.reduce((a, b) => a + b.value, 0)/good.historicalMean.length : good.basePrice);
                 //for buyers favorability is the reversed (1 - x) favorability of a seller, plus the check to not go into negative
                 //let favorability = Math.max(0, 1 - 1/((item.lowerPrice + (item.upperPrice + item.lowerPrice)/2)/(mean)));
-                let favorability = (mean > item.upperPrice ? 0 : (mean < item.lowerPrice ? 1 : 1 - findNumberPosition(mean, item.lowerPrice, item.upperPrice)));
+                let favorability = (mean > item.upperPrice ? 0.2 : (mean < item.lowerPrice ? 1 : Math.max(0.2, 1 - findNumberPosition(mean, item.lowerPrice, item.upperPrice))));
                 
                 /*console.log('Buyer favorability ' + favorability, 'lowerPrice ' + item.lowerPrice, 'mean ' + mean, 'upperPrice ' + item.upperPrice,);
                 console.log('0.9*agent.wallet: ' + 0.9*agent.wallet, 'item.lowerPrice: ' + item.lowerPrice, '1000 - item.inventory: ' + (1000 - item.inventory));
@@ -2202,7 +2448,7 @@
                         cityID: cityID,
                         agentIndex: agentCityIndex,
                         goodName: item.name,
-                        quantity: Math.min(round(favorability*((0.9*agent.wallet)/item.lowerPrice), 0), 1000 - item.inventory),
+                        quantity: Math.max(Math.min(round(favorability*((0.9*agent.wallet)/item.lowerPrice), 0), 1000 - item.inventory), 0),
                         price: item.lowerPrice,
                     });
             };
@@ -2213,6 +2459,8 @@
             };  
         };
     };
+
+    
 
     app.matchMarketListings = function() {
         return new Promise(resolve => {
@@ -2235,7 +2483,7 @@
 
                     let quantity = Math.min(buyer.quantity, seller.quantity);
                     let clearingPrice = (buyer.price + seller.price)/2;
-                    let currentHistoricalMean = (good.historicalMean.length > 0 ? good.historicalMean.reduce((a, b) => a + b.value, 0)/good.historicalMean.length : good.basePrice);
+                    let currentHistoricalMean = app.getAverageHistoricalMean(good);
                     let currentMarketSize = app.market.dealHistoryPerTurn.filter(x => x.good == good.name).reduce((a, b) => a + b.quantity, 1);
                     let supply = 5*currentHistoricalMean**0.5;
                     let demand = 3*currentHistoricalMean**(-2);
@@ -2285,13 +2533,15 @@
                             turn: app.currentTurn,
                             type: 'ask',
                             good: good.name,
-                            quantity: quantity
+                            quantity: quantity,
+                            totalValue: round(quantity*clearingPrice, 2),
                         });
                         sellerAgent.dealHistory.push({
                             turn: app.currentTurn,
                             type: 'lot',
                             good: good.name,
-                            quantity: quantity
+                            quantity: quantity,
+                            totalValue: round(quantity*clearingPrice, 2),
                         });
                     };
 
@@ -2384,17 +2634,6 @@
         });
     };
 
-    app.bankruptAndReplaceBrokeAgents = function() {
-        app.cityData.forEach(city => {
-            city.agents.forEach((agent, index) => {
-                if (agent.wallet < 0) {
-                    city.agents.splice(index, 1);
-                    app.addNewEconAgent(city, app.market.topAgentType);
-                };
-            });
-        });
-    }
-
     app.determineTopAgentType = function() {
         let leaderBoard = [];
         app.staticData.agentTypes.forEach(type => {
@@ -2405,7 +2644,7 @@
         })
         app.cityData.forEach(city => {
             city.agents.forEach(agent => {
-                leaderBoard.filter(x => x.type == agent.type)[0].totalProfit += agent.wallet;
+                leaderBoard.filter(x => x.type == agent.type)[0].totalProfit += agent.dealHistory.filter(x => x.type == 'lot').reduce((a, b) => a + b.totalValue, 0) - agent.dealHistory.filter(x => x.type == 'ask').reduce((a, b) => a + b.totalValue, 0);
             })
         });
 
@@ -2413,6 +2652,7 @@
         //console.log(leaderBoard);
         app.market.topAgentType = leaderBoard[0].type;
     };
+
 
     app.refreshCards = function() {
         return new Promise(resolve => {
@@ -2453,9 +2693,7 @@
             Promise.all(app.cityData.map(city => {
                 return new Promise (resolve => {
                     app.calculateCity(city).then(() => {
-                        app.calculateCityFeatures(city).then(() => {
-                            resolve();
-                        });
+                        resolve();
                     });
                 });
             })).then(() => {
@@ -2468,9 +2706,7 @@
             app.generateNewCity();
             let newCity = app.cityData[(app.cityData.length > 0 ? app.cityData.length - 1 : app.cityData.length)];
             app.calculateCity(newCity).then(() => {
-                app.calculateCityFeatures(newCity).then(() => {
-                    app.refreshCards();
-                });
+                app.refreshCards();
             });
         });
 
@@ -2480,9 +2716,9 @@
             app.market.currentAsks = [];
             app.currentTurn++;
             app.citySubstractUpkeep();
-            console.log();
+            /*console.log();
             console.log('Turn #' + app.currentTurn);
-            console.log();
+            console.log();*/
             Promise.all(app.cityData.map(city => {
                 return new Promise (resolve => {
                     let iterateAgents = i => {
@@ -2507,7 +2743,9 @@
                     for (let i = 0; i < app.cityData.length; i++) {
                         app.cityTaxCollection(app.cityData[i]).then(() => {
                             app.manageCityAgentsWallet(app.cityData[i]);
-                            app.bankruptAndReplaceBrokeAgents();
+                            app.retireAndReplaceBrokeAgents(app.cityData[i]);
+                            app.cityUpgrade(app.cityData[i]);
+                            app.calculateCity(app.cityData[i]);
                         });
                     };
                     app.refreshCards();
@@ -2521,7 +2759,7 @@
                     setTimeout(() => {
                         $('.debug-1-fn-btn')[0].click();
                         i++;
-                        (i > 29 ? resolve() : loopClick(i));
+                        (i > 99 ? resolve() : loopClick(i));
                     }, 700);
                 };
                 loopClick(0);

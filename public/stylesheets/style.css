@@ -6,7 +6,53 @@ body {
   margin-top: 6em;
   padding: 30px;
   font-family: 'Roboto';
+  font-size: 0.8em;
 }
+
+.spinner-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-color: hsla(180, 100%, 0%, 0.5);
+  z-index: 3;
+  }
+  .lds-ring {
+    display: inline-block;
+    position: relative;
+    width: 80px;
+    height: 80px;
+  }
+  .lds-ring div {
+    box-sizing: border-box;
+    display: block;
+    position: absolute;
+    width: 64px;
+    height: 64px;
+    margin: 8px;
+    border: 8px solid #fff;
+    border-radius: 50%;
+    animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+    border-color: #fff transparent transparent transparent;
+  }
+  .lds-ring div:nth-child(1) {
+    animation-delay: -0.45s;
+  }
+  .lds-ring div:nth-child(2) {
+    animation-delay: -0.3s;
+  }
+  .lds-ring div:nth-child(3) {
+    animation-delay: -0.15s;
+  }
+  @keyframes lds-ring {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
 
 h1 {
   color: hsla(0, 0%, 95%, 1);
@@ -87,56 +133,37 @@ a.city-anchor {
   margin: 2em;
 }
 
-  
+.w-16em {
+  width: 16em;
+}
+.w-20em {
+  width: 20em;
+}
+.w-100 {
+  width: 100%;
+}
 
-  
+.min-w-3em {
+  min-width: 3em;
+}
+.min-w-6em {
+  min-width: 6em;
+}
 
+.h-20em {
+  height: 20em;
+}
 
-
-  .spinner-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 100%;
-    background-color: hsla(180, 100%, 0%, 0.5);
-    z-index: 3;
-    }
-    .lds-ring {
-      display: inline-block;
-      position: relative;
-      width: 80px;
-      height: 80px;
-    }
-    .lds-ring div {
-      box-sizing: border-box;
-      display: block;
-      position: absolute;
-      width: 64px;
-      height: 64px;
-      margin: 8px;
-      border: 8px solid #fff;
-      border-radius: 50%;
-      animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
-      border-color: #fff transparent transparent transparent;
-    }
-    .lds-ring div:nth-child(1) {
-      animation-delay: -0.45s;
-    }
-    .lds-ring div:nth-child(2) {
-      animation-delay: -0.3s;
-    }
-    .lds-ring div:nth-child(3) {
-      animation-delay: -0.15s;
-    }
-    @keyframes lds-ring {
-      0% {
-        transform: rotate(0deg);
-      }
-      100% {
-        transform: rotate(360deg);
-      }
-    }
+.hide-overflow-dots {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  }
+  .hide-overflow-dots:hover {
+    cursor: pointer;
+    background-color: hsla(0, 0%, 90%, 1);
+    transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
+  }
 
 .btn-panel {
     top: 0;
@@ -150,6 +177,8 @@ a.city-anchor {
   }
   .btn {
     font-size: 0.9em;
+    font-weight: bold;
+    color: hsl(0, 0%, 100%);
     border-radius: 2px;
     margin: 1em 1em;
     padding: 1em;
@@ -203,6 +232,7 @@ a.city-anchor {
 
 .stat-input {
   width: 3em;
+  font-family: inherit;
   }
   .stat-input.w-18em {
     width: 18em;

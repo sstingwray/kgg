@@ -7,6 +7,8 @@
     <script src="/javascripts/jquery.min.js"></script>
     <script src="/javascripts/tinysort.min.js"></script>
     <script src="/javascripts/econ.js"></script>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap" rel="stylesheet"> 
   </head>
   <body>
     <div class="spinner-container flex just-center align-i-center"><div class="lds-ring"><div></div><div></div><div></div><div></div></div></div>
@@ -48,16 +50,14 @@
             </div>
             <div style="flex-basis: auto;" class="flex row align-i-start wrap align-c-center econ">
               <div class="card upkeep">
-                <h3>City Upkeep & Inventories</h3>
-                <div class="field manager-wallet">Current Funds: </div>
+                <h3 class="hide-overflow-dots w-100 manager-wallet">City Upkeep & Inventories</h3>
                 <table class=" table-100-w city-upkeep">
                   <tr>
                     <th>Good</th>
                     <th>Mod</th>
                     <th>Base</th>
                     <th>Need</th>
-                    <th>Low Price</th>
-                    <th>High Price</th>
+                    <th>Price</th>
                     <th>Inventory</th>
                   </tr>
                 </table>
@@ -100,11 +100,12 @@
           </div>
         </div>
         <div class="template">
-          <div class="econ-agent-stats card template">
-            <h3 class="title">Economical Agent</h3>
+          <div class="econ-agent-stats w-20em card template">
+            <h3 class="title hide-overflow-dots w-100">Economical Agent</h3>
             <div class="field agent-type">Type: </div>
-            <div class="field agent-syndicate">Syndicate: </div>
+            <div class="field agent-syndicate hide-overflow-dots">Syndicate: </div>
             <div class="field agent-wallet">Current Wallet: </div>
+            <div class="field agent-age">In business for: </div>
             <table class="table-100-w agent-inventory-table">
               <tr>
                 <th>Good</th>
@@ -114,34 +115,33 @@
               </tr>
             </table>
             <div class="flex row wrap">
-              <div class="btn bankrupt-btn">Bankrupt</div>
+              <div class="btn bankrupt-btn">Retire & Replace</div>
             </div>
           </div>
           <table class="template">
             <tr class="table-field agent-inventory template">
-              <td class="good"></td>
-              <td class="buy"></td>
-              <td class="sell"></td>
+              <td class="good min-w-6em"></td>
+              <td class="buy min-w-3em"></td>
+              <td class="sell min-w-3em"></td>
               <td class="inventory">
             </tr>
             <tr class="table-field generic template">
-              <td class="name"></td>
-              <td class="value"></td>
+              <td class="name min-w-6em"></td>
+              <td class="value min-w-6em"></td>
               <td class="base"><input class="stat-input"></td>
             </tr>
             <tr class="table-field production template">
-              <td class="name"></td>
+              <td class="name min-w-6em"></td>
               <td class="mod"></td>
               <td class="base"><input class="stat-input"></td>
               <td class="limit"></td>
             </tr>
             <tr class="table-field upkeep template">
-              <td class="name"></td>
-              <td class="mod"></td>
+              <td class="name min-w-6em"></td>
+              <td class="mod min-w-3em"></td>
               <td class="base"><input class="stat-input"></td>
-              <td class="need"></td>
-              <td class="lower-price"></td>
-              <td class="upper-price"></td>
+              <td class="need min-w-3em"></td>
+              <td class="lower-price min-w-3em"></td>
               <td class="inventory"></td>
             </tr>
             <tr class="table-field faction template">
