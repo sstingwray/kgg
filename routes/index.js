@@ -3,7 +3,11 @@ var router = express.Router();
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Nu Avalon Dashboard' });
+  res.render('index');
+});
+
+router.get('/nu-avalon', function(req, res, next) {
+  res.render('nuavalon', { title: 'Nu Avalon Dashboard' });
 });
 
 module.exports = router;

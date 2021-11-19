@@ -2687,6 +2687,10 @@
                 };
             }, 100);
         });
+
+        $('.logo').on('click', () => {
+            window.location.href="/";
+        });
         
         $('.calculate-btn').on('click', () => {
             $(app.components.spinner).show();
