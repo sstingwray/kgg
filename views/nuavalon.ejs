@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon">
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <script src="/javascripts/jquery.min.js"></script>
+    <script src="/javascripts/tinysort.min.js"></script>
+    <script src="/javascripts/econ.js"></script>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap" rel="stylesheet"> 
+  </head>
+  <body>
+    <div class="spinner-container flex just-center align-i-center"><div class="lds-ring"><div></div><div></div><div></div><div></div></div></div>
+    <div class="flex row btn-panel">
+      <div class="logo"><span class="kstr">Kostroun.</span><span class="gg">gg</span></div>
+      <h1><%= title %></h1>
+      <div class="btn template"></div>
+      <div class="btn home-btn">Home</div>
+      <div class="btn save-btn">Save</div>
+      <div class="btn load-btn">Load</div>
+      <div class="btn log-data-btn">Log Data</div>
+      <div class="btn debug-1-fn-btn">Debug Function #1</div>
+      <div class="btn debug-2-fn-btn">Debug Function #2</div>
+      <div class="btn add-new-btn">Add new City</div>
+      <div class="btn calculate-btn">Calculate Cities</div>
+      <div class="btn next-turn-btn">Next Turn</div>
+      <h1>Turn:</h1><h1 class="turn-counter">0</h1>
+    </div>
+    <div class="flex row city-anchors container">
+      <a class="city-anchor-link mrg-1em template" href=""></a>
+    </div>
+    <div class="flex col city-list container">
+      <div class="flex col city-wrapper template">
+        <a class="city-anchor" id=""></a>
+        <div class="flex col city-card">
+          <h2 class="city-name">City Name</h2>
+          <!-- <div class="city-pop">Population: 1337</div>
+          <div class="city-gov-type">Government Type: Democracy</div>
+          <div class="city-prop-type">Property Relations: Socialism</div>-->
+          <div class="flex row">
+            <div style="flex-basis: auto;" class="card flex align-i-start col stats">
+              <h3>City Stats</h3>
+              <table class="table-100-w city-stats">
+                <tr>
+                  <th>Stats</th>
+                  <th>Value</th>
+                  <th>Base</th>
+                </tr>
+              </table>
+              <div style="width: 100%;" class="city-controls"></div>
+            </div>
+            <div style="flex-basis: auto;" class="flex row align-i-start wrap align-c-center econ">
+              <div class="card upkeep">
+                <h3 class="hide-overflow-dots w-100 manager-wallet">City Upkeep & Inventories</h3>
+                <table class=" table-100-w city-upkeep">
+                  <tr>
+                    <th>Good</th>
+                    <th>Mod</th>
+                    <th>Base</th>
+                    <th>Need</th>
+                    <th>Price</th>
+                    <th>Inventory</th>
+                  </tr>
+                </table>
+              </div>
+              <div class="card production">
+                <h3>City Production</h3>
+                <table class=" table-100-w city-production">
+                  <tr>
+                    <th>Good</th>
+                    <th>Mod</th>
+                    <th>Base</th>
+                    <th>Limit</th>
+                  </tr>
+                </table>
+              </div>
+              <div class="production-stopper"></div>
+            </div>
+            <div style="flex-basis: 30%;" class="flex col align-i-start politics-features">
+              <div class="card politics">
+                <h3>City Politics</h3>
+                <table class="table-100-w city-politics">
+                  <tr>
+                    <th>Faction</th>
+                    <th>Support</th>
+                    <th>Trend</th>
+                    <th>Opposition</th>
+                  </tr>
+                </table>
+              </div>
+              <div class="card features">
+                <h3>City Features</h3>
+                <div class="flex row wrap space-betw city-features"></div>
+              </div>
+              <div class="card buildings">
+                <h3>City Buildings</h3>
+                <div class="flex row wrap space-betw city-buildings"></div>
+              </div>
+              
+            </div>
+          </div>
+        </div>
+        <div class="template">
+          <div class="econ-agent-stats w-20em card template">
+            <h3 class="title hide-overflow-dots w-100">Economical Agent</h3>
+            <div class="field agent-type">Type: </div>
+            <div class="field agent-syndicate hide-overflow-dots">Syndicate: </div>
+            <div class="field agent-wallet">Current Wallet: </div>
+            <div class="field agent-age">In business for: </div>
+            <table class="table-100-w agent-inventory-table">
+              <tr>
+                <th>Good</th>
+                <th>Buy</th>
+                <th>Sell</th>
+                <th>Inventory</th>
+              </tr>
+            </table>
+            <div class="flex row wrap">
+              <div class="btn bankrupt-btn">Retire & Replace</div>
+            </div>
+          </div>
+          <table class="template">
+            <tr class="table-field agent-inventory template">
+              <td class="good min-w-6em"></td>
+              <td class="buy min-w-3em"></td>
+              <td class="sell min-w-3em"></td>
+              <td class="inventory">
+            </tr>
+            <tr class="table-field generic template">
+              <td class="name min-w-6em"></td>
+              <td class="value min-w-6em"></td>
+              <td class="base"><input class="stat-input"></td>
+            </tr>
+            <tr class="table-field production template">
+              <td class="name min-w-6em"></td>
+              <td class="mod"></td>
+              <td class="base"><input class="stat-input"></td>
+              <td class="limit"></td>
+            </tr>
+            <tr class="table-field upkeep template">
+              <td class="name min-w-6em"></td>
+              <td class="mod min-w-3em"></td>
+              <td class="base"><input class="stat-input"></td>
+              <td class="need min-w-3em"></td>
+              <td class="lower-price min-w-3em"></td>
+              <td class="inventory"></td>
+            </tr>
+            <tr class="table-field faction template">
+              <td class="name"><input class="stat-input w-18em"></td>
+              <td class="support"><input class="stat-input"></td>
+              <td class="trend"><input class="stat-input"></td>
+              <td class="opposition"><input class="stat-input"></td>
+              <td class="remove-btn"><div class="btn inline">x</div></td>
+            </tr>
+          </table>
+          <div class="flex row align-i-center feature template">
+              <input class="feature-name-input stat-input w-10em"> x <input class="feature-factor-input stat-input w-2em"><div class="btn inline remove-btn">x</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
