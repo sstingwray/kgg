@@ -18,7 +18,7 @@
             nuAvalon: {
                 title: 'Nu-Avalon Dashboard',
                 type: 'link',
-                destination: '/nu-avalon'
+                destination: './nu-avalon'
             }
         },
         components: {
