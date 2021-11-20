@@ -283,6 +283,15 @@ input {
     background-color: var(--third-bg-color);
   }
 
+.sw-gen-container:not(:first-child) {
+  opacity: 0.5;
+  transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
+  }
+  .sw-gen-container:not(:first-child):hover {
+    opacity: 1;
+  }
+
+
 .city-anchors {
   top: 5em;
   left: 0;
