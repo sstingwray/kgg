@@ -13,12 +13,14 @@
             treasureGen: {
                 title: 'Fantasy Treasure Generator',
                 type: 'gizmo',
-                destination: 'calculatorTreasureSW'
+                destination: 'calculatorTreasureSW',
+                tabindex: 2
             },
             nuAvalon: {
                 title: 'Nu-Avalon Dashboard',
                 type: 'link',
-                destination: './nu-avalon'
+                destination: './nu-avalon',
+                tabindex: 3
             }
         },
         components: {
@@ -41,6 +43,7 @@
         newBtn.classList.remove ('template');
 
         newBtn.innerHTML = btnPattern.title;
+        newBtn.tabIndex = btnPattern.tabindex;
 
         switch (btnPattern.type) {
             case 'gizmo':

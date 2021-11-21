@@ -13,6 +13,8 @@
   --second-cont-color: hsla(180, 49%, 87%, 0.67);
   --third-cont-color: hsla(180, 49%, 87%, 0.5);
 
+  --clear-color: hsla(180, 100% 100%, 0);
+
 }
 
 html {
@@ -60,6 +62,14 @@ input {
   color: var(--second-cont-color);
   border-color: var(--third-bg-color);
   background-color: var(--third-bg-color);
+}
+
+button {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  background-color: var(--clear-color);
+  border: var(--clear-color);
 }
 
 .spinner-container {
@@ -244,8 +254,6 @@ input {
   border-radius: 2px;
   margin: 1em 1em;
   padding: 1em;
-  /*background-color: hsla(180, 15%, 39%, 1);
-  box-shadow: 0 3px 6px rgba(0,0,0,0.19), 0 3px 6px rgba(0,0,0,0.23);*/
   transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
   }
   .btn:hover {
@@ -296,6 +304,11 @@ input {
   }
   input:checked + .slider {
     background-color: var(--main-bg-color);
+  }
+
+  input:focus + .slider {
+    outline: 5px auto Highlight;
+    outline: 5px auto -webkit-focus-ring-color;
   }
 
   input:checked + .slider:before {
