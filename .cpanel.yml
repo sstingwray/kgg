@@ -1,5 +1,0 @@
----
-deployment:
-  tasks:
-    - export DEPLOYPATH=/home/kostroun/public_html
-    - /bin/cp -r /home/kostroun/repositories/kgg/ $DEPLOYPATH
