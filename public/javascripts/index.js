@@ -88,6 +88,7 @@
         let is1000Tradeout = gizmo.querySelector('.sw-1000-tradeout > input').checked;
         let is100Tradeout = gizmo.querySelector('.sw-100-tradeout > input').checked;
         let isAntiqueTradeout = gizmo.querySelector('.sw-antique-tradeout > input').checked;
+        let isGoodsTradeout = gizmo.querySelector('.sw-goods-tradeout > input').checked;
 
         let basePool = gizmo.querySelector('.input-value').value;
         let timestamp = new Date();
@@ -271,7 +272,41 @@
                 };
             };
 
-            fnPrependNewItem('Gold coins: ' + gold);
+            return gold
+        }).then((gold) => {
+            if (isGoodsTradeout) {
+                let tradeoutNumber = Math.round(Math.random()*5) + 1;
+                let tradeoutsGoods = Math.floor(gold/tradeoutNumber);
+                let resultsTypes = [...Array(tradeoutNumber).keys()].map(x => x = Math.round(Math.random()*19) + 1);
+                let resultsGoodsTypeOne = resultsTypes.filter(x => x <= 5).map(x => x = Math.round((Math.random() + 0.5)*tradeoutsGoods*1));
+                let resultsGoodsTypeOneWeights = resultsTypes.filter(x => x <= 5).map(x => x = Math.round(Math.random()*19) + 1);
+                let resultsGoodsTypeTwo = resultsTypes.filter(x => x > 5 && x <= 10).map(x => x = Math.round((Math.random() + 1)*tradeoutsGoods*1));
+                let resultsGoodsTypeTwoWeights = resultsTypes.filter(x => x > 5 && x <= 10).map(x => x = Math.round(Math.random()*19) + 1);
+                let resultsGoodsTypeThree = resultsTypes.filter(x => x > 10 && x <= 15).map(x => x = Math.round((Math.random() + 1)*tradeoutsGoods*1));
+                let resultsGoodsTypeThreeWeights = resultsTypes.filter(x => x > 10 && x <= 15).map(x => x = Math.round(Math.random()*19) + 1);
+                let resultsGoodsTypeFour = resultsTypes.filter(x => x > 15).map(x => x = Math.round((Math.random() + 1.5)*tradeoutsGoods*1));
+                let resultsGoodsTypeFourWeights = resultsTypes.filter(x => x > 15).map(x => x = Math.round(Math.random()*19) + 1);
+
+                gold = 0;
+                console.log('Goods Trade-Out #: ' + tradeoutNumber);
+    
+                if (resultsGoodsTypeOne.length > 0) {
+                    fnPrependNewItem('Meats, gp: ' + resultsGoodsTypeOne.join(', '), 'Weights, lbs: ' + resultsGoodsTypeOneWeights.join(', '));
+                };
+                if (resultsGoodsTypeTwo.length > 0) {
+                    fnPrependNewItem('Bones, gp: ' + resultsGoodsTypeTwo.join(', '), 'Weights, lbs: ' + resultsGoodsTypeTwoWeights.join(', '));
+                };
+                if (resultsGoodsTypeThree.length > 0) {
+                    fnPrependNewItem('Skins, gp: ' + resultsGoodsTypeThree.join(', '), 'Weights, lbs: ' + resultsGoodsTypeThreeWeights.join(', '));
+                };
+                if (resultsGoodsTypeFour.length > 0) {
+                    fnPrependNewItem('Exotic Parts, gp: ' + resultsGoodsTypeFour.join(', '), 'Weights, lbs: ' + resultsGoodsTypeFourWeights.join(', '));
+                };
+            };
+
+            return gold
+        }).then((gold) => {
+            (gold > 0 ? fnPrependNewItem('Gold coins: ' + gold) : '');
         });
 
         calculation.then(() => {
