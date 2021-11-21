@@ -350,6 +350,7 @@
 
         $('.gen-open-tweak.btn').on('click', () => {
             ($('.gen-tweaking-panel').hasClass('active') ? $('.gen-tweaking-panel').removeClass('active') : $('.gen-tweaking-panel').addClass('active'));
+            ($('.gen-tweaking-panel').hasClass('active') ? $('.gen-open-tweak.btn').html('Hide additional settings') : $('.gen-open-tweak.btn').html('Show additional settings'));
         });
     })
 

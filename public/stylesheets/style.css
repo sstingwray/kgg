@@ -350,6 +350,7 @@ button {
   }
 
 .gen-tweaking-panel {
+  opacity: 0;
   max-height: 0;
   overflow: hidden;
   scrollbar-width: thin;
@@ -357,6 +358,7 @@ button {
   transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
   }
   .gen-tweaking-panel.active {
+    opacity: 1;
     overflow-x: auto;
     max-height: 4em;
     padding: 1em 0;
