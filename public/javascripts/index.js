@@ -50,6 +50,7 @@
                 $(newBtn).on('click', () => {
                     $('.gizmo.' + app.gizmoPatterns[btnPattern.destination].class).show();
                     $(app.components.btnClose).show();
+                    $('.main-content').addClass('blurred');
                 });
                 break;
             case 'link':
@@ -341,6 +342,7 @@
 
         $(app.components.btnClose).on('click', () => {
             $('.gizmo').hide();
+            $('.main-content').removeClass('blurred');
             $(app.components.btnClose).hide();
         });
 
