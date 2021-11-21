@@ -21,15 +21,23 @@
       <div class="title"><h3 class="title"></h3></div>
       <div class="body"></div>
     </div>
-    <div class="gizmo sw-treasure">
-      <div class="title">Sword & Wizardry Treasure<h3 class="title"></h3></div>
+    <div class="gizmo treasure-gen">
+      <div class="title">Fantasy Treasure Generator (Sword & Wizardry -based)<h3 class="title"></h3></div>
       <div class="body">
         <div class="flex row align-i-center">
-          <p>Encounter XP:</p> <input type="text" class="sw-input-value"> <div class="sw-gen-treasure btn">Generate Treasure</div>
+          <p>Encounter XP:</p> <input type="text" class="input-value"> <div class="gen-treasure btn">Generate Treasure</div> <div class="gen-open-tweak btn">Show additional settings</div>
         </div>
-        <div class="flex col sw-gen-results">
-          <div class="flex col mrg-1em sw-gen-item template"><div class="item-description"></div><div class="item-weight"></div></div>
-          <div class="mrg-1em sw-gen-container card template"></div>
+        <div class="flex row gen-tweaking-panel">
+          <div class="flex row align-i-center gen-tweak-option"><p>Sword & Wizardry [1d3+1] Multiplier:</p><label class="switch sw-base-multiplier"><input type="checkbox" checked="checked"><div class="slider"></div></label></div>
+          <div class="flex row align-i-center gen-tweak-option"><p>5000gp Trade Out:</p><label class="switch sw-5000-tradeout"><input type="checkbox" checked="checked"><div class="slider"></div></label></div>
+          <div class="flex row align-i-center gen-tweak-option"><p>1000gp Trade Out:</p><label class="switch sw-1000-tradeout"><input type="checkbox" checked="checked"><div class="slider"></div></label></div>
+          <div class="flex row align-i-center gen-tweak-option"><p>100gp Trade Out:</p><label class="switch sw-100-tradeout"><input type="checkbox" checked="checked"><div class="slider"></div></label></div>
+          <div class="flex row align-i-center gen-tweak-option"><p>Antique Trade Out:</p><label class="switch sw-antique-tradeout"><input type="checkbox" checked="checked"><div class="slider"></div></label></div>
+
+        </div>
+        <div class="flex col gen-results">
+          <div class="flex col mrg-1em gen-item template"><div class="item-description"></div><div class="item-weight"></div></div>
+          <div class="mrg-1em gen-container card template"></div>
         </div>
       </div>
     </div>
