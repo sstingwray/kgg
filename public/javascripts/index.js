@@ -146,7 +146,7 @@
                         fnPrependNewItem('Magic Armor & Weapons (Table 98): ' + resultsMinorMagicItemTypeFour.join(', '));
                     };
                     if (resultsMajorGemsTypes.length > 0) {
-                        fnPrependNewItem('Major Gems & Jewelry: ' + resultsMajorGemsTypeOne.concat(resultsMajorGemsTypeTwo).concat(resultsMajorGemsTypeThree).concat(resultsMajorGemsTypeFour).join(', '));
+                        fnPrependNewItem('Major Gems & Jewelry, gp: ' + resultsMajorGemsTypeOne.concat(resultsMajorGemsTypeTwo).concat(resultsMajorGemsTypeThree).concat(resultsMajorGemsTypeFour).join(', '));
                     };
                     
                 };
@@ -187,7 +187,7 @@
                         fnPrependNewItem('Magic Armor & Weapons (Table 98): ' + resultsMinorMagicItemTypeFour.join(', '));
                     };
                     if (resultsMediumGemsTypes.length > 0) {
-                        fnPrependNewItem('Medium Gems & Jewelry: ' + resultsMediumGemsTypeOne.concat(resultsMediumGemsTypeTwo).concat(resultsMediumGemsTypeThree).concat(resultsMediumGemsTypeFour).join(', '));
+                        fnPrependNewItem('Medium Gems & Jewelry, gp: ' + resultsMediumGemsTypeOne.concat(resultsMediumGemsTypeTwo).concat(resultsMediumGemsTypeThree).concat(resultsMediumGemsTypeFour).join(', '));
                     };
                 };
             };
@@ -227,7 +227,7 @@
                         fnPrependNewItem('Magic Armor & Weapons (Table 98): ' + resultsMinorMagicItemTypeFour.join(', '));
                     };
                     if (resultsMinorGemsTypes.length > 0) {
-                        fnPrependNewItem('Minor Gems & Jewelry: ' + resultsMinorGemsTypeOne.concat(resultsMinorGemsTypeTwo).concat(resultsMinorGemsTypeThree).concat(resultsMinorGemsTypeFour).join(', '));
+                        fnPrependNewItem('Minor Gems & Jewelry, gp: ' + resultsMinorGemsTypeOne.concat(resultsMinorGemsTypeTwo).concat(resultsMinorGemsTypeThree).concat(resultsMinorGemsTypeFour).join(', '));
                     };
                 };
             };
@@ -254,16 +254,16 @@
                     console.log('Gold after antique Trade Out: ' + (gold));
         
                     if (resultsAntiqueTypeOne.length > 0) {
-                        fnPrependNewItem('Common Items: ' + resultsAntiqueTypeOne.join(', '), 'Weights, lbs: ' + resultsAntiqueTypeOneWeights.join(', '));
+                        fnPrependNewItem('Common Items, gp: ' + resultsAntiqueTypeOne.join(', '), 'Weights, lbs: ' + resultsAntiqueTypeOneWeights.join(', '));
                     };
                     if (resultsAntiqueTypeTwo.length > 0) {
-                        fnPrependNewItem('Depictions: ' + resultsAntiqueTypeTwo.join(', '), 'Weights, lbs: ' + resultsAntiqueTypeTwoWeights.join(', '));
+                        fnPrependNewItem('Depictions, gp: ' + resultsAntiqueTypeTwo.join(', '), 'Weights, lbs: ' + resultsAntiqueTypeTwoWeights.join(', '));
                     };
                     if (resultsAntiqueTypeThree.length > 0) {
-                        fnPrependNewItem('Writings: ' + resultsAntiqueTypeThree.join(', '), 'Weights, lbs: ' + resultsAntiqueTypeThreeWeights.join(', '));
+                        fnPrependNewItem('Writings, gp: ' + resultsAntiqueTypeThree.join(', '), 'Weights, lbs: ' + resultsAntiqueTypeThreeWeights.join(', '));
                     };
                     if (resultsAntiqueTypeFour.length > 0) {
-                        fnPrependNewItem('Artifacts: ' + resultsAntiqueTypeFour.join(', '), 'Weights, lbs: ' + resultsAntiqueTypeFourWeights.join(', '));
+                        fnPrependNewItem('Artifacts, gp: ' + resultsAntiqueTypeFour.join(', '), 'Weights, lbs: ' + resultsAntiqueTypeFourWeights.join(', '));
                     };
                 };
             };
