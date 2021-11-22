@@ -118,8 +118,8 @@
             newResultItem.classList.remove ('template');
             newResultItem.querySelector('.item-description > .label').innerHTML = description;
             newResultItem.querySelector('.item-description > .value').innerHTML = gpValue;
-            newResultItem.querySelector('.item-weight > .label').innerHTML = (weight != null ? 'Weigths, lbs' : '');
-            newResultItem.querySelector('.item-weight > .value').innerHTML = weight;
+            newResultItem.querySelector('.item-weight > .label').innerHTML = (weight != null ? 'Weigths, lbs: ' : '');
+            newResultItem.querySelector('.item-weight > .value').innerHTML = (weight != null ? weight : '');
 
             newResultLine.prepend(newResultItem);
         };
@@ -322,7 +322,7 @@
 
             return gold
         }).then((gold) => {
-            (gold > 0 ? fnPrependNewItem('Gold coins: ' + gold) : '');
+            (gold > 0 ? fnPrependNewItem('Gold coins: ', gold) : '');
         });
 
         calculation.then(() => {
