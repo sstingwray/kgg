@@ -322,7 +322,7 @@
 
             return gold
         }).then((gold) => {
-            (gold > 0 ? fnPrependNewItem('Gold coins: ' + gold) : '');
+            (gold > 0 ? fnPrependNewItem('Gold coins: ', gold) : '');
         });
 
         calculation.then(() => {
