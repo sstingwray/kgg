@@ -12,9 +12,8 @@
   </head>
   <body>
     <div class="spinner-container flex just-center align-i-center"><div class="lds-ring"><div></div><div></div><div></div><div></div></div></div>
-    <div class="flex row btn-panel">
+    <div class="flex row header">
       <button class="logo" tabindex="1"><span class="kstr">Kostroun.</span><span class="gg">gg</span></button>
-      <button class="btn template"></button>
     </div>
     <button class="close-btn">X</button>
     <div class="gizmo template">
@@ -28,24 +27,33 @@
           <p>Encounter XP:</p> <input type="text" class="input-value"> <button class="gen-treasure btn">Generate Treasure</button> <button class="gen-open-tweak btn">Show additional settings</button>
         </div>
         <div class="flex row gen-tweaking-panel">
-          <div class="flex row align-i-center gen-tweak-option"><p>Sword & Wizardry [1d3+1] Multiplier:</p><label class="switch sw-base-multiplier"><input type="checkbox" checked="checked"><div class="slider"></div></label></div>
-          <div class="flex row align-i-center gen-tweak-option"><p>5000gp Trade Out:</p><label class="switch sw-5000-tradeout"><input type="checkbox" checked="checked"><div class="slider"></div></label></div>
-          <div class="flex row align-i-center gen-tweak-option"><p>1000gp Trade Out:</p><label class="switch sw-1000-tradeout"><input type="checkbox" checked="checked"><div class="slider"></div></label></div>
-          <div class="flex row align-i-center gen-tweak-option"><p>100gp Trade Out:</p><label class="switch sw-100-tradeout"><input type="checkbox" checked="checked"><div class="slider"></div></label></div>
-          <div class="flex row align-i-center gen-tweak-option"><p>Antique Trade Out:</p><label class="switch sw-antique-tradeout"><input type="checkbox" checked="checked"><div class="slider"></div></label></div>
-          <div class="flex row align-i-center gen-tweak-option"><p>Goods Trade Out:</p><label class="switch sw-goods-tradeout"><input type="checkbox" checked="checked"><div class="slider"></div></label></div>
+          <div class="flex row align-i-center gen-tweak-option switch-btn template"><p class="label"></p><div class="switch-container"><label class="switch"><input type="checkbox" checked="checked"><div class="slider"></div></label></div></div>
         </div>
         <div class="flex col gen-results">
-          <div class="flex col mrg-1em gen-item template"><div class="item-description"></div><div class="item-weight"></div></div>
-          <div class="mrg-1em gen-container card template"></div>
+          <div class="flex col mrg-1em pdng-1em just-center white-space-nowrap card reverse-colors gen-item template">
+            <div class="item-description">
+              <span class="label"></span> <span class="value"></span>
+            </div>
+            <div class="item-weight">
+              <span class="label"></span> <span class="value"></span>
+            </div>
+          </div>
+          <div class="flex row wrap mrg-1em gen-container card template"></div>
         </div>
       </div>
     </div>
-    <div class="flex row wrap align-i-end align-c-end space-ar main-content">
-      <a target="_blank" href="https://discord.gg/z3z2hxMADr"><img class="img-link" src="/images/link-discord.png" alt="Discord"></a>
-      <a target="_blank" href="https://www.youtube.com/catatonicnonsense"><img class="img-link" src="/images/link-youtube.png" alt="Youtube"></a>
-      <a target="_blank" href="https://twitter.com/_stingwray"><img class="img-link" src="/images/link-twitter.png" alt="Twitter"></a>
-      <a target="_blank" href="https://vk.com/alexkostrounstreams"><img class="img-link" src="/images/link-vk.png" alt="VK"></a>
+    <div class="flex row wrap gizmos-panel main-content-block">
+      <button class="btn template"></button>
+    </div>
+    <div class="flex row wrap space-ar links-panel main-content-block">
+      <a target="_blank" href="https://discord.gg/z3z2hxMADr"><img class="img-link" src="/images/link-discord.png" alt="Discord — discord.gg/z3z2hxMADr"></a>
+      <a target="_blank" href="https://www.youtube.com/catatonicnonsense"><img class="img-link" src="/images/link-youtube.png" alt="Youtube — www.youtube.com/catatonicnonsense"></a>
+      <a target="_blank" href="https://www.twitch.tv/alexkostroun"><img class="img-link" src="/images/link-twitch.png" alt="Twitch — www.twitch.tv/alexkostroun"></a>
+      <a target="_blank" href="https://twitter.com/_stingwray"><img class="img-link" src="/images/link-twitter.png" alt="Twitter — twitter.com/_stingwray"></a>
+      <a target="_blank" href="https://vk.com/alexkostrounstreams"><img class="img-link" src="/images/link-vk.png" alt="VK — vk.com/alexkostrounstreams"></a>
+    </div>
+    <div class="flex row wrap space-ar footer">
+      Kostroun.gg © 2021
     </div>
   </body>
 </html>

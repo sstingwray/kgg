@@ -27,11 +27,12 @@
             spinner: {},
             btnClose: {},
             btnTemplate: {},
+            switchTemplate: {},
             gizmoTemplate: {}
         },
         containers: {
             btnPanel: {},
-
+            treasureKnobsPanel: {}
         }
 
     }
@@ -50,7 +51,8 @@
                 $(newBtn).on('click', () => {
                     $('.gizmo.' + app.gizmoPatterns[btnPattern.destination].class).show();
                     $(app.components.btnClose).show();
-                    $('.main-content').addClass('blurred');
+                    $('.main-content-block').addClass('blurred');
+                    $('body').addClass('locked');
                 });
                 break;
             case 'link':
@@ -64,6 +66,17 @@
         }
         app.containers.btnPanel.appendChild(newBtn);
 
+    };
+
+    app.fabricateSwitch = (container, labelText, checkboxClass) => {
+        let newSwitch = app.components.switchTemplate.cloneNode(true);
+        
+        newSwitch.classList.add('generated');
+        newSwitch.classList.remove ('template');
+        newSwitch.querySelector('.label').innerHTML = labelText;
+        newSwitch.querySelector('.switch').classList.add(checkboxClass);
+
+        container.appendChild(newSwitch);
     }
 
     app.fabricateGizmo = (gizmoPattern) => {
@@ -76,7 +89,7 @@
         app.fabricateButton(app.btnPatterns[gizmoPattern.btnCaller]);
         $(newGizmo).hide();
         document.body.appendChild(newGizmo);
-    }
+    };
 
     app.treasureTradeouts = () => {
         let gizmo = document.querySelector('.gizmo.treasure-gen');
@@ -99,12 +112,14 @@
         newResultLine.classList.add('generated');
         newResultLine.classList.remove ('template');
 
-        let fnPrependNewItem = (text, weight = null) => {
+        let fnPrependNewItem = (description, gpValue, weight = null) => {
             let newResultItem = resultItemTemplate.cloneNode(true);
             newResultItem.classList.add('generated');
             newResultItem.classList.remove ('template');
-            newResultItem.querySelector('.item-description').innerHTML = text;
-            newResultItem.querySelector('.item-weight').innerHTML = weight;
+            newResultItem.querySelector('.item-description > .label').innerHTML = description;
+            newResultItem.querySelector('.item-description > .value').innerHTML = gpValue;
+            newResultItem.querySelector('.item-weight > .label').innerHTML = (weight != null ? 'Weigths, lbs' : '');
+            newResultItem.querySelector('.item-weight > .value').innerHTML = weight;
 
             newResultLine.prepend(newResultItem);
         };
@@ -139,19 +154,19 @@
                     console.log('Gold after 5000 Trade Out: ' + gold);
 
                     if (resultsMajorMagicItemTypeOne.length > 0) {
-                        fnPrependNewItem('Potions (Table 85): ' + resultsMajorMagicItemTypeOne.join(', '));
+                        fnPrependNewItem('Potions (Table 85): ', resultsMajorMagicItemTypeOne.join(', '));
                     };
                     if (resultsMajorMagicItemTypeTwo.length > 0) {
-                        fnPrependNewItem('Scrolls (Table 86): ' + resultsMajorMagicItemTypeTwo.join(', '));
+                        fnPrependNewItem('Scrolls (Table 86): ', resultsMajorMagicItemTypeTwo.join(', '));
                     };
                     if (resultsMajorMagicItemTypeThree.length > 0) {
-                        fnPrependNewItem('Magic Armor & Weapons (Table 89): ' + resultsMajorMagicItemTypeThree.join(', '));
+                        fnPrependNewItem('Magic Armor & Weapons (Table 89): ', resultsMajorMagicItemTypeThree.join(', '));
                     };
                     if (resultsMajorMagicItemTypeFour.length > 0) {
-                        fnPrependNewItem('Magic Armor & Weapons (Table 98): ' + resultsMinorMagicItemTypeFour.join(', '));
+                        fnPrependNewItem('Magic Armor & Weapons (Table 98): ', resultsMinorMagicItemTypeFour.join(', '));
                     };
                     if (resultsMajorGemsTypes.length > 0) {
-                        fnPrependNewItem('Major Gems & Jewelry, gp: ' + resultsMajorGemsTypeOne.concat(resultsMajorGemsTypeTwo).concat(resultsMajorGemsTypeThree).concat(resultsMajorGemsTypeFour).join(', '));
+                        fnPrependNewItem('Major Gems & Jewelry, gp: ', resultsMajorGemsTypeOne.concat(resultsMajorGemsTypeTwo).concat(resultsMajorGemsTypeThree).concat(resultsMajorGemsTypeFour).join(', '));
                     };
                     
                 };
@@ -180,19 +195,19 @@
                     console.log('Gold after 1000 Trade Out: ' + gold);
 
                     if (resultsMediumMagicItemTypeOne.length > 0) {
-                        fnPrependNewItem('Potions (Table 85): ' + resultsMediumMagicItemTypeOne.join(', '));
+                        fnPrependNewItem('Potions (Table 85): ', resultsMediumMagicItemTypeOne.join(', '));
                     };
                     if (resultsMediumMagicItemTypeTwo.length > 0) {
-                        fnPrependNewItem('Scrolls (Table 86): ' + resultsMediumMagicItemTypeTwo.join(', '));
+                        fnPrependNewItem('Scrolls (Table 86): ', resultsMediumMagicItemTypeTwo.join(', '));
                     };
                     if (resultsMediumMagicItemTypeThree.length > 0) {
-                        fnPrependNewItem('Magic Armor & Weapons (Table 89): ' + resultsMediumMagicItemTypeThree.join(', '));
+                        fnPrependNewItem('Magic Armor & Weapons (Table 89): ', resultsMediumMagicItemTypeThree.join(', '));
                     };
                     if (resultsMediumMagicItemTypeFour.length > 0) {
-                        fnPrependNewItem('Magic Armor & Weapons (Table 98): ' + resultsMinorMagicItemTypeFour.join(', '));
+                        fnPrependNewItem('Magic Armor & Weapons (Table 98): ', resultsMinorMagicItemTypeFour.join(', '));
                     };
                     if (resultsMediumGemsTypes.length > 0) {
-                        fnPrependNewItem('Medium Gems & Jewelry, gp: ' + resultsMediumGemsTypeOne.concat(resultsMediumGemsTypeTwo).concat(resultsMediumGemsTypeThree).concat(resultsMediumGemsTypeFour).join(', '));
+                        fnPrependNewItem('Medium Gems & Jewelry, gp: ', resultsMediumGemsTypeOne.concat(resultsMediumGemsTypeTwo).concat(resultsMediumGemsTypeThree).concat(resultsMediumGemsTypeFour).join(', '));
                     };
                 };
             };
@@ -220,19 +235,19 @@
                     console.log('Gold after 100 Trade Out: ' + gold);
 
                     if (resultsMinorMagicItemTypeOne.length > 0) {
-                        fnPrependNewItem('Potions (Table 85): ' + resultsMinorMagicItemTypeOne.join(', '));
+                        fnPrependNewItem('Potions (Table 85): ', resultsMinorMagicItemTypeOne.join(', '));
                     };
                     if (resultsMinorMagicItemTypeTwo.length > 0) {
-                        fnPrependNewItem('Scrolls (Table 86): ' + resultsMinorMagicItemTypeTwo.join(', '));
+                        fnPrependNewItem('Scrolls (Table 86): ', resultsMinorMagicItemTypeTwo.join(', '));
                     };
                     if (resultsMinorMagicItemTypeThree.length > 0) {
-                        fnPrependNewItem('Magic Armor & Weapons (Table 89): ' + resultsMinorMagicItemTypeThree.join(', '));
+                        fnPrependNewItem('Magic Armor & Weapons (Table 89): ', resultsMinorMagicItemTypeThree.join(', '));
                     };
                     if (resultsMinorMagicItemTypeFour.length > 0) {
-                        fnPrependNewItem('Magic Armor & Weapons (Table 98): ' + resultsMinorMagicItemTypeFour.join(', '));
+                        fnPrependNewItem('Magic Armor & Weapons (Table 98): ', resultsMinorMagicItemTypeFour.join(', '));
                     };
                     if (resultsMinorGemsTypes.length > 0) {
-                        fnPrependNewItem('Minor Gems & Jewelry, gp: ' + resultsMinorGemsTypeOne.concat(resultsMinorGemsTypeTwo).concat(resultsMinorGemsTypeThree).concat(resultsMinorGemsTypeFour).join(', '));
+                        fnPrependNewItem('Minor Gems & Jewelry, gp: ', resultsMinorGemsTypeOne.concat(resultsMinorGemsTypeTwo).concat(resultsMinorGemsTypeThree).concat(resultsMinorGemsTypeFour).join(', '));
                     };
                 };
             };
@@ -259,16 +274,16 @@
                     console.log('Gold after antique Trade Out: ' + (gold));
         
                     if (resultsAntiqueTypeOne.length > 0) {
-                        fnPrependNewItem('Common Items, gp: ' + resultsAntiqueTypeOne.join(', '), 'Weights, lbs: ' + resultsAntiqueTypeOneWeights.join(', '));
+                        fnPrependNewItem('Common Items, gp: ', resultsAntiqueTypeOne.join(', '), resultsAntiqueTypeOneWeights.join(', '));
                     };
                     if (resultsAntiqueTypeTwo.length > 0) {
-                        fnPrependNewItem('Depictions, gp: ' + resultsAntiqueTypeTwo.join(', '), 'Weights, lbs: ' + resultsAntiqueTypeTwoWeights.join(', '));
+                        fnPrependNewItem('Depictions, gp: ', resultsAntiqueTypeTwo.join(', '), resultsAntiqueTypeTwoWeights.join(', '));
                     };
                     if (resultsAntiqueTypeThree.length > 0) {
-                        fnPrependNewItem('Writings, gp: ' + resultsAntiqueTypeThree.join(', '), 'Weights, lbs: ' + resultsAntiqueTypeThreeWeights.join(', '));
+                        fnPrependNewItem('Writings, gp: ', resultsAntiqueTypeThree.join(', '), resultsAntiqueTypeThreeWeights.join(', '));
                     };
                     if (resultsAntiqueTypeFour.length > 0) {
-                        fnPrependNewItem('Artifacts, gp: ' + resultsAntiqueTypeFour.join(', '), 'Weights, lbs: ' + resultsAntiqueTypeFourWeights.join(', '));
+                        fnPrependNewItem('Artifacts, gp: ', resultsAntiqueTypeFour.join(', '), resultsAntiqueTypeFourWeights.join(', '));
                     };
                 };
             };
@@ -292,16 +307,16 @@
                 console.log('Goods Trade-Out #: ' + tradeoutNumber);
     
                 if (resultsGoodsTypeOne.length > 0) {
-                    fnPrependNewItem('Meats, gp: ' + resultsGoodsTypeOne.join(', '), 'Weights, lbs: ' + resultsGoodsTypeOneWeights.join(', '));
+                    fnPrependNewItem('Meats, gp: ', resultsGoodsTypeOne.join(', '), resultsGoodsTypeOneWeights.join(', '));
                 };
                 if (resultsGoodsTypeTwo.length > 0) {
-                    fnPrependNewItem('Bones, gp: ' + resultsGoodsTypeTwo.join(', '), 'Weights, lbs: ' + resultsGoodsTypeTwoWeights.join(', '));
+                    fnPrependNewItem('Bones, gp: ', resultsGoodsTypeTwo.join(', '), resultsGoodsTypeTwoWeights.join(', '));
                 };
                 if (resultsGoodsTypeThree.length > 0) {
-                    fnPrependNewItem('Skins, gp: ' + resultsGoodsTypeThree.join(', '), 'Weights, lbs: ' + resultsGoodsTypeThreeWeights.join(', '));
+                    fnPrependNewItem('Skins, gp: ', resultsGoodsTypeThree.join(', '), resultsGoodsTypeThreeWeights.join(', '));
                 };
                 if (resultsGoodsTypeFour.length > 0) {
-                    fnPrependNewItem('Exotic Parts, gp: ' + resultsGoodsTypeFour.join(', '), 'Weights, lbs: ' + resultsGoodsTypeFourWeights.join(', '));
+                    fnPrependNewItem('Exotic Parts, gp: ', resultsGoodsTypeFour.join(', '), resultsGoodsTypeFourWeights.join(', '));
                 };
             };
 
@@ -311,17 +326,19 @@
         });
 
         calculation.then(() => {
-            fnPrependNewItem('[' + timestamp.toLocaleTimeString() + ']');
+            fnPrependNewItem('[' + timestamp.toLocaleTimeString() + ']', '');
             resultContainer.prepend(newResultLine);
         });        
     };
 
     $(function() {
-        app.containers.btnPanel = document.querySelector('.btn-panel');
+        app.containers.btnPanel = document.querySelector('.gizmos-panel');
+        app.containers.treasureKnobsPanel = document.querySelector('.gen-tweaking-panel');
 
         app.components.spinner = document.querySelector('.spinner-container');
         app.components.btnClose = document.querySelector('.close-btn');
         app.components.btnTemplate = document.querySelector('.btn.template');
+        app.components.switchTemplate = document.querySelector('.switch-btn.template');
         app.components.gizmoTemplate = document.querySelector('.gizmo.template');
 
         /*Object.keys(app.gizmoPatterns).forEach(key => {
@@ -329,6 +346,12 @@
         });*/
         app.fabricateButton(app.btnPatterns.treasureGen);
         app.fabricateButton(app.btnPatterns.nuAvalon);
+        app.fabricateSwitch(app.containers.treasureKnobsPanel, 'Sword & Wizardry [1d3+1] Multiplier:', 'sw-base-multiplier');
+        app.fabricateSwitch(app.containers.treasureKnobsPanel, '5000gp Trade Out:', 'sw-5000-tradeout');
+        app.fabricateSwitch(app.containers.treasureKnobsPanel, '1000gp Trade Out:', 'sw-1000-tradeout');
+        app.fabricateSwitch(app.containers.treasureKnobsPanel, '100gp Trade Out:', 'sw-100-tradeout');
+        app.fabricateSwitch(app.containers.treasureKnobsPanel, 'Antique Trade Out:', 'sw-antique-tradeout');
+        app.fabricateSwitch(app.containers.treasureKnobsPanel, 'Goods Trade Out:', 'sw-goods-tradeout');
 
         $(app.components.spinner).hide();
         $(app.components.btnClose).hide();
@@ -342,7 +365,8 @@
 
         $(app.components.btnClose).on('click', () => {
             $('.gizmo').hide();
-            $('.main-content').removeClass('blurred');
+            $('.main-content-block').removeClass('blurred');
+            $('body').removeClass('locked');
             $(app.components.btnClose).hide();
         });
 

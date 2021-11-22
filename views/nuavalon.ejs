@@ -10,28 +10,26 @@
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap" rel="stylesheet"> 
   </head>
-  <body class="brighter">
+  <body class="reverse-colors">
     <div class="spinner-container flex just-center align-i-center"><div class="lds-ring"><div></div><div></div><div></div><div></div></div></div>
     <div class="filter"></div>
-    <div class="flex row btn-panel">
+    <div class="flex row header reverse-colors">
       <div class="logo"><span class="kstr">Kostroun.</span><span class="gg">gg</span></div>
-      <h1><%= title %></h1>
+      <h2><%= title %></h2>
       <div class="btn template"></div>
-      <div class="btn home-btn">Home</div>
       <div class="btn save-btn">Save</div>
       <div class="btn load-btn">Load</div>
-      <div class="btn log-data-btn">Log Data</div>
-      <div class="btn debug-1-fn-btn">Debug Function #1</div>
-      <div class="btn debug-2-fn-btn">Debug Function #2</div>
       <div class="btn add-new-btn">Add new City</div>
+      <div class="btn log-data-btn">Log Data</div>
+      <div class="btn debug-1-fn-btn">Skip 1 Turn</div>
+      <div class="btn debug-2-fn-btn">Skip 100 Turns</div>
       <div class="btn calculate-btn">Calculate Cities</div>
-      <div class="btn next-turn-btn">Next Turn</div>
-      <h1>Turn:</h1><h1 class="turn-counter">0</h1>
+      <h2>Turn:</h2><h2 class="turn-counter">0</h2>
     </div>
-    <div class="flex row city-anchors container">
+    <div class="flex row city-anchors reverse-colors container">
       <a class="city-anchor-link mrg-1em template" href=""></a>
     </div>
-    <div class="flex col city-list container">
+    <div class="gizmo flex col city-list container">
       <div class="flex col city-wrapper template">
         <a class="city-anchor" id=""></a>
         <div class="flex col city-card">
@@ -72,7 +70,7 @@
                     <th>Good</th>
                     <th>Mod</th>
                     <th>Base</th>
-                    <th>Limit</th>
+                    <th>Upgrades</th>
                   </tr>
                 </table>
               </div>
