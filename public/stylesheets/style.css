@@ -253,8 +253,9 @@ button {
       }
     .logo > .gg {
       color: hsla(0, 0%, 0%, 0);
-      background: linear-gradient(180deg, var(--bg-main) 20%, var(--viridian-green) 70%, var(--accent-main));
+      background: var(--viridian-gradient);
       background-clip: text;
+      -webkit-background-clip: text;
       filter: saturate(200%);
       }
 
