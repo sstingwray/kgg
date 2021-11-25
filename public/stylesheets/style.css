@@ -65,6 +65,12 @@ a {
   a:hover {
     color: var(--accent-main);
   }
+  a:active:hover {
+    text-decoration: none;
+  }
+  a:active:hover > * {
+    box-shadow:0 3px 3px var(--shadow-light), 0 3px 30px -10px var(--accent-opaq-light);
+  }
 
 a.city-anchor {
   position: relative;
@@ -248,6 +254,9 @@ button {
       cursor: pointer;
       text-shadow: 0 6px 9px var(--shadow-heavy), 0 3px 6px var(--shadow-light);
     }
+    .logo:active:hover {
+      text-shadow:0 3px 3px var(--shadow-light), 0 3px 30px -10px var(--accent-opaq-light);
+    }
     .logo > .kstr {
       color: var(--crimson-ua);
       }
@@ -292,7 +301,10 @@ button {
   .btn:hover {
     cursor: pointer;
     background-color: var(--accent-opaq-light);
-    box-shadow: 0 6px 9px var(--shadow-heavy), 0 3px 6px var(--shadow-light);
+    box-shadow: 0 6px 9px var(--shadow-heavy), 0 3px 6px var(--shadow-light), 0 3px 30px var(--accent-opaq-light);
+  }
+  .btn:active:hover {
+    box-shadow:0 3px 3px var(--shadow-light), 0 3px 30px -10px var(--accent-opaq-light);
   }
   .btn.inline {
     padding: 0.25em 0.5em;
@@ -415,7 +427,10 @@ button {
   .img-link:hover {
     cursor: pointer;
     opacity: 1;
-    box-shadow: 0 6px 9px var(--shadow-heavy), 0 3px 6px var(--accent-opaq-light);
+    box-shadow: 0 6px 9px var(--shadow-heavy), 0 3px 6px var(--shadow-light), 0 3px 30px var(--accent-opaq-light);
+  }
+  .img-link:active {
+    text-shadow:0 3px 3px var(--shadow-light), 0 3px 30px -10px var(--accent-opaq-light);
   }
 
 .card {
