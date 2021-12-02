@@ -2676,7 +2676,7 @@
         
         //initial routines
         let promise = new Promise (resolve => {
-            
+            $('.gizmo').addClass('active');
             resolve();
         });
 
@@ -2691,6 +2691,11 @@
         $('.logo').on('click', () => {
             window.location.href="/";
         });
+
+        $('.page-title').on('click', () => {
+            window.location.reload(); 
+        });
+        
         
         $('.calculate-btn').on('click', () => {
             $(app.components.spinner).show();
@@ -2771,13 +2776,21 @@
             promise.then(() => console.log('Done clicking!'));
         });
 
+        $('.clear-storage-btn').on('click', () => {
+            window.localStorage['cityData'] = {};
+        });
+
         $('.save-btn').on('click', () => {
             window.localStorage['cityData'] = JSON.stringify(app.cityData);
         });
 
         $('.load-btn').on('click', () => {
-            app.cityData = JSON.parse(window.localStorage['cityData']);
-            app.refreshCards();
+            if (window.hasOwnProperty('cityData')) {
+                app.cityData = JSON.parse(window.localStorage['cityData']);
+                app.refreshCards();
+            } else {
+                alert('No local storage data!');
+            };
         });
 
         $('.log-data-btn').on('click', () => {
