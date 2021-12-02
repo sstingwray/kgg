@@ -14,6 +14,9 @@
     <div class="spinner-container flex just-center align-i-center"><div class="lds-ring"><div></div><div></div><div></div><div></div></div></div>
     <div class="flex row header">
       <button class="logo" tabindex="1"><span class="kstr">Kostroun.</span><span class="gg">gg</span></button>
+      <div class="flex col align-i-center mrg-1em">
+        <h2>Сообщество для любителей настольных, ролевых и видео- игр</h2>
+      </div>
     </div>
     <button class="close-btn">X</button>
     <div class="gizmo template">
@@ -21,21 +24,40 @@
       <div class="body"></div>
     </div>
     <div class="gizmo treasure-gen">
-      <div class="title">Fantasy Treasure Generator (Sword & Wizardry -based)<h3 class="title"></h3></div>
+      <h3 class="title">Генератор Фэнтези* Сокровищ</h3>
+      <small>* на основе Sword & Wizardry</small> <br><br>
+      <small>Каждый тип обмена может быть включен или выключен индивидуально в настройках. Авторские опции обмена используют простую систему стоимости:</small> <br>
+      <small>Обычное — стоимость предмета на обмен считает как случайное от 0 до 50% от денежного эквивалента обмена</small> <br>
+      <small>Необычное — стоимость предмета на обмен считает как случайное от 50% до 100% от денежного эквивалента обмена</small> <br>
+      <small>Редкое — стоимость предмета на обмен считает как случайное от 100% до 150% от денежного эквивалента обмена</small> <br>
+      <small>Очень Редкое — стоимость предмета на обмен считает как случайное от 150% до 200% от денежного эквивалента обмена</small> <br>
+      <small>Предполагается, что игроки имеют возможность поторговаться и поднять стоимость выше (или опустить, в случае дурной репутации) выпавшей</small> <br>
       <div class="body">
         <div class="flex row align-i-center">
-          <p>Encounter XP:</p> <input type="text" class="input-value"> <button class="gen-treasure btn">Generate Treasure</button> <button class="gen-open-tweak btn">Show additional settings</button>
+          <p>Encounter XP:</p> <input type="text" class="input-value"> <button class="gen-treasure btn">Сгенерировать сокровища</button> <button class="gen-open-tweak btn">Показать настройки</button>
         </div>
         <div class="flex row gen-tweaking-panel">
-          <div class="flex row align-i-center gen-tweak-option switch-btn template"><p class="label"></p><div class="switch-container"><label class="switch"><input type="checkbox" checked="checked"><div class="slider"></div></label></div></div>
+          <div class="flex row align-i-center mrg-01em"><small>* - авторские опции обмена</small></div>
+          <div class="flex row align-i-center gen-tweak-option switch-btn template"><p class="label"></p><div class="switch-container"><label class="switch"><input type="checkbox"><div class="slider"></div></label></div></div>
         </div>
         <div class="flex col gen-results">
           <div class="flex col mrg-1em pdng-1em just-center white-space-nowrap card reverse-colors gen-item template">
+            <div class="item-text">
+            </div>
+            <div class="item-type">
+              <span class="label">Тип: </span> <span class="value"></span>
+            </div>
             <div class="item-description">
-              <span class="label"></span> <span class="value"></span>
+              <span class="label">Описание: </span> <span class="value"></span>
+            </div>
+            <div class="item-value">
+              <span class="label">Стоимости: </span> <span class="value"></span>
             </div>
             <div class="item-weight">
-              <span class="label"></span> <span class="value"></span>
+              <span class="label">Вес: </span> <span class="value"></span>
+            </div>
+            <div class="item-rarity">
+              <span class="label">Редкость: </span> <span class="value"></span>
             </div>
           </div>
           <div class="flex row wrap mrg-1em gen-container card template"></div>
@@ -43,6 +65,9 @@
       </div>
     </div>
     <div class="flex row wrap gizmos-panel main-content-block">
+      <div class="flex col align-i-center just-center mrg-1em">
+        <small>Наши инструменты:</small>
+      </div>
       <button class="btn template"></button>
     </div>
     <div class="flex row wrap space-ar links-panel main-content-block">
