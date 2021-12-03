@@ -41,6 +41,13 @@ body {
     overflow: hidden;
   }
 
+i {
+  font-family: 'FontAwesome';
+  font-style: normal;
+  font-size: 2em;
+  color: var(--accent-main);
+}
+
 h2 {
   white-space: nowrap;
 }
@@ -50,7 +57,7 @@ h3 {
   white-space: nowrap;
 }
 
-p {
+p, label {
   margin: 0.2em 1em;
 }
 
@@ -78,6 +85,12 @@ a.city-anchor {
 }
 
 input {
+  color: var(--accent-main);
+  border-color: var(--viridian-green);
+  background-color: var(--bg-opaq-heavy);
+}
+
+select {
   color: var(--accent-main);
   border-color: var(--viridian-green);
   background-color: var(--bg-opaq-heavy);
@@ -239,6 +252,14 @@ span.label {
   white-space: nowrap;
 }
 
+.max-w-60 {
+  max-width: 60%;
+}
+
+.min-w-30 {
+  min-width: 30%;
+}
+
 .header {
     top: 0;
     left: 0;
@@ -316,9 +337,13 @@ span.label {
   font-weight: bold;
   white-space: nowrap;
   border-radius: 2px;
-  margin: 1em 1em;
+  margin: 1em;
   padding: 1em;
   transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
+  }
+  .btn.small {
+    margin: 0em;
+    padding: 0em 0.5em;
   }
   .btn:hover {
     cursor: pointer;
@@ -571,4 +596,23 @@ span.label {
 table.table-100-w {
   width: 100%;
 }
-  
+
+.politic-gen-graph {
+  position: relative;
+  }
+  .politic-canvas {
+    position: absolute;
+    width: 30em;
+    border: solid 2px var(--accent-main);
+    color: var(--accent-opaq-light);
+    background-color: var(--bg-opaq-light);
+    transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
+    }
+    .politic-canvas.front:hover {
+      opacity: 0.5;
+      filter: blur(2px);
+    }
+    .color-test-sqr {
+      padding: 0.5em;
+      margin: 0.5em;
+    }

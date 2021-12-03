@@ -44,20 +44,28 @@
                 title:'Генератор Фэнтези Сокровищ',
                 btnCaller: 'treasureGen',
                 class: 'treasure-gen',
+            },
+            politicGen: {
+                title:'Генератор политического компаса',
+                btnCaller: 'politicGen',
+                class: 'politic-gen',
             }
         },
         btnPatterns: {
             treasureGen: {
                 title: 'Генератор Фэнтези Сокровищ',
                 type: 'gizmo',
-                destination: 'treasureGen',
-                tabindex: 2
+                destination: 'treasureGen'
             },
             nuAvalon: {
                 title: '[WIP] Экономика Ню-Авалона',
                 type: 'link',
-                destination: './nu-avalon',
-                tabindex: 3
+                destination: './nu-avalon'
+            },
+            politicGen: {
+                title: 'Генератор политического компаса',
+                type: 'gizmo',
+                destination: 'politicGen'
             }
         },
         components: {
@@ -81,7 +89,6 @@
         newBtn.classList.remove ('template');
 
         newBtn.innerHTML = btnPattern.title;
-        newBtn.tabIndex = btnPattern.tabindex;
 
         switch (btnPattern.type) {
             case 'gizmo':
@@ -130,6 +137,37 @@
         app.fabricateButton(app.btnPatterns[gizmoPattern.btnCaller]);
         $(newGizmo).hide();
         document.body.appendChild(newGizmo);
+    };
+
+    app.fabricatePoliticalAgent = () => {
+        let gizmo = document.querySelector('.gizmo.politic-gen');
+        let agentsContainer = gizmo.querySelector('table.politic-gen-agents > tbody');
+        let agentRowTemplate = gizmo.querySelector('.politic-gen-agent.template');
+        let newAgentRow = agentRowTemplate.cloneNode(true);
+
+        newAgentRow.classList.add('generated');
+        newAgentRow.classList.remove ('template');
+
+        newAgentRow.querySelector('td.tag > input').value = 'ABCD';
+        newAgentRow.querySelector('td.trad-prog > input').value = round(Math.random(), 2);
+        newAgentRow.querySelector('td.contr-freed > input').value = round(Math.random(), 2);
+
+        $(newAgentRow.querySelectorAll('td > input')).on('change', () => {
+            app.drawPoliticCanvas();
+        });
+
+        $(newAgentRow.querySelector('td > select')).on('change', (event) => {
+            event.currentTarget.value = $("option:selected", event.currentTarget).val();
+            app.drawPoliticCanvas();
+        });
+
+        $(newAgentRow.querySelector('td > .remove')).on('click', (event) => {
+            $(event.currentTarget).closest('tr').remove();
+            app.drawPoliticCanvas();
+        });
+
+        agentsContainer.appendChild(newAgentRow);
+        app.drawPoliticCanvas();
     };
 
     app.treasureTradeouts = () => {
@@ -518,6 +556,108 @@
         });        
     };
 
+    app.drawPoliticCanvas = () => {
+        let actorRows = $('.politic-gen-agent.generated');
+        let canvasBack = document.querySelector('.politic-canvas.back');
+        let canvasFront = document.querySelector('.politic-canvas.front');
+        let contextBack = canvasBack.getContext("2d");
+        let contextFront = canvasFront.getContext("2d");
+        let canvasWidth = canvasFront.width;
+        let heightRatio = 1;
+        let canvasHeight = canvasWidth*heightRatio;
+
+        canvasBack.height = canvasHeight;
+        canvasFront.height = canvasHeight;
+
+        contextBack.clearRect(0, 0, canvasWidth, canvasHeight);
+        contextFront.clearRect(0, 0, canvasWidth, canvasHeight);
+
+        contextBack.fillStyle = '#F1F4F4';
+        contextBack.strokeStyle = '#F1F4F4';
+        contextBack.lineWidth = 1;
+        contextBack.textAlign = 'center';
+        contextBack.textBaseline = 'middle'
+
+        contextFront.fillStyle = '#F1F4F4';
+        contextFront.strokeStyle = '#F1F4F4';
+        contextFront.lineWidth = 1;
+        contextFront.textAlign = 'center';
+        contextFront.textBaseline = 'middle'
+
+        //top line
+        contextBack.moveTo(canvasWidth/2, 0);
+        contextBack.lineTo(canvasWidth/2, canvasHeight/4);
+        contextBack.stroke();
+
+        //left line
+        contextBack.moveTo(0, canvasHeight/2);
+        contextBack.lineTo(canvasWidth/4, canvasHeight/2);
+        contextBack.stroke();
+
+        //bottom line
+        contextBack.moveTo(canvasWidth/2, canvasHeight);
+        contextBack.lineTo(canvasWidth/2, canvasHeight - canvasHeight/4);
+        contextBack.stroke();
+
+        //left line
+        contextBack.moveTo(canvasWidth, canvasHeight/2);
+        contextBack.lineTo(canvasWidth - canvasWidth/4, canvasHeight/2);
+        contextBack.stroke();
+
+        //top-to-left line
+        contextBack.moveTo(canvasWidth/2, canvasHeight/4);
+        contextBack.lineTo(canvasWidth/4, canvasHeight/2);
+        contextBack.stroke();
+
+        //left-to-bottom line
+        contextBack.moveTo(canvasWidth/4, canvasHeight/2);
+        contextBack.lineTo(canvasWidth/2, canvasHeight - canvasHeight/4);
+        contextBack.stroke();
+
+        //bottom-to-right line
+        contextBack.moveTo(canvasWidth/2, canvasHeight - canvasHeight/4);
+        contextBack.lineTo(canvasWidth - canvasWidth/4, canvasHeight/2);
+        contextBack.stroke();
+
+        //right-to-top line
+        contextBack.moveTo(canvasWidth - canvasWidth/4, canvasHeight/2);
+        contextBack.lineTo(canvasWidth/2, canvasHeight/4);
+        contextBack.stroke();
+
+        contextBack.fillText('Прогресс', canvasWidth/6, canvasHeight/8);
+        contextBack.fillText('Контроль', canvasWidth/6, canvasHeight - canvasHeight/6);
+        contextBack.fillText('Традиции', canvasWidth - canvasWidth/6, canvasHeight - canvasHeight/6);
+        contextBack.fillText('Свобода', canvasWidth - canvasWidth/6, canvasHeight/8);
+        contextBack.fillText('Центризм', canvasWidth/2, canvasHeight/2);
+
+        let drawActorPip = (actor) => {
+            let x = actor.querySelector('td.trad-prog > input').value;
+            let y = actor.querySelector('td.contr-freed > input').value;
+            let tag = actor.querySelector('td.tag > input').value;
+            let padding = 25;
+
+            (canvasWidth*x > canvasWidth - padding ? x = (canvasWidth - padding)/canvasWidth : (canvasWidth*x < padding ? x = padding/canvasWidth : ''));
+            (canvasWidth*y > canvasWidth - padding ? y = (canvasWidth - padding)/canvasWidth : (canvasWidth*y < padding ? y = padding/canvasWidth : ''));
+
+            return new Promise ((resolve) => {
+                contextFront.strokeStyle = actor.querySelector('td.color > select').value;
+                contextFront.lineWidth = 8;
+                contextFront.beginPath();
+                contextFront.arc(canvasWidth*x, canvasHeight*y, 20, 0, 2*Math.PI);
+                contextFront.stroke();
+                contextFront.fill();
+                resolve();
+            }).then(() => {
+                contextFront.fillStyle = '#282424';
+                contextFront.fillText(tag, canvasWidth*x, canvasHeight*y);
+            });
+        };
+
+        for (let actor of actorRows) {
+            drawActorPip(actor);
+        };
+    };
+
     $(function() {
         app.containers.btnPanel = document.querySelector('.gizmos-panel');
         app.containers.treasureKnobsPanel = document.querySelector('.gen-tweaking-panel');
@@ -528,12 +668,10 @@
         app.components.switchTemplate = document.querySelector('.switch-btn.template');
         app.components.gizmoTemplate = document.querySelector('.gizmo.template');
 
-        /*Object.keys(app.gizmoPatterns).forEach(key => {
-            app.fabricateGizmo(app.gizmoPatterns[key]);
-        });*/
+        Object.keys(app.btnPatterns).forEach(key => {
+            app.fabricateButton(app.btnPatterns[key]);
+        });
 
-        app.fabricateButton(app.btnPatterns.treasureGen);
-        app.fabricateButton(app.btnPatterns.nuAvalon);
         app.fabricateSwitch(app.containers.treasureKnobsPanel, 'Sword & Wizardry множитель [1d3+1]:', 'sw-base-multiplier', true, 'Итоговое значение энкаунтера умножается на случайное число от 2-ух до 4-ех. В базовой версии S&W имеется опция ОГРОМНОГО сокровища, в этом генераторе ее нет.');
         app.fabricateSwitch(app.containers.treasureKnobsPanel, '5000gp обмен:', 'sw-5000-tradeout', true, 'Обмен производиться по правилам Swords & Wizardry Complete Rules');
         app.fabricateSwitch(app.containers.treasureKnobsPanel, '1000gp обмен:', 'sw-1000-tradeout', true, 'Обмен производиться по правилам Swords & Wizardry Complete Rules');
@@ -542,6 +680,9 @@
         app.fabricateSwitch(app.containers.treasureKnobsPanel, '*Ремесленный обмен:', 'sw-artisan-goods-tradeout', false, 'Заменяет часть золота на ремесляную продукцию, которую правдоподобно могли носить с собой разумные существа.');
         app.fabricateSwitch(app.containers.treasureKnobsPanel, '*Охотничье-промысловый обмен:', 'sw-bio-goods-tradeout', false, 'Заменяет все оставшиеся после обменов золотые монеты на продукты промысловой охоты, которые могут быть проданы. Их точное описание остается на усмотрение рассказчика.');
 
+        app.fabricatePoliticalAgent();
+        app.drawPoliticCanvas();
+        
         $(app.components.spinner).hide();
         $(app.components.btnClose).hide();
         $(app.components.btnClose).removeClass('active');
@@ -572,6 +713,14 @@
             ($('.gen-tweaking-panel').hasClass('active') ? $('.gen-tweaking-panel').removeClass('active') : $('.gen-tweaking-panel').addClass('active'));
             ($('.gen-tweaking-panel').hasClass('active') ? $('.gen-open-tweak.btn').html('Скрыть настройки') : $('.gen-open-tweak.btn').html('Показать настройки'));
         });
-    })
+
+        $('.politic-gen-add-new.btn').on('click', () => {
+            app.fabricatePoliticalAgent()
+        });
+    });
+
+    function round(value, decimals = 0) {
+        return Number(Math.round(value + 'e' + decimals) + 'e-' + decimals);
+    };
 
 })();
