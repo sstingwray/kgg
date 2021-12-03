@@ -4,6 +4,7 @@
     <title>Kostroun.gg</title>
     <link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon">
     <link rel='stylesheet' href='/stylesheets/style.css' />
+    <link rel="stylesheet" href="/stylesheets/font-awesome.css">
     <script src="/javascripts/jquery.min.js"></script>
     <script src="/javascripts/tinysort.min.js"></script>
     <script src="/javascripts/index.js"></script>
@@ -26,6 +27,7 @@
     <div class="gizmo treasure-gen">
       <h3 class="title">Генератор Фэнтези* Сокровищ</h3>
       <small>* на основе Sword & Wizardry</small> <br><br>
+      <small>Быстро создавайте добычу на основе базового пула очков (например XP Столкновения из S&W) с помощью модульных обменов</small> <br>
       <small>Каждый тип обмена может быть включен или выключен индивидуально в настройках. Авторские опции обмена используют простую систему стоимости:</small> <br>
       <small>Обычное — стоимость предмета на обмен считает как случайное от 0 до 50% от денежного эквивалента обмена</small> <br>
       <small>Необычное — стоимость предмета на обмен считает как случайное от 50% до 100% от денежного эквивалента обмена</small> <br>
@@ -34,7 +36,7 @@
       <small>Предполагается, что игроки имеют возможность поторговаться и поднять стоимость выше (или опустить, в случае дурной репутации) выпавшей</small> <br>
       <div class="body">
         <div class="flex row align-i-center">
-          <p>Encounter XP:</p> <input type="text" class="input-value"> <button class="gen-treasure btn">Сгенерировать сокровища</button> <button class="gen-open-tweak btn">Показать настройки</button>
+          <label for="gen-treasure-xp-input">Базовый пул очков:</label> <input id="gen-treasure-xp-input" type="text" class="input-value"> <button class="gen-treasure btn">Сгенерировать сокровища</button> <button class="gen-open-tweak btn">Показать настройки</button>
         </div>
         <div class="flex row gen-tweaking-panel">
           <div class="flex row align-i-center mrg-01em"><small>* - авторские опции обмена</small></div>
@@ -61,6 +63,51 @@
             </div>
           </div>
           <div class="flex row wrap mrg-1em gen-container card template"></div>
+        </div>
+      </div>
+    </div>
+    <div class="gizmo politic-gen">
+      <h3 class="title">Генератор политического компаса</h3>
+      <small>Быстро делайте простые и понятные политические графики с основными действующими лицами</small> <br>
+      <div class="body">
+        <div class="flex row wrap align-i-start">
+          <div class="flex col max-w-60 min-w-30">
+            <div class="flex align-i-center wrap mrg-1em politic-gen-controls">
+              <button class="politic-gen-add-new btn">Добавить Агента</button>
+            </div>
+            <div class="flex">
+              <table class=" table-100-w politic-gen-agents">
+                <tbody>
+                  <tr>
+                    <th>Имя</th>
+                    <th>Тэг [XXXX]</th>
+                    <th>Цвет</th>
+                    <th>Традиции-Прогресс</th>
+                    <th>Свобода-Контроль</th>
+                    <th></th>
+                  </tr>
+                  <tr class="table-field politic-gen-agent template">
+                    <td class="name"><input type="text" class="input-value"></td>
+                    <td class="tag"><input type="text" class="input-value"></td>
+                    <td class="color">
+                      <select>
+                        <option selected="selected" value="#F1F4F4">Белый</option>
+                        <option value="#933232">Красный</option>
+                        <option value="#329393">Изумрудный</option>
+                        <option value="#BFB340">Желтый</option>
+                        <option value="#43A63F">Зеленый</option>
+                        <option value="#336394">Синий</option>
+                      </select>
+                    </td>
+                    <td class="trad-prog"><input type="text" class="input-value"></td>
+                    <td class="contr-freed"><input type="text" class="input-value"></td>
+                    <td><button title="Удалить запись из таблицы" class="remove btn small"><i class="fas fa-trash"></i></button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="flex mrg-1em politic-gen-graph"><canvas class="politic-canvas back" id="politicCanvas"></canvas><canvas class="politic-canvas front" id="politicCanvas"></canvas></div>
         </div>
       </div>
     </div>
