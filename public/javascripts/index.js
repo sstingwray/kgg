@@ -49,6 +49,11 @@
                 title:'Генератор политического компаса',
                 btnCaller: 'politicGen',
                 class: 'politic-gen',
+            },
+            econMarketSim: {
+                title: 'Симулятор Рыночной Экономики',
+                btnCaller: 'econMarketSim',
+                class: 'market-econ-sim'
             }
         },
         btnPatterns: {
@@ -66,7 +71,12 @@
                 title: 'Генератор политического компаса',
                 type: 'gizmo',
                 destination: 'politicGen'
-            }
+            },
+            econMarketSim: {
+                title: 'Симулятор Рыночной Экономики',
+                type: 'gizmo',
+                destination: 'econMarketSim'
+            },
         },
         components: {
             spinner: {},
@@ -78,6 +88,168 @@
         containers: {
             btnPanel: {},
             treasureKnobsPanel: {}
+        },
+        marketEconSimModule: {
+            defaultAgent: {
+                name: 'Брокер',
+                nameTag: 0,
+                wallet: 1000,
+                upkeepRules: [
+                    {
+                        good: 'food',
+                        quantity: 10
+                    },
+                    {
+                        good: 'goods',
+                        quantity: 10
+                    },
+                ],
+                inventory: {
+                    manpower: 0,
+                    fuel: 0,
+                    food: 0,
+                    alloys: 0,
+                    goods: 0,
+                },
+                priceBeliefs: {
+                    manpower: {
+                        upperLimit: 10,
+                        lowerLimit: 1
+                    },
+                    fuel: {
+                        upperLimit: 10,
+                        lowerLimit: 1
+                    },
+                    food: {
+                        upperLimit: 10,
+                        lowerLimit: 1
+                    },
+                    alloys: {
+                        upperLimit: 10,
+                        lowerLimit: 1
+                    },
+                    goods: {
+                        upperLimit: 10,
+                        lowerLimit: 1
+                    },
+                }
+            },
+            market: {
+                currentAgents: [],
+                currentAsks: [],
+                currentLots: [],
+                currentDeals: [],
+                goodHistoricalMeans: {
+                    manpower: null,
+                    fuel: null,
+                    food: null,
+                    alloys: null,
+                    goods: null,
+                },
+                topAgentType: 'manpower',
+            },
+            goods: {
+                manpower: {
+                    name: 'Рабочие',
+                    baseCost: 0,
+                    productionRules: [
+                        {
+                            name: 'training',
+                            components: [
+                                {
+                                    key: 'food',
+                                    quantity: 1
+                                },
+                                {
+                                    key: 'goods',
+                                    quantity: 1
+                                },
+                            ],
+                            output: 2
+                        }
+                    ]
+                },
+                fuel: {
+                    name: 'Топливо',
+                    baseCost: 0,
+                    productionRules: [
+                        {
+                            name: 'refining',
+                            components: [
+                                {
+                                    key: 'manpower',
+                                    quantity: 1
+                                }
+                            ],
+                            output: 1
+                        }
+                    ]
+                },
+                food: {
+                    name: 'Пища',
+                    baseCost: 0,
+                    productionRules: [
+                        {
+                            name: 'farming',
+                            components: [
+                                {
+                                    key: 'manpower',
+                                    quantity: 1
+                                },
+                                {
+                                    key: 'fuel',
+                                    quantity: 1
+                                }
+                            ],
+                            output: 2
+                        }
+                    ]
+                },
+                alloys: {
+                    name: 'Сплавы',
+                    baseCost: 0,
+                    productionRules: [
+                        {
+                            name: 'smelting',
+                            components: [
+                                {
+                                    key: 'manpower',
+                                    quantity: 1
+                                },
+                                {
+                                    key: 'fuel',
+                                    quantity: 1
+                                }
+                            ],
+                            output: 2
+                        }
+                    ]
+                },
+                goods: {
+                    name: 'Товары',
+                    baseCost: 0,
+                    productionRules: [
+                        {
+                            name: 'manufacturing',
+                            components: [
+                                {
+                                    key: 'manpower',
+                                    quantity: 1
+                                },
+                                {
+                                    key: 'alloys',
+                                    quantity: 1
+                                },
+                                {
+                                    key: 'fuel',
+                                    quantity: 1
+                                }
+                            ],
+                            output: 4
+                        }
+                    ]
+                },
+            },
         }
 
     }
@@ -139,37 +311,7 @@
         document.body.appendChild(newGizmo);
     };
 
-    app.fabricatePoliticalAgent = () => {
-        let gizmo = document.querySelector('.gizmo.politic-gen');
-        let agentsContainer = gizmo.querySelector('table.politic-gen-agents > tbody');
-        let agentRowTemplate = gizmo.querySelector('.politic-gen-agent.template');
-        let newAgentRow = agentRowTemplate.cloneNode(true);
-
-        newAgentRow.classList.add('generated');
-        newAgentRow.classList.remove ('template');
-
-        newAgentRow.querySelector('td.tag > input').value = 'ABCD';
-        newAgentRow.querySelector('td.trad-prog > input').value = round(Math.random(), 2);
-        newAgentRow.querySelector('td.contr-freed > input').value = round(Math.random(), 2);
-
-        $(newAgentRow.querySelectorAll('td > input')).on('change', () => {
-            app.drawPoliticCanvas();
-        });
-
-        $(newAgentRow.querySelector('td > select')).on('change', (event) => {
-            event.currentTarget.value = $("option:selected", event.currentTarget).val();
-            app.drawPoliticCanvas();
-        });
-
-        $(newAgentRow.querySelector('td > .remove')).on('click', (event) => {
-            $(event.currentTarget).closest('tr').remove();
-            app.drawPoliticCanvas();
-        });
-
-        agentsContainer.appendChild(newAgentRow);
-        app.drawPoliticCanvas();
-    };
-
+    //TREASUREGEN
     app.treasureTradeouts = () => {
         let gizmo = document.querySelector('.gizmo.treasure-gen');
         let resultTemplate = gizmo.querySelector('.gen-container.template');
@@ -556,6 +698,38 @@
         });        
     };
 
+    //POLCOMPASS
+    app.fabricatePoliticalAgent = () => {
+        let gizmo = document.querySelector('.gizmo.politic-gen');
+        let agentsContainer = gizmo.querySelector('table.politic-gen-agents > tbody');
+        let agentRowTemplate = gizmo.querySelector('.politic-gen-agent.template');
+        let newAgentRow = agentRowTemplate.cloneNode(true);
+
+        newAgentRow.classList.add('generated');
+        newAgentRow.classList.remove ('template');
+
+        newAgentRow.querySelector('td.tag > input').value = 'ABCD';
+        newAgentRow.querySelector('td.trad-prog > input').value = round(Math.random(), 2);
+        newAgentRow.querySelector('td.contr-freed > input').value = round(Math.random(), 2);
+
+        $(newAgentRow.querySelectorAll('td > input')).on('change', () => {
+            app.drawPoliticCanvas();
+        });
+
+        $(newAgentRow.querySelector('td > select')).on('change', (event) => {
+            event.currentTarget.value = $("option:selected", event.currentTarget).val();
+            app.drawPoliticCanvas();
+        });
+
+        $(newAgentRow.querySelector('td > .remove')).on('click', (event) => {
+            $(event.currentTarget).closest('tr').remove();
+            app.drawPoliticCanvas();
+        });
+
+        agentsContainer.appendChild(newAgentRow);
+        app.drawPoliticCanvas();
+    };
+
     app.drawPoliticCanvas = () => {
         let actorRows = $('.politic-gen-agent.generated');
         let canvasBack = document.querySelector('.politic-canvas.back');
@@ -658,6 +832,121 @@
         };
     };
 
+    //ECONSIM
+    app.fabricateNewEconAgent = () => {
+        let newAgent = JSON.parse(JSON.stringify(app.marketEconSimModule.defaultAgent));
+
+        newAgent.nameTag += app.marketEconSimModule.market.currentAgents.length;
+        newAgent.name += ' #' + newAgent.nameTag;
+
+        Object.keys(newAgent.inventory).forEach(key => {
+            newAgent.inventory[key] = round(Math.random()*10*10 + 100, 0);
+        });
+
+        app.marketEconSimModule.market.currentAgents.push(newAgent);
+    };
+
+    app.createAgentListings = () => {
+        let gatherListings = new Promise ((resolve) => {
+            for (let agent of app.marketEconSimModule.market.currentAgents) {
+                for (let key of Object.keys(agent.inventory)) {
+                    let upkeepAmount = agent.upkeepRules.filter(x => x.good == key).reduce((a, b) => a + b.quantity, 0);
+                    let transactionType = (agent.inventory[key] > upkeepAmount*3 ? 'lot' : 'ask');
+                    let transactionAmount = agent.inventory[key] - upkeepAmount*3;
+                    console.log(agent.name + ' wants to ' + transactionType + ' ' + transactionAmount + ' of ' + key);
+
+                    switch (transactionType) {
+                        case 'lot':
+                            {
+                                let mean = app.marketEconSimModule.market.goodHistoricalMeans[key];
+                                let upperPriceLimit = agent.priceBeliefs[key].upperLimit;
+                                let lowerPriceLimit = agent.priceBeliefs[key].lowerPrice;
+                                let favorability = (mean > upperPriceLimit ? 1 : (mean < lowerPriceLimit ? 0.2 : Math.max(0.2, findNumberPosition(mean, lowerPriceLimit, upperPriceLimit))));
+                                let amount = round(favorability*transactionAmount, 0);
+
+                                if (amount > 0) {
+                                    console.log('Due to favorability of ' + round(favorability, 2) + ', the amount will instead be ' + amount);
+                                    app.marketEconSimModule.market.currentLots.push({
+                                        buyerName: agent.name,
+                                        good: key,
+                                        quantity: Math.abs(amount),
+                                        price: upperPriceLimit,
+                                    });
+                                };
+                            };
+                            break;
+                        case 'ask':
+                            {
+                                let mean = app.marketEconSimModule.market.goodHistoricalMeans[key];
+                                let upperPriceLimit = agent.priceBeliefs[key].upperLimit;
+                                let lowerPriceLimit = agent.priceBeliefs[key].lowerPrice;
+                                let favorability = (mean > upperPriceLimit ? 0.2 : (mean < lowerPriceLimit ? 1 : Math.max(0.2, 1 - findNumberPosition(mean, lowerPriceLimit, upperPriceLimit))));
+                                let amount = round(favorability*transactionAmount, 0);
+
+                                if (amount > 0) {
+                                    console.log('Due to favorability of ' + round(favorability, 2) + ', the amount will instead be ' + amount);
+                                    app.marketEconSimModule.market.currentAsks.push({
+                                        sellerName: agent.name,
+                                        good: key,
+                                        quantity: Math.abs(Math.min(amount, agent.wallet/upperPriceLimit)),
+                                        price: lowerPriceLimit,
+                                    });
+                                };
+                            };
+                            break;
+                    };
+                };
+            };
+            resolve();
+        });
+        gatherListings.then(() => {
+            for (let goodKey of Object.keys(app.marketEconSimModule.goods)) {
+                let shuffledLots = shuffle(app.marketEconSimModule.market.currentLots.filter(x => x.good == goodKey));
+                let shuffledAsks = shuffle(app.marketEconSimModule.market.currentAsks.filter(x => x.good == goodKey));
+                let sortedLots = shuffledLots.sort((a, b) => (a.price > b.price) ? 1 : -1);
+                let sortedAsks = shuffledAsks.sort((a, b) => (a.price < b.price) ? 1 : -1);
+                let supply = sortedLots.reduce((a, b) => a + b.price*b.quantity, 0);
+                let demand = sortedAsks.reduce((a, b) => a + b.price*b.quantity, 0);
+                let historicalMean = app.marketEconSimModule.market.goodHistoricalMeans[goodKey];
+                let currentTurnMeanPriceForGood = [];
+
+                console.log('Lots for ' + goodKey);
+                console.log(sortedLots);
+                console.log('Asks for ' + goodKey);
+                console.log(sortedAsks);
+
+                console.log(goodKey + ' supply is ' + supply);
+                console.log(goodKey + ' demand is ' + demand);
+
+                let matchDeals = i => {
+                    let buyer = sortedAsks[0];
+                    let seller = sortedLots[0];
+
+                    let quantity = Math.min(buyer.quantity, seller.quantity);
+                    let clearingPrice = (buyer.price + seller.price)/2;
+
+                    let buyerAgent = app.marketEconSimModule.currentAgents.filter(x => x.name == buyer.buyerName)[0];
+                    let buyerAgentPriceBeliefs = buyerAgent.priceBeliefs[goodKey];
+                    let buyerMarketShare = sortedLots.filter(x => x.name == buyer.buyerName).reduce((a, b) => a + b.price*b.quantity, 0);
+                    let buyerDisplacement = (Math.abs((buyerAgentPriceBeliefs.upperLimit + buyerAgentPriceBeliefs.lowerLimit)/2 - clearingPrice))/((buyerAgentPriceBeliefs.upperLimit + buyerAgentPriceBeliefs.lowerLimit)/2);
+                    
+                    let sellerAgent = app.marketEconSimModule.currentAgents.filter(x => x.name == seller.sellerName)[0];
+                    let sellerAgentPriceBeliefs = sellerAgent.priceBeliefs[goodKey];
+                    let sellerMarketShare = sortedLots.filter(x => x.name == seller.sellerName).reduce((a, b) => a + b.price*b.quantity, 0);
+                    let sellerWeight = seller.quantity/(seller.quantity + quantity);
+                    let sellerDisplacment = sellerWeight*(sellerAgentPriceBeliefs.upperLimit + sellerAgentPriceBeliefs.lowerLimit)/2;
+                    
+                }
+            }
+
+        });
+    };
+
+    app.simulateEconTurn = () => {
+        app.createAgentListings();
+    };
+
+
     $(function() {
         app.containers.btnPanel = document.querySelector('.gizmos-panel');
         app.containers.treasureKnobsPanel = document.querySelector('.gen-tweaking-panel');
@@ -682,6 +971,11 @@
 
         app.fabricatePoliticalAgent();
         app.drawPoliticCanvas();
+
+        for (let i of [...Array(10).keys()]) {
+            app.fabricateNewEconAgent();
+        };
+        console.log(app.marketEconSimModule.market.currentAgents);
         
         $(app.components.spinner).hide();
         $(app.components.btnClose).hide();
@@ -717,10 +1011,57 @@
         $('.politic-gen-add-new.btn').on('click', () => {
             app.fabricatePoliticalAgent()
         });
+
+        $('.market-econ-sim-next-round.btn').on('click', () => {
+            app.simulateEconTurn();
+        });
     });
 
     function round(value, decimals = 0) {
         return Number(Math.round(value + 'e' + decimals) + 'e-' + decimals);
     };
+
+    function findNumberPosition(number, lower, upper) {
+        let array = [];
+        for (let i = lower; i < upper; i += 0.05) {
+            array.push(i);
+        };
+
+        let L = 0;
+        let R = array.length - 1;
+        let m = 0;
+
+        while (L <= R) {
+            m = Math.floor((L + R)/2);
+            if (array[m] + 0.1 < number)
+                L = m + 1
+            else if (array[m] - 0.1 > number)
+                R = m - 1
+            else
+                return m/(array.length - 1)
+        };
+
+        return 0.5;
+    };
+
+    function shuffle(array) {
+        let shuffledArray = array;
+        let currentIndex = shuffledArray.length, temporaryValue, randomIndex;
+      
+        // While there remain elements to shuffle...
+        while (0 !== currentIndex) {
+      
+          // Pick a remaining element...
+          randomIndex = Math.floor(Math.random() * currentIndex);
+          currentIndex -= 1;
+      
+          // And swap it with the current element.
+          temporaryValue = shuffledArray[currentIndex];
+          shuffledArray[currentIndex] = shuffledArray[randomIndex];
+          shuffledArray[randomIndex] = temporaryValue;
+        }
+      
+        return shuffledArray;
+      };
 
 })();
