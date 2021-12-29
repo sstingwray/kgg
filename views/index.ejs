@@ -46,20 +46,20 @@
           <div class="flex col mrg-1em pdng-1em just-center white-space-nowrap card reverse-colors gen-item template">
             <div class="item-text">
             </div>
-            <div class="item-type">
-              <span class="label">Тип: </span> <span class="value"></span>
+            <div class="item-type flex row space-betw">
+              <span class="label">Тип: </span> <span class="mrg-01em value"></span>
             </div>
-            <div class="item-description">
-              <span class="label">Описание: </span> <span class="value"></span>
+            <div class="item-description flex row space-betw">
+              <span class="label">Описание: </span> <span class="mrg-01em value"></span>
             </div>
-            <div class="item-value">
-              <span class="label">Стоимости: </span> <span class="value"></span>
+            <div class="item-value flex row space-betw">
+              <span class="label">Стоимости: </span> <span class="mrg-01em value"></span>
             </div>
-            <div class="item-weight">
-              <span class="label">Вес: </span> <span class="value"></span>
+            <div class="item-weight flex row space-betw">
+              <span class="label">Вес: </span> <span class="mrg-01em value"></span>
             </div>
-            <div class="item-rarity">
-              <span class="label">Редкость: </span> <span class="value"></span>
+            <div class="item-rarity flex row space-betw">
+              <span class="label">Редкость: </span> <span class="mrg-01em value"></span>
             </div>
           </div>
           <div class="flex row wrap mrg-1em gen-container card template"></div>
@@ -115,8 +115,37 @@
       <h3 class="title">Симулятор Рыночной Экономики</h3>
       <small>Симулирует простую рыночную экономику для быстрого реалистичного отыгрыша экономического эффекта от действий игроков</small> <br>
       <div class="body">
+        <div class="flex align-i-center wrap mrg-1em market-billboard-container">
+            <div class="flex col mrg-1em card market-billboard template">
+              <div class="billboard-item title flex row space-betw">
+              </div>
+              <div class="billboard-item template flex row space-betw">
+                <span class="label"></span> <span class="mrg-01em value"></span>
+              </div>
+            </div>
+          </div>
         <div class="flex align-i-center wrap mrg-1em market-econ-sim-controls">
+          <div class="flex align-i-center just-center mrg-1em turn-counter">0</div>
           <button class="market-econ-sim-next-round btn">Следующий раунд</button>
+          <button class="market-econ-sim-100-rounds btn">Симулировать 100 раундов</button>
+        </div>
+        <div class="flex row wrap mrg-1em agent-card-container">
+          <div class="flex col mrg-1em card agent-card template">
+            <div class="agent-name flex row space-betw">
+            </div>
+            <div class="agent-type flex row space-betw">
+              <span class="label">Тип: </span> <span class="mrg-01em value"></span>
+            </div>
+            <div class="agent-durability flex row space-betw">
+              <span class="label">Стойкость: </span> <span class="mrg-01em value"></span>
+            </div>
+            <div class="agent-wallet flex row space-betw">
+              <span class="label">Кошелек: </span> <span class="mrg-01em value"></span>
+            </div>
+            <div class="agent-good template flex row space-betw">
+              <span class="label">Предмет: </span> <span class="mrg-01em value"></span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
