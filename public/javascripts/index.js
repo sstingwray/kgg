@@ -141,6 +141,7 @@
             },
             market: {
                 currentTurn: 0,
+                agentCounter: 0,
                 currentAgents: [],
                 currentAsks: [],
                 currentLots: [],
@@ -919,7 +920,8 @@
     app.fabricateNewEconAgent = () => {
         let newAgent = JSON.parse(JSON.stringify(app.marketEconSimModule.defaultAgent));
 
-        newAgent.nameTag += app.marketEconSimModule.market.currentAgents.length;
+        newAgent.nameTag += app.marketEconSimModule.market.agentCounter;
+        app.marketEconSimModule.market.agentCounter++;
         newAgent.name += ' #' + newAgent.nameTag;
         newAgent.type = Object.keys(app.marketEconSimModule.productionRuleSets)[Math.floor(Object.keys(app.marketEconSimModule.productionRuleSets).length*Math.random())];
 
@@ -930,416 +932,7 @@
         app.marketEconSimModule.market.currentAgents.push(newAgent);
     };
 
-    app.marketTurnSimulation = () => {
-        return new Promise (resolve => {
-            let agentListingPromises = [];
-
-            for (let agent of app.marketEconSimModule.market.currentAgents) {
-                let createAgentListing = new Promise (resolve => {
-                    let goodListingPromises = [];
-                    agent.lastTurnProfit = 0;
-                                
-                    for (let goodKey of Object.keys(agent.inventory)) {
-                        let createGoodListing = new Promise (resolve => {
-                            let upkeepAmount = agent.upkeepRules.filter(x => x.good == goodKey).reduce((a, b) => a + b.quantity, 0);
-                            let productionAmount = (app.marketEconSimModule.productionRuleSets[agent.type].rules.filter(x => x.outputs.filter(y => y.key== goodKey).length > 0).length > 0 ? - 500 : 0);
-                            let transactionType = (agent.inventory[goodKey] > upkeepAmount*10 + productionAmount + 100 ? 'lot' : 'ask');
-                            let transactionAmount = Math.abs(agent.inventory[goodKey] - upkeepAmount*10 - productionAmount - 100);
-                            //console.log(agent.name + ' wants to ' + transactionType + ' ' + transactionAmount + ' of ' + goodKey);
-
-                            switch (transactionType) {
-                                case 'lot':
-                                    {
-                                        let mean = app.marketEconSimModule.market.goodHistoricalMeans[goodKey];
-                                        let upperPriceLimit = agent.priceBeliefs[goodKey].upperLimit;
-                                        let lowerPriceLimit = agent.priceBeliefs[goodKey].lowerLimit;
-                                        let favorability = (mean > upperPriceLimit ? 1 : (mean < lowerPriceLimit ? 0.2 : Math.max(0.2, findNumberPosition(mean, lowerPriceLimit, upperPriceLimit))));
-                                        let amount = round(favorability*transactionAmount, 0);
-
-                                        if (amount > 0) {
-                                            //console.log('Due to favorability of ' + round(favorability, 2) + ', the amount will instead be ' + amount);
-                                            app.marketEconSimModule.market.currentLots.push({
-                                                sellerName: agent.name,
-                                                good: goodKey,
-                                                quantity: amount,
-                                                price: upperPriceLimit,
-                                            });
-                                        };
-                                    };
-                                    break;
-                                case 'ask':
-                                    { 
-                                        let mean = app.marketEconSimModule.market.goodHistoricalMeans[goodKey];
-                                        let upperPriceLimit = agent.priceBeliefs[goodKey].upperLimit;
-                                        let lowerPriceLimit = agent.priceBeliefs[goodKey].lowerLimit;
-                                        let favorability = (mean > upperPriceLimit ? 0.2 : (mean < lowerPriceLimit ? 1 : Math.max(0.2, 1 - findNumberPosition(mean, lowerPriceLimit, upperPriceLimit))));
-                                        let amount = round(Math.min(favorability*transactionAmount, agent.wallet/upperPriceLimit), 0);
-
-                                        if (amount > 0) {
-                                            //console.log('Due to favorability of ' + round(favorability, 2) + ' or having money to buy only ' + round(agent.wallet/upperPriceLimit, 0) + ', the amount will instead be ' + amount);
-                                            app.marketEconSimModule.market.currentAsks.push({
-                                                buyerName: agent.name,
-                                                good: goodKey,
-                                                quantity: amount,
-                                                price: lowerPriceLimit,
-                                            });
-                                        };
-                                    };
-                                    break;
-                            };
-                            resolve();
-                        });
-                        
-                        goodListingPromises.push(createGoodListing);
-                    };
-
-                    Promise.all(goodListingPromises).then(() => {
-                        resolve();
-                    })
-                });
-
-                agentListingPromises.push(createAgentListing);
-            };
-
-            Promise.all(agentListingPromises).then(() => {
-                let matchingPromises = [];
-                let goodsDemand = [];
-
-                for (let goodKey of Object.keys(app.marketEconSimModule.goods)) {
-                    let matchGood = new Promise (resolve => {
-                        let shuffledLots = shuffle(app.marketEconSimModule.market.currentLots.filter(x => x.good == goodKey));
-                        let shuffledAsks = shuffle(app.marketEconSimModule.market.currentAsks.filter(x => x.good == goodKey));
-                        let sortedLots = shuffledLots.sort((a, b) => (a.price > b.price) ? 1 : -1);
-                        let sortedAsks = shuffledAsks.sort((a, b) => (a.price < b.price) ? 1 : -1);
-                        let historicalMean = app.marketEconSimModule.market.goodHistoricalMeans[goodKey];
-                        let supply = sortedLots.reduce((a, b) => a + historicalMean*b.quantity, 0);
-                        let demand = sortedAsks.reduce((a, b) => a + historicalMean*b.quantity, 0);
-                        let currentTurnMeanPriceForGood = [];
-        
-                        console.log('Lots for ' + goodKey);
-                        console.log(sortedLots);
-                        console.log('Asks for ' + goodKey);
-                        console.log(sortedAsks);
-
-                        let iterateDeals = (i, j) => {
-                            return new Promise (resolve => {
-                                
-                                if (i >= sortedLots.length || j >= sortedAsks.length) resolve()
-                                else {
-                                    let seller = sortedLots[i];
-                                    let sellerAgent = app.marketEconSimModule.market.currentAgents.filter(x => x.name == seller.sellerName)[0];
-
-                                    let buyer = sortedAsks[j];
-                                    let buyerAgent = app.marketEconSimModule.market.currentAgents.filter(x => x.name == buyer.buyerName)[0];
-
-                                    let clearingPrice = round((buyer.price + seller.price)/2, 2);
-                                    let quantity = Math.min(buyer.quantity, seller.quantity, Math.floor(buyerAgent.wallet/clearingPrice));
-                                    let totalPrice = round(quantity*clearingPrice, 2);
-                                    
-                                    let buyerAgentPriceBeliefs = buyerAgent.priceBeliefs[goodKey];
-                                    let buyerMarketShare = sortedLots.filter(x => x.name == buyer.buyerName).reduce((a, b) => a + b.price*b.quantity, 0);
-                                    let buyerDisplacement = (Math.abs(round((buyerAgentPriceBeliefs.upperLimit + buyerAgentPriceBeliefs.lowerLimit)/2 - clearingPrice), 2))/(round((buyerAgentPriceBeliefs.upperLimit + buyerAgentPriceBeliefs.lowerLimit)/2, 2));
-                                    
-                                    let sellerAgentPriceBeliefs = sellerAgent.priceBeliefs[goodKey];
-                                    let sellerMarketShare = sortedLots.filter(x => x.name == seller.sellerName).reduce((a, b) => a + b.price*b.quantity, 0);
-                                    let sellerWeight = (seller.quantity == 0 && quantity == 0 ? 0 : seller.quantity/(seller.quantity + quantity));
-                                    let sellerDisplacment = sellerWeight*(sellerAgentPriceBeliefs.upperLimit + sellerAgentPriceBeliefs.lowerLimit)/2;
-
-                                    
-                                    DealMatching: if (quantity >= 1) {
-                                        let sellerOldInventory = sellerAgent.inventory[goodKey];
-                                        buyer.quantity -= quantity;
-                                        seller.quantity -= quantity;
-                                        buyerAgent.inventory[goodKey] += quantity;
-                                        sellerAgent.inventory[goodKey] -= quantity;
-                                        buyerAgent.wallet -= totalPrice;
-                                        sellerAgent.wallet += totalPrice;
-                                        sellerAgent.lastTurnProfit += totalPrice;
-
-                                        if (sellerAgent.inventory[goodKey] < 0) console.log('Agent ' + sellerAgent.name + ' inventory of ' + goodKey + ' became negative during Market Phase while being a seller! Was ' + sellerOldInventory + ', became ' + sellerAgent.inventory[goodKey] + '. Sold quantity was ' + quantity);
-                
-                                        currentTurnMeanPriceForGood.push(clearingPrice);
-                                        //console.log(currentTurnMeanPriceForGood);
-                
-                                        app.marketEconSimModule.market.currentDeals.push({
-                                            turn: app.marketEconSimModule.market.currentTurn,
-                                            good: goodKey,
-                                            buyer: buyerAgent.name,
-                                            seller: sellerAgent.name,
-                                            quantity: quantity,
-                                            clearingPrice: clearingPrice,
-                                            totalPrice: totalPrice
-                                        });
-                                    };
-
-                                    PriceBeliefsAdjustment: {
-                                        if (buyer.quantity/2 >= quantity) {
-                                            buyerAgentPriceBeliefs.lowerLimit += round(buyerAgentPriceBeliefs.upperLimit/10, 2);
-                                            buyerAgentPriceBeliefs.upperLimit = Math.max(buyerAgentPriceBeliefs.upperLimit - round(buyerAgentPriceBeliefs.upperLimit/10, 2), buyerAgentPriceBeliefs.lowerLimit);
-                                        } else {
-                                            buyerAgentPriceBeliefs.upperLimit += round(buyerAgentPriceBeliefs.upperLimit/10, 2);
-                                        };
-                    
-                                        if (buyerMarketShare < 1) {
-                                            //console.log('Buyer ' + buyerAgent.name + ' had no full Market Share, upping beliefs for ' + goodKey + ' by ' + round(buyerDisplacement, 2));
-                                            buyerAgentPriceBeliefs.lowerLimit += round(buyerDisplacement, 2);
-                                            buyerAgentPriceBeliefs.upperLimit += round(buyerDisplacement, 2);
-                                        } else if (seller.price > clearingPrice) {
-                                            //console.log('Seller ' + sellerAgent.name + ' price was higher than clearing pice, lowering buyer' + buyerAgent.name + ' beliefs for ' + goodKey + ' by ' + round((seller.price - clearingPrice)*1.1, 2));
-                                            buyerAgentPriceBeliefs.lowerLimit = Math.max(buyerAgentPriceBeliefs.lowerLimit - round((seller.price - clearingPrice)*1.1, 2), 1);
-                                            buyerAgentPriceBeliefs.upperLimit = Math.max(buyerAgentPriceBeliefs.upperLimit - round((seller.price - clearingPrice)*1.1, 2), 1);
-                                        } else if (supply > demand && seller.price > app.marketEconSimModule.market.goodHistoricalMeans[goodKey]) {
-                                            //console.log('Supply was higher than demand and seller ' + seller.price + ' price was higher than current historical mean' + app.marketEconSimModule.market.goodHistoricalMeans[goodKey] + ', lowering buyer ' + buyerAgent.name + ' beliefs for ' + goodKey + ' by ' + round((seller.price - app.marketEconSimModule.market.goodHistoricalMeans[goodKey])*1.1, 2));
-                                            buyerAgentPriceBeliefs.lowerLimit = Math.max(buyerAgentPriceBeliefs.lowerLimit - round((seller.price - app.marketEconSimModule.market.goodHistoricalMeans[goodKey])*1.1, 2), 1);
-                                            buyerAgentPriceBeliefs.upperLimit = Math.max(buyerAgentPriceBeliefs.upperLimit - round((seller.price - app.marketEconSimModule.market.goodHistoricalMeans[goodKey])*1.1, 2), 1);
-                                        } else if (demand > supply) {
-                                            //console.log('Demand was higher than supply, upping buyer ' + buyerAgent.name + ' beliefs for ' + goodKey + ' by ' + round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey]/5, 2));
-                                            buyerAgentPriceBeliefs.lowerLimit += round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey]/5, 2);
-                                            buyerAgentPriceBeliefs.upperLimit += round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey]/5, 2);
-                                        } else {
-                                            //console.log('No conditions were met, lowering buyer ' + buyerAgent.name + ' beliefs for ' + goodKey + ' by ' + round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey]/5, 2));
-                                            buyerAgentPriceBeliefs.lowerLimit = Math.max(buyerAgentPriceBeliefs.lowerLimit - round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey]/5, 2), 1);
-                                            buyerAgentPriceBeliefs.upperLimit = Math.max(buyerAgentPriceBeliefs.upperLimit - round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey]/5, 2), 1);
-                                        };
-                    
-                                        //seller price adjustment
-                                        //if at least 50% of offer filled
-                                        if (quantity == 0) {
-                                            //console.log('Seller ' + sellerAgent.name + ' couldnt sell anything, lowering beliefs for ' + goodKey + ' by ' + round(sellerDisplacment/6, 2));
-                                            sellerAgentPriceBeliefs.lowerLimit = Math.max(sellerAgentPriceBeliefs.lowerLimit - round(sellerDisplacment/6, 2), 1);
-                                            sellerAgentPriceBeliefs.upperLimit = Math.max(sellerAgentPriceBeliefs.upperLimit - round(sellerDisplacment/6, 2), 1);
-                                        } else if (sellerMarketShare < 0.75*supply) {
-                                            //console.log('Seller ' + sellerAgent.name + ' market share is less than 75% of the ' + goodKey + ' market, lowering beliefs for ' + goodKey + ' by ' + round(sellerDisplacment/7, 2));
-                                            sellerAgentPriceBeliefs.lowerLimit = Math.max(sellerAgentPriceBeliefs.lowerLimit - round(sellerDisplacment/7, 2), 1);
-                                            sellerAgentPriceBeliefs.upperLimit = Math.max(sellerAgentPriceBeliefs.upperLimit - round(sellerDisplacment/7, 2), 1);
-                                        } else if (seller.price < clearingPrice) {
-                                            //console.log('Seller ' + sellerAgent.name + ' price was lower than a clearing price, upping beliefs for ' + goodKey + ' by ' + round(sellerWeight*(clearingPrice - seller.price)*1.2, 2));
-                                            sellerAgentPriceBeliefs.lowerLimit += round(sellerWeight*(clearingPrice - seller.price)*1.2, 2);
-                                            sellerAgentPriceBeliefs.upperLimit += round(sellerWeight*(clearingPrice - seller.price)*1.2, 2);
-                                        } else if (demand > supply) {
-                                            //console.log('Demand was higher than supply, upping seller ' + sellerAgent.name + ' beliefs for ' + goodKey + ' by ' + round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey]/5, 2));
-                                            buyerAgentPriceBeliefs.lowerLimit += round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey]/5, 2);
-                                            buyerAgentPriceBeliefs.upperLimit += round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey]/5, 2);
-                                        } else {
-                                            //console.log('No conditions were met, lowering seller ' + sellerAgent.name + ' beliefs for ' + goodKey + ' by ' + round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey]/5, 2));
-                                            buyerAgentPriceBeliefs.lowerLimit = Math.max(buyerAgentPriceBeliefs.lowerLimit - round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey]/5, 2), 1);
-                                            buyerAgentPriceBeliefs.upperLimit = Math.max(buyerAgentPriceBeliefs.upperLimit - round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey]/5, 2), 1);
-                                        };
-
-                                    };
-
-                                    console.log('Good is ' + goodKey + ', ' + 'seller # ' + i + '/' + (sortedLots.length - 1) + ', buyer # ' + j + '/' + (sortedAsks.length - 1));
-                                    if (seller.quantity > 0) iterateDeals(i, j + 1)
-                                    else if (buyer.quantity > 0) iterateDeals(i + 1, j)
-                                    else resolve();
-                                };
-                                
-                            });
-                        };
-
-                        let askComparison = async (ask, lot) => {
-                            return new Promise (resolve => {
-                                console.log('Solving ask');
-                                console.log(ask);
-                                console.log('For lot');
-                                console.log(lot);
-                                if (ask.quantity > 0 && lot.quantity - ask.quantity > 0) {
-                                    let buyer = ask;
-                                    let buyerAgent = app.marketEconSimModule.market.currentAgents.filter(x => x.name == buyer.buyerName)[0];
-                                    let seller = lot;
-                                    let sellerAgent = app.marketEconSimModule.market.currentAgents.filter(x => x.name == seller.sellerName)[0];
-
-                                    let clearingPrice = round((buyer.price + seller.price)/2, 2);
-                                    let quantity = Math.min(buyer.quantity, seller.quantity, Math.floor(buyerAgent.wallet/clearingPrice));
-                                    let totalPrice = round(quantity*clearingPrice, 2);
-                                    
-                                    let buyerAgentPriceBeliefs = buyerAgent.priceBeliefs[goodKey];
-                                    let buyerMarketShare = sortedLots.filter(x => x.name == buyer.buyerName).reduce((a, b) => a + b.price*b.quantity, 0);
-                                    let buyerDisplacement = (Math.abs(round((buyerAgentPriceBeliefs.upperLimit + buyerAgentPriceBeliefs.lowerLimit)/2 - clearingPrice), 2))/(round((buyerAgentPriceBeliefs.upperLimit + buyerAgentPriceBeliefs.lowerLimit)/2, 2));
-                                    
-                                    let sellerAgentPriceBeliefs = sellerAgent.priceBeliefs[goodKey];
-                                    let sellerMarketShare = sortedLots.filter(x => x.name == seller.sellerName).reduce((a, b) => a + b.price*b.quantity, 0);
-                                    let sellerWeight = (seller.quantity == 0 && quantity == 0 ? 0 : seller.quantity/(seller.quantity + quantity));
-                                    let sellerDisplacment = sellerWeight*(sellerAgentPriceBeliefs.upperLimit + sellerAgentPriceBeliefs.lowerLimit)/2;
-
-                                    if (quantity >= 1) {
-                                        let sellerOldInventory = sellerAgent.inventory[goodKey];
-                                        buyer.quantity -= quantity;
-                                        seller.quantity -= quantity;
-                                        buyerAgent.inventory[goodKey] += quantity;
-                                        sellerAgent.inventory[goodKey] -= quantity;
-                                        buyerAgent.wallet -= totalPrice;
-                                        sellerAgent.wallet += totalPrice;
-                                        sellerAgent.lastTurnProfit += totalPrice;
-
-                                        if (sellerAgent.inventory[goodKey] < 0) console.log('Agent ' + sellerAgent.name + ' inventory of ' + goodKey + ' became negative during Market Phase while being a seller! Was ' + sellerOldInventory + ', became ' + sellerAgent.inventory[goodKey] + '. Sold quantity was ' + quantity);
-                
-                                        currentTurnMeanPriceForGood.push(clearingPrice);
-                                        //console.log(currentTurnMeanPriceForGood);
-                
-                                        app.marketEconSimModule.market.currentDeals.push({
-                                            turn: app.marketEconSimModule.market.currentTurn,
-                                            good: goodKey,
-                                            buyer: buyerAgent.name,
-                                            seller: sellerAgent.name,
-                                            quantity: quantity,
-                                            clearingPrice: clearingPrice,
-                                            totalPrice: totalPrice
-                                        });
-                                    };
-
-                                    if (buyer.quantity/2 >= quantity) {
-                                        buyerAgentPriceBeliefs.lowerLimit += round(buyerAgentPriceBeliefs.upperLimit/10, 2);
-                                        buyerAgentPriceBeliefs.upperLimit = Math.max(buyerAgentPriceBeliefs.upperLimit - round(buyerAgentPriceBeliefs.upperLimit/10, 2), buyerAgentPriceBeliefs.lowerLimit);
-                                    } else {
-                                        buyerAgentPriceBeliefs.upperLimit += round(buyerAgentPriceBeliefs.upperLimit/10, 2);
-                                    };
-                
-                                    if (buyerMarketShare < 1) {
-                                        //console.log('Buyer ' + buyerAgent.name + ' had no full Market Share, upping beliefs for ' + goodKey + ' by ' + round(buyerDisplacement, 2));
-                                        buyerAgentPriceBeliefs.lowerLimit += round(buyerDisplacement, 2);
-                                        buyerAgentPriceBeliefs.upperLimit += round(buyerDisplacement, 2);
-                                    } else if (seller.price > clearingPrice) {
-                                        //console.log('Seller ' + sellerAgent.name + ' price was higher than clearing pice, lowering buyer' + buyerAgent.name + ' beliefs for ' + goodKey + ' by ' + round((seller.price - clearingPrice)*1.1, 2));
-                                        buyerAgentPriceBeliefs.lowerLimit = Math.max(buyerAgentPriceBeliefs.lowerLimit - round((seller.price - clearingPrice)*1.1, 2), 1);
-                                        buyerAgentPriceBeliefs.upperLimit = Math.max(buyerAgentPriceBeliefs.upperLimit - round((seller.price - clearingPrice)*1.1, 2), 1);
-                                    } else if (supply > demand && seller.price > app.marketEconSimModule.market.goodHistoricalMeans[goodKey]) {
-                                        //console.log('Supply was higher than demand and seller ' + seller.price + ' price was higher than current historical mean' + app.marketEconSimModule.market.goodHistoricalMeans[goodKey] + ', lowering buyer ' + buyerAgent.name + ' beliefs for ' + goodKey + ' by ' + round((seller.price - app.marketEconSimModule.market.goodHistoricalMeans[goodKey])*1.1, 2));
-                                        buyerAgentPriceBeliefs.lowerLimit = Math.max(buyerAgentPriceBeliefs.lowerLimit - round((seller.price - app.marketEconSimModule.market.goodHistoricalMeans[goodKey])*1.1, 2), 1);
-                                        buyerAgentPriceBeliefs.upperLimit = Math.max(buyerAgentPriceBeliefs.upperLimit - round((seller.price - app.marketEconSimModule.market.goodHistoricalMeans[goodKey])*1.1, 2), 1);
-                                    } else if (demand > supply) {
-                                        //console.log('Demand was higher than supply, upping buyer ' + buyerAgent.name + ' beliefs for ' + goodKey + ' by ' + round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey]/5, 2));
-                                        buyerAgentPriceBeliefs.lowerLimit += round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey]/5, 2);
-                                        buyerAgentPriceBeliefs.upperLimit += round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey]/5, 2);
-                                    } else {
-                                        //console.log('No conditions were met, lowering buyer ' + buyerAgent.name + ' beliefs for ' + goodKey + ' by ' + round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey]/5, 2));
-                                        buyerAgentPriceBeliefs.lowerLimit = Math.max(buyerAgentPriceBeliefs.lowerLimit - round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey]/5, 2), 1);
-                                        buyerAgentPriceBeliefs.upperLimit = Math.max(buyerAgentPriceBeliefs.upperLimit - round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey]/5, 2), 1);
-                                    };
-                
-                                    //seller price adjustment
-                                    //if at least 50% of offer filled
-                                    if (quantity == 0) {
-                                        //console.log('Seller ' + sellerAgent.name + ' couldnt sell anything, lowering beliefs for ' + goodKey + ' by ' + round(sellerDisplacment/6, 2));
-                                        sellerAgentPriceBeliefs.lowerLimit = Math.max(sellerAgentPriceBeliefs.lowerLimit - round(sellerDisplacment/6, 2), 1);
-                                        sellerAgentPriceBeliefs.upperLimit = Math.max(sellerAgentPriceBeliefs.upperLimit - round(sellerDisplacment/6, 2), 1);
-                                    } else if (sellerMarketShare < 0.75*supply) {
-                                        //console.log('Seller ' + sellerAgent.name + ' market share is less than 75% of the ' + goodKey + ' market, lowering beliefs for ' + goodKey + ' by ' + round(sellerDisplacment/7, 2));
-                                        sellerAgentPriceBeliefs.lowerLimit = Math.max(sellerAgentPriceBeliefs.lowerLimit - round(sellerDisplacment/7, 2), 1);
-                                        sellerAgentPriceBeliefs.upperLimit = Math.max(sellerAgentPriceBeliefs.upperLimit - round(sellerDisplacment/7, 2), 1);
-                                    } else if (seller.price < clearingPrice) {
-                                        //console.log('Seller ' + sellerAgent.name + ' price was lower than a clearing price, upping beliefs for ' + goodKey + ' by ' + round(sellerWeight*(clearingPrice - seller.price)*1.2, 2));
-                                        sellerAgentPriceBeliefs.lowerLimit += round(sellerWeight*(clearingPrice - seller.price)*1.2, 2);
-                                        sellerAgentPriceBeliefs.upperLimit += round(sellerWeight*(clearingPrice - seller.price)*1.2, 2);
-                                    } else if (demand > supply) {
-                                        //console.log('Demand was higher than supply, upping seller ' + sellerAgent.name + ' beliefs for ' + goodKey + ' by ' + round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey]/5, 2));
-                                        buyerAgentPriceBeliefs.lowerLimit += round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey]/5, 2);
-                                        buyerAgentPriceBeliefs.upperLimit += round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey]/5, 2);
-                                    } else {
-                                        //console.log('No conditions were met, lowering seller ' + sellerAgent.name + ' beliefs for ' + goodKey + ' by ' + round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey]/5, 2));
-                                        buyerAgentPriceBeliefs.lowerLimit = Math.max(buyerAgentPriceBeliefs.lowerLimit - round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey]/5, 2), 1);
-                                        buyerAgentPriceBeliefs.upperLimit = Math.max(buyerAgentPriceBeliefs.upperLimit - round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey]/5, 2), 1);
-                                    };
-
-                                    resolve();
-                                };
-                                
-                            });
-                        }
-
-                        let compareLotWithAsks = async lot => {
-                            for (let ask of sortedAsks) {
-                                if (lot.quantity > 0) await askComparison(ask, lot);
-                            };
-                        };
-
-                        let compareLots = async () => {
-                            for (let lot of sortedLots) {
-                                await compareLotWithAsks(lot);
-                            };
-                        };
-
-                        iterateDeals(0, 0).then(() => {
-                            if (currentTurnMeanPriceForGood.length > 0) app.marketEconSimModule.market.goodHistoricalMeans[goodKey] = round(currentTurnMeanPriceForGood.reduce((a, b) => a + b)/currentTurnMeanPriceForGood.length, 2);
-
-                            //console.log(goodKey + ' supply is ' + supply);
-                            //console.log(goodKey + ' demand is ' + demand);
-                            
-                            goodsDemand.push({
-                                good: goodKey,
-                                demand: demand,
-                            });
-
-                            resolve(goodKey + ' is matched');
-                        });
-
-                        /*compareLots().then(() => {
-                            if (currentTurnMeanPriceForGood.length > 0) app.marketEconSimModule.market.goodHistoricalMeans[goodKey] = round(currentTurnMeanPriceForGood.reduce((a, b) => a + b)/currentTurnMeanPriceForGood.length, 2);
-
-                            //console.log(goodKey + ' supply is ' + supply);
-                            //console.log(goodKey + ' demand is ' + demand);
-                            
-                            goodsDemand.push({
-                                good: goodKey,
-                                demand: demand,
-                            });
-
-                            resolve();
-                        });*/
-                    });
-
-                    matchingPromises.push(matchGood);
-                };
-
-                console.log(matchingPromises);
-                
-                Promise.all(matchingPromises).then((result) => {
-                    console.log(result);
-                    console.log('You are here');
-                    let agentChangePromises = [];
-                    
-                    goodsDemand = goodsDemand.sort((a, b) => (a.demand > b.demand) ? -1 : 1);
-                    app.marketEconSimModule.market.topGoodType = goodsDemand[0].good;
-                    
-                    
-                    //console.log('Demand for this turn');
-                    //console.log(goodsDemand);
-                    //console.log('Top good this turn ' + app.marketEconSimModule.market.topGoodType);
-
-                    for (let agent of app.marketEconSimModule.market.currentAgents) {
-                        let agentChange = new Promise (resolve => {
-                            (agent.lastTurnProfit > 0 ? agent.turnsWithoutProfit = 0: agent.turnsWithoutProfit++);
-
-                            if (agent.turnsWithoutProfit > 2) {
-                                //if the agent haven't been making any profit for more than 3 turns, they will try to switch their type with different production rules
-                                let oldType = agent.type;
-                                //the switch will be based upon the biggest inventory available to the agent to produce from
-                                let highestInventoryItem = Object.keys(agent.inventory).sort((a, b) => (agent.inventory[a] > agent.inventory[b]) ? -1 : 1)[0];
-                                let itemAmount = agent.inventory[highestInventoryItem];
-                                let newRandomType = Object.keys(app.marketEconSimModule.productionRuleSets).filter(x => app.marketEconSimModule.productionRuleSets[x].rules.filter(y => y.components.filter(z => z.key == highestInventoryItem).length > 0).length > 0);
-                                //console.log(agent.name + ' new types based on highest inventory (' + itemAmount + ' of ' + highestInventoryItem + ') are ' + newRandomType);
-                                //with 25% chance it will instead be to produce most profitable good 
-                                let mostLucrativeTypes = Object.keys(app.marketEconSimModule.productionRuleSets).filter(x => app.marketEconSimModule.productionRuleSets[x].rules.filter(y => y.outputs.filter(z => z.key == app.marketEconSimModule.market.topGoodType).length > 0).length > 0);
-                                //console.log('Meanwhile most lucrative types are: ' + mostLucrativeTypes.join(', '));
-                                agent.type = (Math.random() < 0.75 ? newRandomType[Math.floor(newRandomType.length*Math.random())] : mostLucrativeTypes[Math.floor(mostLucrativeTypes.length*Math.random())]);
-                                //console.log(agent.name + ' changed their type from ' + oldType + ' to ' + agent.type);
-                            };
-                            resolve();
-                        });
-                        agentChangePromises.push(agentChange);
-                    };
-
-                    Promise.all(agentChangePromises).then(() => {
-                        console.log('Deals for Turn #' + app.marketEconSimModule.market.currentTurn);
-                        console.log(app.marketEconSimModule.market.currentDeals);
-                        resolve('Market matching for Turn #' + app.marketEconSimModule.market.currentTurn + ' is finished');
-                    });
-                });
-            });
-        });
-    };
-
-    app.marketTurnSimulation2 = async () => {
+    app.marketTurnSimulation = async () => {
         let gatherListings = async () => {
             let createGoodListing = async (agent, goodKey) => {
                 let upkeepAmount = agent.upkeepRules.filter(x => x.good == goodKey).reduce((a, b) => a + b.quantity, 0);
@@ -1392,8 +985,8 @@
             let createGoodListingsForAgent = async (agent) => { 
                 for await (let goodKey of Object.keys(agent.inventory)) {
                     await createGoodListing(agent, goodKey);
+                    //console.log(`Done making ${goodKey} listings for agent ${agent.name}`);
                 };
-                console.log(`Done making good listings for agent ${agent.name}`);
             };
 
             for await (let agent of app.marketEconSimModule.market.currentAgents) {
@@ -1518,7 +1111,7 @@
 
                         };
 
-                        console.log(`Good is ${goodKey}, seller # ${i}/${sortedLots.length - 1}, buyer # ${j}/${sortedAsks.length - 1}`);
+                        //console.log(`Good is ${goodKey}, seller # ${i}/${sortedLots.length - 1}, buyer # ${j}/${sortedAsks.length - 1}`);
                         if (seller.quantity > 0) iterateDeals(i, j + 1)
                         else if (buyer.quantity > 0) iterateDeals(i + 1, j)
                         else return;
@@ -1533,7 +1126,7 @@
                 //console.log(`${goodKey} demand is ${demand}`);
                 
                 await iterateDeals(0, 0);
-                if (currentTurnMeanPriceForGood.length > 0) app.marketEconSimModule.market.goodHistoricalMeans[goodKey] = round(currentTurnMeanPriceForGood.reduce((a, b) => a + b)/currentTurnMeanPriceForGood.length, 2);
+                if (currentTurnMeanPriceForGood.length > 0) app.marketEconSimModule.market.goodHistoricalMeans[goodKey] = (app.marketEconSimModule.market.goodHistoricalMeans[goodKey] + round(currentTurnMeanPriceForGood.reduce((a, b) => a + b)/currentTurnMeanPriceForGood.length, 2))/2;
                 goodsDemand.push({
                     good: goodKey,
                     demand: demand,
@@ -1580,209 +1173,132 @@
         await changeAgentTypes();
     }
 
-    app.productionSimulation = () => {
-        return new Promise ((resolve) => {
-            let agentProductionPromises = [];
-            for (let agent of app.marketEconSimModule.market.currentAgents) {
-                let agentProduction = new Promise (resolve => {
-                    let goodProductionPromises = [];
-                    let sortedGoods = Object.keys(agent.inventory).sort((a, b) => (agent.inventory[a] - agent.upkeepRules.filter(x => x.good == a).reduce((x, z) => x + z.quantity, 0)*10 > agent.inventory[b] - agent.upkeepRules.filter(x => x.good == b).reduce((x, z) => x + z.quantity, 0)*10) ? 1 : -1);
-                    let totalProduction = 0;
-                    //console.log('Priority of production for ' + agent.name);
-                    //console.log(sortedGoods.join(', '));
-                    for (let goodKey of sortedGoods) {
-                        let goodProduction = new Promise (resolve => {
-                            let shuffledRules = shuffle(app.marketEconSimModule.productionRuleSets[agent.type].rules.filter(x => x.outputs.filter(y => y.key == goodKey).length > 0));
-                            let upkeepAmount = agent.upkeepRules.filter(x => x.good == goodKey).reduce((a, b) => a + b.quantity, 0);
-                            for (let rule of shuffledRules) {
-                                let possibleProduction = [];
-                                for (let component of rule.components) {
-                                    if (agent.inventory[component.key] - upkeepAmount*10 + component.quantity > 0) possibleProduction.push((agent.inventory[component.key] - upkeepAmount*10)/component.quantity);
-                                };
-                                //if the agent does not have enough components to make anything, skip the money limit, otherwise put it in the list of possible production numbers. Also limit production so that the agent has no more than 2K of inventory
-                                if (possibleProduction.length > 0) {
-                                    //possibleProduction.push(round(agent.wallet/app.marketEconSimModule.goods[goodKey].baseCost, 0));
-                                    possibleProduction.push(Math.max(0, 1000 - agent.inventory[goodKey], 0));
-                                };
-                                //console.log('Possible production numbers for ' + goodKey + ' are ' + [...possibleProduction]);
-                                let productionNumber = (possibleProduction.length > 0 ? Math.floor(Math.min(...possibleProduction)) : 0);
-                                //console.log(agent.name + ' is trying to make ' + productionNumber + ' of ' + goodKey);
-                                for (let component of rule.components) {
-                                    agent.inventory[component.key] -= productionNumber*component.quantity;
-                                    agent.wallet -= productionNumber*app.marketEconSimModule.goods[goodKey].baseCost;
-                                };
-                                for (let output of rule.outputs) {
-                                    agent.inventory[output.key] += productionNumber*output.quantity;
-                                    totalProduction += productionNumber*output.quantity;
-                                };
-                                if (totalProduction == 0) agent.wallet -= round(agent.wallet*0.05, 2);
-                            };
-                            resolve();
-                            /*let iterateOnProductionRule = (ruleIndex = 0, i = 1) => {
-                                if (shuffledRules[ruleIndex].outputs.filter(x => x.key == goodKey).length > 0) {
-                                    let haveEnough = true;
-
-                                    for (let component of shuffledRules[ruleIndex].components) {
-                                        if (agent.inventory[component.key] - upkeepAmount*10 < i*component.quantity) haveEnough = false;
-                                    };
-                    
-                                    if (haveEnough) {
-                                        setTimeout(function() { iterateOnProductionRule(ruleIndex, i + 1) }, 10)
-                                    } else {
-                                        //console.log(agent.name + ' is trying to make ' + (i - 1) + ' of ' + goodKey);
-                                        for (let component of shuffledRules[ruleIndex].components) {
-                                            agent.inventory[component.key] -= (i - 1)*component.quantity;
-                                        };
-                
-                                        for (let output of shuffledRules[ruleIndex].outputs) {
-                                            agent.inventory[output.key] += (i - 1)*output.quantity;
-                                            totalProduction += (i - 1)*output.quantity;
-                                        };
-                                        if (ruleIndex + 1 < shuffledRules.length) {
-                                            setTimeout(function() { iterateOnProductionRule(ruleIndex + 1, 1) }, 10)
-                                        } else {
-                                            if (totalProduction == 0) agent.wallet -= round(agent.wallet*0.05, 2);
-                                        };
-                                    };
-                                };
-                            };
-                
-                            if (shuffledRules.length > 0) iterateOnProductionRule();*/
-                        });
-                        if (agent.inventory[goodKey] < 0) console.log('Agent ' + agent.name + ' inventory of ' + goodKey + ' became negative during Production Phase!');
-                        goodProductionPromises.push(goodProduction);
-                    };
-                    Promise.all(goodProductionPromises).then(() => resolve());
-                    //console.log('Total production for agent ' + agent.name + ' is ' + totalProduction);
-                });
-                agentProductionPromises.push(agentProduction);
+    app.productionSimulation = async () => {
+        let goodProductionByRule = async (agent, goodKey, rule, totalProduction) => {
+            let upkeepAmount = agent.upkeepRules.filter(x => x.good == goodKey).reduce((a, b) => a + b.quantity, 0);
+            let possibleProduction = [];
+            for (let component of rule.components) {
+                if (agent.inventory[component.key] - upkeepAmount*10 + component.quantity > 0) possibleProduction.push((agent.inventory[component.key] - upkeepAmount*10)/component.quantity);
             };
-            Promise.all(agentProductionPromises).then(() => {
-                resolve('Production for Turn #' + app.marketEconSimModule.market.currentTurn + ' is finished');
-            });
-        });
+            //if the agent does not have enough components to make anything, skip the money limit, otherwise put it in the list of possible production numbers. Also limit production so that the agent has no more than 2K of inventory
+            if (possibleProduction.length > 0) {
+                //possibleProduction.push(round(agent.wallet/app.marketEconSimModule.goods[goodKey].baseCost, 0));
+                possibleProduction.push(Math.max(0, 1000 - agent.inventory[goodKey], 0));
+            };
+            //console.log(`Possible production numbers for ${goodKey} are ${[...possibleProduction]}`);
+            let productionNumber = (possibleProduction.length > 0 ? Math.floor(Math.min(...possibleProduction)) : 0);
+            //console.log(`${agent.name} is trying to make ${productionNumber} of ${goodKey}`);
+            for (let component of rule.components) {
+                agent.inventory[component.key] -= productionNumber*component.quantity;
+                agent.wallet -= productionNumber*app.marketEconSimModule.goods[goodKey].baseCost;
+            };
+            for (let output of rule.outputs) {
+                agent.inventory[output.key] += productionNumber*output.quantity;
+                totalProduction += productionNumber*output.quantity;
+            };
+            if (totalProduction == 0) agent.wallet -= round(agent.wallet*0.05, 2);
+        };
+        let agentGoodProductions = async (agent, goodKey, totalProduction) => {
+            let shuffledRules = shuffle(app.marketEconSimModule.productionRuleSets[agent.type].rules.filter(x => x.outputs.filter(y => y.key == goodKey).length > 0));
+            for await (let rule of shuffledRules) {
+                await goodProductionByRule(agent, goodKey, rule, totalProduction);
+                if (agent.inventory[goodKey] < 0) console.log('Agent ' + agent.name + ' inventory of ' + goodKey + ' became negative during Production Phase!');
+            };
+        };
+        let agentProduction = async (agent) => {
+            let sortedGoods = Object.keys(agent.inventory).sort((a, b) => (agent.inventory[a] - agent.upkeepRules.filter(x => x.good == a).reduce((x, z) => x + z.quantity, 0)*10 > agent.inventory[b] - agent.upkeepRules.filter(x => x.good == b).reduce((x, z) => x + z.quantity, 0)*10) ? 1 : -1);
+            let totalProduction = 0;
+            //console.log('Priority of production for ' + agent.name);
+            //console.log(sortedGoods.join(', '));
+            for (let goodKey of sortedGoods) {
+                await agentGoodProductions(agent, goodKey, totalProduction);                
+            };
+        };
+
+        for await(let agent of app.marketEconSimModule.market.currentAgents) {
+            await agentProduction(agent);
+        };
+
+        console.log(`Production for Turn #${app.marketEconSimModule.market.currentTurn} is finished`);
     };
 
-    app.upkeepSimulation = () => {
-        return new Promise ((resolve) => {
-            let agentUpkeepPromises = [];
-            for (let [i, agent] of app.marketEconSimModule.market.currentAgents.entries()) {
-                let agentUpkeep = new Promise (resolve => {
-                    let upkeepGoodsPromises = [];
-                    for (let upkeep of agent.upkeepRules) {
-                        let upkeepGood = new Promise (resolve => {
-                            if (agent.inventory[upkeep.good] - upkeep.quantity < 0) {
-                                agent.inventory[upkeep.good] = 0;
-                                agent.durability -= 5;
-                                //console.log(agent.name + ' could not fulfill their ' + upkeep.good + ' upkeep, losing 5 durability. Current durability is ' + agent.durability);
-                            } else {
-                                agent.inventory[upkeep.good] -= upkeep.quantity;
-                                //console.log(agent.name + ' could fulfilled their ' + upkeep.good + ' upkeep, gaining 1 durability. Current durability is ' + agent.durability);
-                                agent.durability++;
-                            };
-                            resolve();
-                        });
-                        if (agent.inventory[upkeep.good] < 0) console.log('Agent ' + agent.name + ' inventory of ' + upkeep.good + ' became negative during Upkeep Phase!');
-                        upkeepGoodsPromises.push(upkeepGood);
-                    };
-                    Promise.all(upkeepGoodsPromises).then(() => resolve());
-                });
-                agentUpkeepPromises.push(agentUpkeep);
+    app.upkeepSimulation = async () => {
+        let checkAgentUpkeepGood = async (agent, upkeep) => {
+            if (agent.inventory[upkeep.good] - upkeep.quantity < 0) {
+                agent.inventory[upkeep.good] = 0;
+                agent.durability -= 5;
+                //console.log(`${agent.name} could not fulfill their ${upkeep.good} upkeep, losing 5 durability. Current durability is ${agent.durability}`);
+            } else {
+                agent.inventory[upkeep.good] -= upkeep.quantity;
+                //console.log(`${agent.name} could fulfilled their ${upkeep.good} upkeep, gaining 1 durability. Current durability is ${agent.durability}`);
+                agent.durability++;
             };
-            Promise.all(agentUpkeepPromises).then(() => resolve('Upkeep for Turn #' + app.marketEconSimModule.market.currentTurn + ' is finished'));
-        });
+        };
+
+        let agentUpkeep = async (agent) => {
+            for await (let upkeep of agent.upkeepRules) {
+                await checkAgentUpkeepGood(agent, upkeep)
+                //if (agent.inventory[upkeep.good] < 0) console.log(`Agent ${agent.name} inventory of ${upkeep.good} became negative during Upkeep Phase!`);
+            };
+        };
+
+        for await (let agent of app.marketEconSimModule.market.currentAgents) {
+            await agentUpkeep(agent);
+        };
+
+        console.log(`Upkeep for Turn #${app.marketEconSimModule.market.currentTurn} is finished`);
     };
 
-    app.bailAndRetiretAgents = () => {
-        return new Promise ((resolve) => {
-            let agentBailPromises = [];
-            for (let [i, agent] of app.marketEconSimModule.market.currentAgents.entries()) {
-                let bailCheck = new Promise (resolve => {
-                    //Bail-out mechanism, that buys all the materials from the agent at 1/2 of a historical mean price in order to let them participate in the market again
-                    let bailGoodBuyOutPromises = [];
-                    if (agent.durability <= 0 && agent.bailOutChance) {
-                        console.log('Agent ' + agent.name + ' is being bailed-out');
-                        for (let goodKey of Object.keys(agent.inventory)) {
-                            let goodBuyOut = new Promise (resolve => {
-                                let bailOutVolume = agent.inventory[goodKey];
-                                let bailOutPay = bailOutVolume*app.marketEconSimModule.market.goodHistoricalMeans[goodKey]/2;
-            
-                                app.marketEconSimModule.market.bailOutAgent.wallet -= bailOutPay;
-                                agent.wallet += bailOutPay;
-            
-                                app.marketEconSimModule.market.bailOutAgent.inventory[goodKey] += bailOutVolume;
-                                agent.inventory[goodKey] = 0;
-                                agent.bailOutChance = false;
-                                resolve();
-                            });
-                            bailGoodBuyOutPromises.push(goodBuyOut);
-                        };
-                    //Retire mechanism, that buys all the materials from the agent at 1/10 of a historical mean price and retires the agent
-                    } else if (agent.durability <= 0 && !agent.bailOutChance) {
-                        console.log('Agent ' + agent.name + ' is being retired');
-                        for (let goodKey of Object.keys(agent.inventory)) {
-                            let goodBuyOut = new Promise (resolve => {
-                                let bankruptVolume = agent.inventory[goodKey];
-                                let bankruptPay = bankruptVolume*app.marketEconSimModule.market.goodHistoricalMeans[goodKey]/10;
-            
-                                app.marketEconSimModule.market.bailOutAgent.wallet -= bankruptPay;
-            
-                                app.marketEconSimModule.market.bailOutAgent.inventory[goodKey] += bankruptVolume;
-                                resolve();
-                            });
-                            bailGoodBuyOutPromises.push(goodBuyOut);
-                        };
-                        app.marketEconSimModule.market.currentAgents.splice(i, 1);
-                        //replace retired agent with a new one
-                        app.fabricateNewEconAgent();
-                    };
-                    Promise.all(bailGoodBuyOutPromises).then(() => resolve());
-                });
-                agentBailPromises.push(bailCheck);
+    app.bailAndRetiretAgents = async () => {
+        let buyOutGood = async (agent, goodKey, payPercent) => {
+            let bailOutVolume = agent.inventory[goodKey];
+            let bailOutPay = bailOutVolume*app.marketEconSimModule.market.goodHistoricalMeans[goodKey]*payPercent;
+
+            app.marketEconSimModule.market.bailOutAgent.wallet -= bailOutPay;
+            agent.wallet += bailOutPay;
+
+            app.marketEconSimModule.market.bailOutAgent.inventory[goodKey] += bailOutVolume;
+            agent.inventory[goodKey] = 0;
+            agent.bailOutChance = false;
+        };
+        let bailOutAgent = async (agent, i) => {
+            //Bail-out mechanism, that buys all the materials from the agent at 1/2 of a historical mean price in order to let them participate in the market again
+            if (agent.durability <= 0 && agent.bailOutChance) {
+                console.log(`Agent ${agent.name} is being bailed-out`);
+                for await (let goodKey of Object.keys(agent.inventory)) {
+                    await buyOutGood(agent, goodKey, 0.5);
+                };
+            //Retire mechanism, that buys all the materials from the agent at 1/10 of a historical mean price and retires the agent
+            } else if (agent.durability <= 0 && !agent.bailOutChance) {
+                console.log(`Agent ${agent.name} is being retired`);
+                for await (let goodKey of Object.keys(agent.inventory)) {
+                    await buyOutGood(agent, goodKey, 0.1);
+                };
+                app.marketEconSimModule.market.currentAgents.splice(i, 1);
+                //replace retired agent with a new one
+                app.fabricateNewEconAgent();
             };
-            Promise.all(agentBailPromises).then(() => resolve());
-        });
+        };
+
+        for await (let [i, agent] of app.marketEconSimModule.market.currentAgents.entries()) {
+            await bailOutAgent(agent, i);
+        };
     };
 
-    app.econNextTurn = () => {
-        /*app.marketEconSimModule.market.currentTurn++;
+    app.econNextTurn = async () => {
+        app.marketEconSimModule.market.currentTurn++;
         app.marketEconSimModule.market.currentAsks = [];
         app.marketEconSimModule.market.currentLots = [];
 
         console.log('Turn #' + app.marketEconSimModule.market.currentTurn);
-        app.upkeepSimulation();
-        app.productionSimulation();
-        app.marketTurnSimulation();
-        app.bailAndRetiretAgents();
+        await app.upkeepSimulation();
+        await app.productionSimulation();
+        await app.bailAndRetiretAgents();
+        await app.marketTurnSimulation();
         console.log('Turn #' + app.marketEconSimModule.market.currentTurn + ' calculation is finished!');
+        //console.log('Agents at the end of the turn');
+        //console.log(app.marketEconSimModule.market.currentAgents);
         app.refreshMarketModule();
-        $(app.components.spinner).hide();*/
-
-        let turnCalculation = new Promise((resolve) => {
-            app.marketEconSimModule.market.currentTurn++;
-            app.marketEconSimModule.market.currentAsks = [];
-            app.marketEconSimModule.market.currentLots = [];
-
-            console.log('Turn #' + app.marketEconSimModule.market.currentTurn);
-            app.upkeepSimulation().then((result) => {
-                console.log(result);
-                resolve();
-            });
-        }).then(() => {
-            return app.productionSimulation();
-        }).then((result) => {
-            console.log(result);
-            return app.bailAndRetiretAgents();
-        }).then(() => {
-            return app.marketTurnSimulation2();
-        }).then(() => {
-            console.log('Turn #' + app.marketEconSimModule.market.currentTurn + ' calculation is finished!');
-            //console.log('Agents at the end of the turn');
-            //console.log(app.marketEconSimModule.market.currentAgents);
-            app.refreshMarketModule();
-        });
-        
-        return turnCalculation;
     };
 
     app.refreshMarketModule = () => {
@@ -1910,7 +1426,7 @@
         app.fabricatePoliticalAgent();
         app.drawPoliticCanvas();
 
-        for (let i of [...Array(10).keys()]) {
+        for (let i of [...Array(100).keys()]) {
             app.fabricateNewEconAgent();
         };
         app.refreshMarketModule();
@@ -1959,8 +1475,8 @@
                     setTimeout(() => {
                         $('.market-econ-sim-next-round.btn')[0].click();
                         i++;
-                        (i > 99 ? resolve() : loopClick(i));
-                    }, 1000);
+                        (i > 9 ? resolve() : loopClick(i));
+                    }, 300);
                 };
                 loopClick(0);
             });
