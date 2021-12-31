@@ -12,7 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap" rel="stylesheet"> 
   </head>
   <body>
-    <div class="spinner-container flex just-center align-i-center"><div class="lds-ring"><div></div><div></div><div></div><div></div></div></div>
+    <div class="spinner-container flex jc-center align-i-center"><div class="lds-ring"><div></div><div></div><div></div><div></div></div></div>
     <div class="flex row header">
       <button class="logo" tabindex="1"><span class="kstr">Kostroun.</span><span class="gg">gg</span></button>
       <div class="flex col align-i-center mrg-1em">
@@ -43,23 +43,23 @@
           <div class="flex row align-i-center gen-tweak-option switch-btn template"><p class="label"></p><div class="switch-container"><label class="switch"><input type="checkbox"><div class="slider"></div></label></div></div>
         </div>
         <div class="flex col gen-results">
-          <div class="flex col mrg-1em pdng-1em just-center white-space-nowrap card reverse-colors gen-item template">
+          <div class="flex col mrg-1em pdng-1em jc-center white-space-nowrap card reverse-colors gen-item template">
             <div class="item-text">
             </div>
-            <div class="item-type">
-              <span class="label">Тип: </span> <span class="value"></span>
+            <div class="item-type flex row jc-space-betw">
+              <span class="label">Тип: </span> <span class="mrg-01em value"></span>
             </div>
-            <div class="item-description">
-              <span class="label">Описание: </span> <span class="value"></span>
+            <div class="item-description flex row jc-space-betw">
+              <span class="label">Описание: </span> <span class="mrg-01em value"></span>
             </div>
-            <div class="item-value">
-              <span class="label">Стоимости: </span> <span class="value"></span>
+            <div class="item-value flex row jc-space-betw">
+              <span class="label">Стоимости: </span> <span class="mrg-01em value"></span>
             </div>
-            <div class="item-weight">
-              <span class="label">Вес: </span> <span class="value"></span>
+            <div class="item-weight flex row jc-space-betw">
+              <span class="label">Вес: </span> <span class="mrg-01em value"></span>
             </div>
-            <div class="item-rarity">
-              <span class="label">Редкость: </span> <span class="value"></span>
+            <div class="item-rarity flex row jc-space-betw">
+              <span class="label">Редкость: </span> <span class="mrg-01em value"></span>
             </div>
           </div>
           <div class="flex row wrap mrg-1em gen-container card template"></div>
@@ -111,20 +111,73 @@
         </div>
       </div>
     </div>
+    <div class="gizmo market-econ-sim">
+      <h3 class="title">Симулятор Рыночной Экономики</h3>
+      <small>Симулирует простую рыночную экономику для быстрого реалистичного отыгрыша экономического эффекта от действий игроков</small> <br>
+      <div class="body">
+        <div class="flex align-i-start wrap mrg-1em market-billboard-container">
+            <div class="mrg-1em card market-billboard template">
+              <div class="billboard-item title flex row jc-space-betw">
+              </div>
+              <div class="billboard-item template flex row jc-space-betw">
+                <span class="mrg-01em00 label"></span> <span class="mrg-01em00 value"></span>
+                <input hidden class=" mrg-01em00 manual-input amount" type="text" placeholder="Количество">
+                <select hidden class="mrg-01em00 manual-input transaction-type">
+                  <option selected="selected" value="ask">Покупка</option>
+                  <option value="lot">Продажа</option>
+                </select>
+                <input hidden class="mrg-01em00 manual-input min-price" type="text" placeholder="Мин. цена">
+                <input hidden class="mrg-01em00 manual-input max-price" type="text" placeholder="Макс. цена">
+                <button hidden class="apply-player-input btn small" title="Применить" ><i class="fa fa-floppy-o" aria-hidden="true"></i></button>
+                <button hidden class="reset-player-input btn small" title="Сбросить" ><i class="fa fa-refresh" aria-hidden="true"></i></button>
+              </div>
+            </div>
+          </div>
+        <div class="flex align-i-center wrap mrg-1em market-econ-sim-controls">
+          <div class="flex align-i-center jc-center mrg-1em turn-counter"></div>
+          <button class="market-econ-sim-next-round btn">Следующий раунд</button>
+          <button class="market-econ-sim-100-rounds btn">Симулировать 100 раундов</button>
+          <button class="market-econ-sim-toggle-player-log btn">Показать историю действий игрока</button>
+        </div>
+        <div class="flex row market-econ-sim-player-log">
+        </div>
+        <div class="flex row wrap mrg-1em agent-card-container">
+          <div class="flex col mrg-1em card agent-card template">
+            <div class="agent-name flex row jc-space-betw">
+            </div>
+            <div class="agent-type flex row jc-space-betw">
+              <span class="label">Тип: </span> <span class="value"></span>
+            </div>
+            <div class="agent-durability flex row jc-space-betw">
+              <span class="label">Стойкость: </span> <span class="value"></span>
+            </div>
+            <div class="agent-age flex row jc-space-betw">
+              <span class="label">Возраст: </span> <span class="value"></span>
+            </div>
+            <div class="agent-wallet flex row jc-space-betw">
+              <span class="label">Кошелек: </span> <span class="value"></span>
+            </div>
+            <div class="agent-good template flex row jc-space-betw">
+              <span class="label">Предмет: </span> <span class="value"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="flex row wrap gizmos-panel main-content-block">
-      <div class="flex col align-i-center just-center mrg-1em">
+      <div class="flex col align-i-center jc-center mrg-1em">
         <small>Наши инструменты:</small>
       </div>
       <button class="btn template"></button>
     </div>
-    <div class="flex row wrap space-ar links-panel main-content-block">
+    <div class="flex row wrap jc-space-ar links-panel main-content-block">
       <a target="_blank" href="https://discord.gg/z3z2hxMADr"><img class="img-link" src="/images/link-discord.png" alt="Discord — discord.gg/z3z2hxMADr"></a>
       <a target="_blank" href="https://www.youtube.com/catatonicnonsense"><img class="img-link" src="/images/link-youtube.png" alt="Youtube — www.youtube.com/catatonicnonsense"></a>
       <a target="_blank" href="https://www.twitch.tv/alexkostroun"><img class="img-link" src="/images/link-twitch.png" alt="Twitch — www.twitch.tv/alexkostroun"></a>
       <a target="_blank" href="https://twitter.com/_stingwray"><img class="img-link" src="/images/link-twitter.png" alt="Twitter — twitter.com/_stingwray"></a>
       <a target="_blank" href="https://vk.com/alexkostrounstreams"><img class="img-link" src="/images/link-vk.png" alt="VK — vk.com/alexkostrounstreams"></a>
     </div>
-    <div class="flex row wrap space-ar footer">
+    <div class="flex row wrap jc-space-ar footer">
       Kostroun.gg © 2021
     </div>
   </body>
