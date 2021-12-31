@@ -24,6 +24,20 @@ html {
   scroll-behavior: smooth;
 }
 
+::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+  background: var(--bg-main);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--crimson-ua);
+}
+
+::-webkit-scrollbar-corner {
+  background: #000;
+}
+
 body {
   margin-top: 6em;
   padding: 30px;
@@ -178,13 +192,16 @@ span.label {
   .flex.col {
     flex-flow: column;
   }
-  .flex.space-betw {
+  .flex.jc-space-betw {
     justify-content: space-between;
   }
-  .flex.space-ar {
+  .flex.jc-space-ar {
     justify-content: space-around;
   }
-  .flex.just-center {
+  .flex.jc-end {
+    justify-content: flex-end;
+  }
+  .flex.jc-center {
     justify-content: center;
   }
   .flex.align-i-center {
@@ -544,6 +561,39 @@ span.label {
     .gen-container:not(:first-child):hover {
       opacity: 1;
     }
+
+.market-econ-sim-player-log {
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  scrollbar-width: thin;
+  color: var(--accent-opaq-heavy);
+  transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
+  }
+  .market-econ-sim-player-log.active {
+    opacity: 1;
+    overflow-y: auto;
+    max-height: 4em;
+    padding: 1em;
+    background-color: var(--bg-alt);
+  }
+
+.market-billboard {
+  min-width: 12em;
+  }
+  .billboard-item {
+    padding: 0.25em 0;
+    }
+    .manual-input {
+      width: 6em;
+      }
+      .manual-input.short {
+        width: 4em;
+      }
+
+.agent-card {
+  min-width: 12em;
+}
 
 .city-list.gizmo {
   top: 8em;

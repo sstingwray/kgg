@@ -2404,7 +2404,7 @@
             let mean = app.getAverageHistoricalMean(good);
 
             if (item.type == 'product' && item.inventory > 0) {
-                //for sellers favorability is based on a mean, plus the check to not go into >1
+                //for sellers favorability is based on a mean, plus the check to not go into > 1
                 //let favorability = Math.min(1, 1/((item.lowerPrice + (item.upperPrice + item.lowerPrice)/2)/(mean)));
                 let favorability = (mean > item.upperPrice ? 1 : (mean < item.lowerPrice ? 0.2 : Math.max(0.2, findNumberPosition(mean, item.lowerPrice, item.upperPrice))));
 
@@ -2459,8 +2459,6 @@
             };  
         };
     };
-
-    
 
     app.matchMarketListings = function() {
         return new Promise(resolve => {

@@ -93,9 +93,10 @@
             defaultAgent: {
                 name: 'Брокер',
                 nameTag: 0,
-                wallet: 3000,
+                wallet: 5000,
                 durability: 10,
                 bailOutChance: true,
+                protected: false,
                 type: 'trader',
                 lastTurnProfit: 0,
                 turnsWithoutProfit: 0,
@@ -140,12 +141,13 @@
                 }
             },
             market: {
-                currentTurn: 0,
+                currentTurn: 1,
                 agentCounter: 0,
                 currentAgents: [],
                 currentAsks: [],
                 currentLots: [],
                 currentDeals: [],
+                currentPlayerMessages: [],
                 goodHistoricalMeans: {
                     manpower: 1,
                     fuel: 1,
@@ -153,18 +155,21 @@
                     alloys: 1,
                     goods: 1,
                 },
-                topGoodType: 'manpower',
-                bailOutAgent: {
-                    name: 'Большой Брат',
-                    wallet: 3000,
-                    inventory: {
-                        manpower: 0,
-                        fuel: 0,
-                        food: 0,
-                        alloys: 0,
-                        goods: 0,
-                    },
+                goodHistoricalDemand: {
+                    manpower: 0,
+                    fuel: 0,
+                    food: 0,
+                    alloys: 0,
+                    goods: 0,
                 },
+                goodHistoricalSupply: {
+                    manpower: 0,
+                    fuel: 0,
+                    food: 0,
+                    alloys: 0,
+                    goods: 0,
+                },
+                topGoodType: 'manpower',
             },
             productionRuleSets: {
                 trader: {
@@ -917,47 +922,90 @@
     };
 
     //ECONSIM
-    app.fabricateNewEconAgent = () => {
+    app.fabricateNewEconAgent = (type = 'agent') => {
         let newAgent = JSON.parse(JSON.stringify(app.marketEconSimModule.defaultAgent));
 
         newAgent.nameTag += app.marketEconSimModule.market.agentCounter;
         app.marketEconSimModule.market.agentCounter++;
-        newAgent.name += ' #' + newAgent.nameTag;
-        newAgent.type = Object.keys(app.marketEconSimModule.productionRuleSets)[Math.floor(Object.keys(app.marketEconSimModule.productionRuleSets).length*Math.random())];
 
-        Object.keys(newAgent.inventory).forEach(key => {
-            newAgent.inventory[key] = round(Math.random()*100 + 100, 0);
-        });
+        switch (type) {
+            case 'bank':
+                newAgent.name = 'Банк';
+                newAgent.type = 'trader';
+                newAgent.protected = true;
+                for (let goodKey of Object.keys(newAgent.inventory)) {
+                    newAgent.inventory[goodKey] = 0;
+                };
+
+                break;
+            case 'player':
+                newAgent.name = 'Игрок';
+                newAgent.type = 'trader';
+                newAgent.protected = true;
+                newAgent.wallet = 0;
+                for (let goodKey of Object.keys(newAgent.inventory)) {
+                    newAgent.inventory[goodKey] = 0;
+                };
+                break;
+        
+            default:
+                newAgent.name += ' #' + newAgent.nameTag;
+                newAgent.type = Object.keys(app.marketEconSimModule.productionRuleSets)[Math.floor(Object.keys(app.marketEconSimModule.productionRuleSets).length*Math.random())];
+
+                for (let goodKey of Object.keys(newAgent.inventory)) {
+                    newAgent.inventory[goodKey] = round(Math.random()*100 + 100, 0);
+                };
+                break;
+        };
 
         app.marketEconSimModule.market.currentAgents.push(newAgent);
     };
 
     app.marketTurnSimulation = async () => {
         let gatherListings = async () => {
+            let playerBillboard = document.querySelector('.player-billboard');
             let createGoodListing = async (agent, goodKey) => {
+                //Desired amount is 10 turns of upkeep + 500 of all agent components to enable production + 100 of everything just in case. If an agent is the bank, they always want to sell and never buy. If its a player, the amounts are taken from the player request panel
+                let playerRequestAmount = playerBillboard.querySelector(`.${goodKey}-field > .amount`).value;
                 let upkeepAmount = agent.upkeepRules.filter(x => x.good == goodKey).reduce((a, b) => a + b.quantity, 0);
                 let productionAmount = (app.marketEconSimModule.productionRuleSets[agent.type].rules.filter(x => x.outputs.filter(y => y.key== goodKey).length > 0).length > 0 ? - 500 : 0);
-                let transactionType = (agent.inventory[goodKey] > upkeepAmount*10 + productionAmount + 100 ? 'lot' : 'ask');
-                let transactionAmount = Math.abs(agent.inventory[goodKey] - upkeepAmount*10 - productionAmount - 100);
-                //console.log(`${agent.name} wants to ${transactionType} ${transactionAmount} of ${goodKey}`);
+                let transactionAmount = 0;
+                
+                if (agent.protected) {
+                    switch (agent.name) {
+                        case 'Банк':
+                            transactionAmount = agent.inventory[goodKey];
+                            break;
+                    
+                        case 'Игрок':
+                            transactionAmount = playerRequestAmount;
+                            break;
+                    }
+                } else  transactionAmount = agent.inventory[goodKey] - upkeepAmount*10 - productionAmount - 100;
+
+                let transactionType = (agent.name == 'Банк' ? 'lot' : (agent.name == 'Игрок' ? playerBillboard.querySelector(`.${goodKey}-field > .transaction-type`).value : (transactionAmount > 0 ? 'lot' : 'ask')));
+
+                transactionAmount = Math.abs(transactionAmount);
 
                 switch (transactionType) {
                     case 'lot':
                         {
                             let mean = app.marketEconSimModule.market.goodHistoricalMeans[goodKey];
-                            let upperPriceLimit = agent.priceBeliefs[goodKey].upperLimit;
-                            let lowerPriceLimit = agent.priceBeliefs[goodKey].lowerLimit;
-                            let favorability = (mean > upperPriceLimit ? 1 : (mean < lowerPriceLimit ? 0.2 : Math.max(0.2, findNumberPosition(mean, lowerPriceLimit, upperPriceLimit))));
+                            let upperPriceLimit = (!agent.protected ? agent.priceBeliefs[goodKey].upperLimit : playerBillboard.querySelector(`.${goodKey}-field > .max-price`).value);
+                            let lowerPriceLimit = (!agent.protected ? agent.priceBeliefs[goodKey].lowerLimit : playerBillboard.querySelector(`.${goodKey}-field > .min-price`).value);
+                            let favorability = (agent.protected ? 1 : (mean > upperPriceLimit ? 1 : (mean < lowerPriceLimit ? 0.2 : Math.max(0.2, findNumberPosition(mean, lowerPriceLimit, upperPriceLimit)))));
                             let amount = round(favorability*transactionAmount, 0);
 
                             if (amount > 0) {
-                                //console.log(`Due to favorability of ${round(favorability, 2)}, the amount will instead be ${amount}`);
+                                //console.log(`${agent.name} wants to ${transactionType} ${transactionAmount} of ${goodKey}`);
+                                //console.log(`Favorability is ${round(favorability, 2)}, the amount will instead be ${amount}`);
                                 app.marketEconSimModule.market.currentLots.push({
                                     sellerName: agent.name,
                                     good: goodKey,
                                     quantity: amount,
                                     price: upperPriceLimit,
                                 });
+                                if (agent.name == 'Игрок') app.marketEconSimModule.market.currentPlayerMessages.push({ turn: app.marketEconSimModule.market.currentTurn, text: `Игрок разместил предложение о продаже ${amount} [${app.marketEconSimModule.goods[goodKey].name}], искомая цена — ${upperPriceLimit}`});
                             };
                         };
                         break;
@@ -966,17 +1014,19 @@
                             let mean = app.marketEconSimModule.market.goodHistoricalMeans[goodKey];
                             let upperPriceLimit = agent.priceBeliefs[goodKey].upperLimit;
                             let lowerPriceLimit = agent.priceBeliefs[goodKey].lowerLimit;
-                            let favorability = (mean > upperPriceLimit ? 0.2 : (mean < lowerPriceLimit ? 1 : Math.max(0.2, 1 - findNumberPosition(mean, lowerPriceLimit, upperPriceLimit))));
+                            let favorability = (agent.protected ? 1 : (mean > upperPriceLimit ? 0.2 : (mean < lowerPriceLimit ? 1 : Math.max(0.2, 1 - findNumberPosition(mean, lowerPriceLimit, upperPriceLimit)))));
                             let amount = round(Math.min(favorability*transactionAmount, agent.wallet/upperPriceLimit), 0);
 
                             if (amount > 0) {
-                                //console.log(`Due to favorability of ${round(favorability, 2)} or having money to buy only ${round(agent.wallet / upperPriceLimit, 0)}, the amount will instead be ${amount}`);
+                                //console.log(`${agent.name} wants to ${transactionType} ${transactionAmount} of ${goodKey}`);
+                                //console.log(`Favorability is ${round(favorability, 2)}, has money to buy only ${round(agent.wallet / upperPriceLimit, 0)}, the amount will instead be ${amount}`);
                                 app.marketEconSimModule.market.currentAsks.push({
                                     buyerName: agent.name,
                                     good: goodKey,
                                     quantity: amount,
                                     price: lowerPriceLimit,
                                 });
+                                if (agent.name == 'Игрок') app.marketEconSimModule.market.currentPlayerMessages.push({ turn: app.marketEconSimModule.market.currentTurn, text: `Игрок разместил запрос на покупку ${amount} [${app.marketEconSimModule.goods[goodKey].name}], искомая цена — ${lowerPriceLimit}`});
                             };
                         };
                         break;
@@ -1002,6 +1052,8 @@
                 let shuffledAsks = shuffle(app.marketEconSimModule.market.currentAsks.filter(x => x.good == goodKey));
                 let sortedLots = shuffledLots.sort((a, b) => (a.price > b.price) ? 1 : -1);
                 let sortedAsks = shuffledAsks.sort((a, b) => (a.price < b.price) ? 1 : -1);
+                let playerLotPosition = sortedLots.map((x, index) => { if (x.sellerName == 'Игрок') return { index: index, good: goodKey } }).filter(x => x != null);
+                let playerAskPosition = sortedAsks.map((x, index) => { if (x.buyerName == 'Игрок') return { index: index, good: goodKey } }).filter(x => x != null);
                 let historicalMean = app.marketEconSimModule.market.goodHistoricalMeans[goodKey];
                 let supply = sortedLots.reduce((a, b) => a + historicalMean*b.quantity, 0);
                 let demand = sortedAsks.reduce((a, b) => a + historicalMean*b.quantity, 0);
@@ -1016,7 +1068,7 @@
                         let buyerAgent = app.marketEconSimModule.market.currentAgents.filter(x => x.name == buyer.buyerName)[0];
 
                         let clearingPrice = round((buyer.price + seller.price)/2, 2);
-                        let quantity = Math.min(buyer.quantity, seller.quantity, sellerAgent.inventory[goodKey], Math.floor(buyerAgent.wallet/clearingPrice));
+                        let quantity = Math.min(buyer.quantity, seller.quantity, sellerAgent.inventory[goodKey]);
                         let totalPrice = round(quantity*clearingPrice, 2);
                         
                         let buyerAgentPriceBeliefs = buyerAgent.priceBeliefs[goodKey];
@@ -1053,60 +1105,68 @@
                                 clearingPrice: clearingPrice,
                                 totalPrice: totalPrice
                             });
+
+                            if (sellerAgent.name == 'Игрок') app.marketEconSimModule.market.currentPlayerMessages.push({ turn: app.marketEconSimModule.market.currentTurn, text: `Игрок смог продать ${quantity} [${app.marketEconSimModule.goods[goodKey].name}] за ${clearingPrice*quantity}(${clearingPrice} шт.), покупатель - ${buyerAgent.name}`});
+                            if (buyerAgent.name == 'Игрок') app.marketEconSimModule.market.currentPlayerMessages.push({ turn: app.marketEconSimModule.market.currentTurn, text: `Игрок смог купить ${quantity} [${app.marketEconSimModule.goods[goodKey].name}] за ${clearingPrice*quantity}(${clearingPrice} шт.), продавец - ${sellerAgent.name}`});
                         };
 
                         PriceBeliefsAdjustment: {
-                            if (buyer.quantity/2 >= quantity) {
-                                buyerAgentPriceBeliefs.lowerLimit += round(buyerAgentPriceBeliefs.upperLimit/10, 2);
-                                buyerAgentPriceBeliefs.upperLimit = Math.max(buyerAgentPriceBeliefs.upperLimit - round(buyerAgentPriceBeliefs.upperLimit/10, 2), buyerAgentPriceBeliefs.lowerLimit);
-                            } else {
-                                buyerAgentPriceBeliefs.upperLimit += round(buyerAgentPriceBeliefs.upperLimit/10, 2);
+                            if (!buyerAgent.protected) {
+                                
+                                if (buyer.quantity/2 >= quantity) {
+                                    //console.log(`Buyer ${buyerAgent.name} could buy half or more of their ask, closing the price belief gap for ${goodKey} by ${round(buyerAgentPriceBeliefs.upperLimit/10, 2)}`);
+                                    buyerAgentPriceBeliefs.lowerLimit += round(buyerAgentPriceBeliefs.upperLimit/10, 2);
+                                    buyerAgentPriceBeliefs.upperLimit = Math.max(buyerAgentPriceBeliefs.upperLimit - round(buyerAgentPriceBeliefs.upperLimit/10, 2), buyerAgentPriceBeliefs.lowerLimit);
+                                } else {
+                                    //console.log(`Buyer ${buyerAgent.name} could only buy half of less of their ask, upping the upper price belief gap for ${goodKey} by ${round(buyerAgentPriceBeliefs.upperLimit/10, 2)}`);
+                                    buyerAgentPriceBeliefs.upperLimit += round(buyerAgentPriceBeliefs.upperLimit/10, 2);
+                                };
+            
+                                if (buyerMarketShare < 1) {
+                                    //console.log(`Buyer ${buyerAgent.name} had no full Market Share, upping beliefs for ${goodKey} by ${round(buyerDisplacement, 2)}`);
+                                    buyerAgentPriceBeliefs.lowerLimit += round(buyerDisplacement, 2);
+                                    buyerAgentPriceBeliefs.upperLimit += round(buyerDisplacement, 2);
+                                } else if (seller.price > clearingPrice) {
+                                    //console.log(`Seller ${sellerAgent.name} price was higher than clearing pice, lowering buyer${buyerAgent.name} beliefs for ${goodKey} by ${round((seller.price - clearingPrice) * 1.1, 2)}`);
+                                    buyerAgentPriceBeliefs.lowerLimit = Math.max(buyerAgentPriceBeliefs.lowerLimit - round((seller.price - clearingPrice)*1.1, 2), 1);
+                                    buyerAgentPriceBeliefs.upperLimit = Math.max(buyerAgentPriceBeliefs.upperLimit - round((seller.price - clearingPrice)*1.1, 2), 1);
+                                } else if (supply > demand && seller.price > app.marketEconSimModule.market.goodHistoricalMeans[goodKey]) {
+                                    //console.log(`Supply was higher than demand and seller ${seller.price} price was higher than current historical mean${app.marketEconSimModule.market.goodHistoricalMeans[goodKey]}, lowering buyer ${buyerAgent.name} beliefs for ${goodKey} by ${round((seller.price - app.marketEconSimModule.market.goodHistoricalMeans[goodKey]) * 1.1, 2)}`);
+                                    buyerAgentPriceBeliefs.lowerLimit = Math.max(buyerAgentPriceBeliefs.lowerLimit - round((seller.price - app.marketEconSimModule.market.goodHistoricalMeans[goodKey])*1.1, 2), 1);
+                                    buyerAgentPriceBeliefs.upperLimit = Math.max(buyerAgentPriceBeliefs.upperLimit - round((seller.price - app.marketEconSimModule.market.goodHistoricalMeans[goodKey])*1.1, 2), 1);
+                                } else if (demand > supply) {
+                                    //console.log(`Demand was higher than supply, upping buyer ${buyerAgent.name} beliefs for ${goodKey} by ${round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey] / 5, 2)}`);
+                                    buyerAgentPriceBeliefs.lowerLimit += round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey]/5, 2);
+                                    buyerAgentPriceBeliefs.upperLimit += round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey]/5, 2);
+                                } else {
+                                    //console.log(`No conditions were met, lowering buyer ${buyerAgent.name} beliefs for ${goodKey} by ${round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey] / 5, 2)}`);
+                                    buyerAgentPriceBeliefs.lowerLimit = Math.max(buyerAgentPriceBeliefs.lowerLimit - round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey]/5, 2), 1);
+                                    buyerAgentPriceBeliefs.upperLimit = Math.max(buyerAgentPriceBeliefs.upperLimit - round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey]/5, 2), 1);
+                                };
                             };
-        
-                            if (buyerMarketShare < 1) {
-                                //console.log('Buyer ' + buyerAgent.name + ' had no full Market Share, upping beliefs for ' + goodKey + ' by ' + round(buyerDisplacement, 2));
-                                buyerAgentPriceBeliefs.lowerLimit += round(buyerDisplacement, 2);
-                                buyerAgentPriceBeliefs.upperLimit += round(buyerDisplacement, 2);
-                            } else if (seller.price > clearingPrice) {
-                                //console.log('Seller ' + sellerAgent.name + ' price was higher than clearing pice, lowering buyer' + buyerAgent.name + ' beliefs for ' + goodKey + ' by ' + round((seller.price - clearingPrice)*1.1, 2));
-                                buyerAgentPriceBeliefs.lowerLimit = Math.max(buyerAgentPriceBeliefs.lowerLimit - round((seller.price - clearingPrice)*1.1, 2), 1);
-                                buyerAgentPriceBeliefs.upperLimit = Math.max(buyerAgentPriceBeliefs.upperLimit - round((seller.price - clearingPrice)*1.1, 2), 1);
-                            } else if (supply > demand && seller.price > app.marketEconSimModule.market.goodHistoricalMeans[goodKey]) {
-                                //console.log('Supply was higher than demand and seller ' + seller.price + ' price was higher than current historical mean' + app.marketEconSimModule.market.goodHistoricalMeans[goodKey] + ', lowering buyer ' + buyerAgent.name + ' beliefs for ' + goodKey + ' by ' + round((seller.price - app.marketEconSimModule.market.goodHistoricalMeans[goodKey])*1.1, 2));
-                                buyerAgentPriceBeliefs.lowerLimit = Math.max(buyerAgentPriceBeliefs.lowerLimit - round((seller.price - app.marketEconSimModule.market.goodHistoricalMeans[goodKey])*1.1, 2), 1);
-                                buyerAgentPriceBeliefs.upperLimit = Math.max(buyerAgentPriceBeliefs.upperLimit - round((seller.price - app.marketEconSimModule.market.goodHistoricalMeans[goodKey])*1.1, 2), 1);
-                            } else if (demand > supply) {
-                                //console.log('Demand was higher than supply, upping buyer ' + buyerAgent.name + ' beliefs for ' + goodKey + ' by ' + round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey]/5, 2));
-                                buyerAgentPriceBeliefs.lowerLimit += round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey]/5, 2);
-                                buyerAgentPriceBeliefs.upperLimit += round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey]/5, 2);
-                            } else {
-                                //console.log('No conditions were met, lowering buyer ' + buyerAgent.name + ' beliefs for ' + goodKey + ' by ' + round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey]/5, 2));
-                                buyerAgentPriceBeliefs.lowerLimit = Math.max(buyerAgentPriceBeliefs.lowerLimit - round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey]/5, 2), 1);
-                                buyerAgentPriceBeliefs.upperLimit = Math.max(buyerAgentPriceBeliefs.upperLimit - round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey]/5, 2), 1);
-                            };
-        
-                            //seller price adjustment
-                            //if at least 50% of offer filled
-                            if (quantity == 0) {
-                                //console.log('Seller ' + sellerAgent.name + ' couldnt sell anything, lowering beliefs for ' + goodKey + ' by ' + round(sellerDisplacment/6, 2));
-                                sellerAgentPriceBeliefs.lowerLimit = Math.max(sellerAgentPriceBeliefs.lowerLimit - round(sellerDisplacment/6, 2), 1);
-                                sellerAgentPriceBeliefs.upperLimit = Math.max(sellerAgentPriceBeliefs.upperLimit - round(sellerDisplacment/6, 2), 1);
-                            } else if (sellerMarketShare < 0.75*supply) {
-                                //console.log('Seller ' + sellerAgent.name + ' market share is less than 75% of the ' + goodKey + ' market, lowering beliefs for ' + goodKey + ' by ' + round(sellerDisplacment/7, 2));
-                                sellerAgentPriceBeliefs.lowerLimit = Math.max(sellerAgentPriceBeliefs.lowerLimit - round(sellerDisplacment/7, 2), 1);
-                                sellerAgentPriceBeliefs.upperLimit = Math.max(sellerAgentPriceBeliefs.upperLimit - round(sellerDisplacment/7, 2), 1);
-                            } else if (seller.price < clearingPrice) {
-                                //console.log('Seller ' + sellerAgent.name + ' price was lower than a clearing price, upping beliefs for ' + goodKey + ' by ' + round(sellerWeight*(clearingPrice - seller.price)*1.2, 2));
-                                sellerAgentPriceBeliefs.lowerLimit += round(sellerWeight*(clearingPrice - seller.price)*1.2, 2);
-                                sellerAgentPriceBeliefs.upperLimit += round(sellerWeight*(clearingPrice - seller.price)*1.2, 2);
-                            } else if (demand > supply) {
-                                //console.log('Demand was higher than supply, upping seller ' + sellerAgent.name + ' beliefs for ' + goodKey + ' by ' + round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey]/5, 2));
-                                buyerAgentPriceBeliefs.lowerLimit += round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey]/5, 2);
-                                buyerAgentPriceBeliefs.upperLimit += round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey]/5, 2);
-                            } else {
-                                //console.log('No conditions were met, lowering seller ' + sellerAgent.name + ' beliefs for ' + goodKey + ' by ' + round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey]/5, 2));
-                                buyerAgentPriceBeliefs.lowerLimit = Math.max(buyerAgentPriceBeliefs.lowerLimit - round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey]/5, 2), 1);
-                                buyerAgentPriceBeliefs.upperLimit = Math.max(buyerAgentPriceBeliefs.upperLimit - round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey]/5, 2), 1);
+                           
+                            if (!sellerAgent.protected) {
+                                if (quantity == 0) {
+                                    //console.log('Seller ' + sellerAgent.name + ' couldnt sell anything, lowering beliefs for ' + goodKey + ' by ' + round(sellerDisplacment/6, 2));
+                                    sellerAgentPriceBeliefs.lowerLimit = Math.max(sellerAgentPriceBeliefs.lowerLimit - round(sellerDisplacment/6, 2), 1);
+                                    sellerAgentPriceBeliefs.upperLimit = Math.max(sellerAgentPriceBeliefs.upperLimit - round(sellerDisplacment/6, 2), 1);
+                                } else if (sellerMarketShare < 0.75*supply) {
+                                    //console.log('Seller ' + sellerAgent.name + ' market share is less than 75% of the ' + goodKey + ' market, lowering beliefs for ' + goodKey + ' by ' + round(sellerDisplacment/7, 2));
+                                    sellerAgentPriceBeliefs.lowerLimit = Math.max(sellerAgentPriceBeliefs.lowerLimit - round(sellerDisplacment/7, 2), 1);
+                                    sellerAgentPriceBeliefs.upperLimit = Math.max(sellerAgentPriceBeliefs.upperLimit - round(sellerDisplacment/7, 2), 1);
+                                } else if (seller.price < clearingPrice) {
+                                    //console.log('Seller ' + sellerAgent.name + ' price was lower than a clearing price, upping beliefs for ' + goodKey + ' by ' + round(sellerWeight*(clearingPrice - seller.price)*1.2, 2));
+                                    sellerAgentPriceBeliefs.lowerLimit += round(sellerWeight*(clearingPrice - seller.price)*1.2, 2);
+                                    sellerAgentPriceBeliefs.upperLimit += round(sellerWeight*(clearingPrice - seller.price)*1.2, 2);
+                                } else if (demand > supply) {
+                                    //console.log('Demand was higher than supply, upping seller ' + sellerAgent.name + ' beliefs for ' + goodKey + ' by ' + round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey]/5, 2));
+                                    buyerAgentPriceBeliefs.lowerLimit += round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey]/5, 2);
+                                    buyerAgentPriceBeliefs.upperLimit += round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey]/5, 2);
+                                } else {
+                                    //console.log('No conditions were met, lowering seller ' + sellerAgent.name + ' beliefs for ' + goodKey + ' by ' + round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey]/5, 2));
+                                    buyerAgentPriceBeliefs.lowerLimit = Math.max(buyerAgentPriceBeliefs.lowerLimit - round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey]/5, 2), 1);
+                                    buyerAgentPriceBeliefs.upperLimit = Math.max(buyerAgentPriceBeliefs.upperLimit - round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey]/5, 2), 1);
+                                };
                             };
 
                         };
@@ -1122,8 +1182,10 @@
                 //console.log(sortedLots);
                 //console.log(`Asks for ${goodKey}`);
                 //console.log(sortedAsks);
-                //console.log(`${goodKey} supply is ${supply}`);
-                //console.log(`${goodKey} demand is ${demand}`);
+                console.log(`${goodKey} supply is ${supply}`);
+                console.log(`${goodKey} demand is ${demand}`);
+                if (playerLotPosition.length > 0) app.marketEconSimModule.market.currentPlayerMessages.push({ turn: app.marketEconSimModule.market.currentTurn, text: `Позиция запроса игрока на продажу [${app.marketEconSimModule.goods[playerLotPosition[0].good].name}] - ${playerLotPosition[0].index}`});
+                if (playerAskPosition.length > 0) app.marketEconSimModule.market.currentPlayerMessages.push({ turn: app.marketEconSimModule.market.currentTurn, text: `Позиция запроса игрока на покупку [${app.marketEconSimModule.goods[playerAskPosition[0].good].name}] - ${playerAskPosition[0].index}`});
                 
                 await iterateDeals(0, 0);
                 if (currentTurnMeanPriceForGood.length > 0) app.marketEconSimModule.market.goodHistoricalMeans[goodKey] = (app.marketEconSimModule.market.goodHistoricalMeans[goodKey] + round(currentTurnMeanPriceForGood.reduce((a, b) => a + b)/currentTurnMeanPriceForGood.length, 2))/2;
@@ -1145,7 +1207,7 @@
             //console.log('Top good this turn ' + app.marketEconSimModule.market.topGoodType);
         };
         let changeAgentTypes = async () => {
-            let changeAgentType = async (agent) => {
+            let changeAgent = async (agent) => {
                 if (agent.turnsWithoutProfit > 2) {
                     //if the agent haven't been making any profit for more than 3 turns, they will try to switch their type with different production rules
                     //the switch will be based upon the biggest inventory available to the agent to produce from with 25% chance it will instead be to produce the most profitable good
@@ -1161,16 +1223,26 @@
                     //console.log(`${agent.name} changed their type from ${oldType} to ${agent.type}`);
                 };
             };
-            let changeAgents = async () => {
-                for await (let agent of app.marketEconSimModule.market.currentAgents) {
-                    await changeAgentType(agent);
-                };
-            };
 
             await matchListings();
-            await changeAgentType(changeAgents());
+
+            for await (let agent of app.marketEconSimModule.market.currentAgents) {
+                await changeAgent(agent);
+            };
         };
-        await changeAgentTypes();
+        let updateProtectedAgentsPriceBeliefs = async () => {
+            await changeAgentTypes();
+            for (let agent of app.marketEconSimModule.market.currentAgents) {
+                if (agent.name == 'Банк') {
+                    for (let goodKey of Object.keys(agent.priceBeliefs)) {
+                        agent.priceBeliefs[goodKey].lowerLimit = round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey], 2);
+                        agent.priceBeliefs[goodKey].upperLimit = round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey], 2);
+                    };
+                };
+            };
+        };
+
+        await updateProtectedAgentsPriceBeliefs();
     }
 
     app.productionSimulation = async () => {
@@ -1196,7 +1268,7 @@
                 agent.inventory[output.key] += productionNumber*output.quantity;
                 totalProduction += productionNumber*output.quantity;
             };
-            if (totalProduction == 0) agent.wallet -= round(agent.wallet*0.05, 2);
+            if (totalProduction == 0) agent.wallet -= round(agent.wallet*0.05 + 5, 2);
         };
         let agentGoodProductions = async (agent, goodKey, totalProduction) => {
             let shuffledRules = shuffle(app.marketEconSimModule.productionRuleSets[agent.type].rules.filter(x => x.outputs.filter(y => y.key == goodKey).length > 0));
@@ -1216,7 +1288,7 @@
         };
 
         for await(let agent of app.marketEconSimModule.market.currentAgents) {
-            await agentProduction(agent);
+            if (!agent.protected) await agentProduction(agent);
         };
 
         console.log(`Production for Turn #${app.marketEconSimModule.market.currentTurn} is finished`);
@@ -1231,7 +1303,7 @@
             } else {
                 agent.inventory[upkeep.good] -= upkeep.quantity;
                 //console.log(`${agent.name} could fulfilled their ${upkeep.good} upkeep, gaining 1 durability. Current durability is ${agent.durability}`);
-                agent.durability++;
+                //agent.durability++;
             };
         };
 
@@ -1243,36 +1315,38 @@
         };
 
         for await (let agent of app.marketEconSimModule.market.currentAgents) {
-            await agentUpkeep(agent);
+            if (!agent.protected) await agentUpkeep(agent)
+            else if (agent.name == 'Банк') agent.wallet = 0;
         };
 
         console.log(`Upkeep for Turn #${app.marketEconSimModule.market.currentTurn} is finished`);
     };
 
     app.bailAndRetiretAgents = async () => {
+        let bankAgent = app.marketEconSimModule.market.currentAgents.filter(x => x.name == 'Банк')[0];
         let buyOutGood = async (agent, goodKey, payPercent) => {
             let bailOutVolume = agent.inventory[goodKey];
             let bailOutPay = bailOutVolume*app.marketEconSimModule.market.goodHistoricalMeans[goodKey]*payPercent;
 
-            app.marketEconSimModule.market.bailOutAgent.wallet -= bailOutPay;
+            bankAgent.wallet -= bailOutPay;
             agent.wallet += bailOutPay;
 
-            app.marketEconSimModule.market.bailOutAgent.inventory[goodKey] += bailOutVolume;
+            bankAgent.inventory[goodKey] += bailOutVolume;
             agent.inventory[goodKey] = 0;
             agent.bailOutChance = false;
         };
         let bailOutAgent = async (agent, i) => {
-            //Bail-out mechanism, that buys all the materials from the agent at 1/2 of a historical mean price in order to let them participate in the market again
-            if (agent.durability <= 0 && agent.bailOutChance) {
+            //Bail-out mechanism, that buys all the materials from the agent at a historical mean price in order to let them participate in the market again
+            if ((agent.durability <= 0 || agent.wallet <= 0) && agent.bailOutChance) {
                 console.log(`Agent ${agent.name} is being bailed-out`);
                 for await (let goodKey of Object.keys(agent.inventory)) {
-                    await buyOutGood(agent, goodKey, 0.5);
+                    await buyOutGood(agent, goodKey, 1);
                 };
-            //Retire mechanism, that buys all the materials from the agent at 1/10 of a historical mean price and retires the agent
-            } else if (agent.durability <= 0 && !agent.bailOutChance) {
+            //Retire mechanism, that buys all the materials from the agent at a historical mean price and retires the agent
+            } else if ((agent.durability <= 0 || agent.wallet <= 0) && !agent.bailOutChance) {
                 console.log(`Agent ${agent.name} is being retired`);
                 for await (let goodKey of Object.keys(agent.inventory)) {
-                    await buyOutGood(agent, goodKey, 0.1);
+                    await buyOutGood(agent, goodKey, 1);
                 };
                 app.marketEconSimModule.market.currentAgents.splice(i, 1);
                 //replace retired agent with a new one
@@ -1281,24 +1355,8 @@
         };
 
         for await (let [i, agent] of app.marketEconSimModule.market.currentAgents.entries()) {
-            await bailOutAgent(agent, i);
+            if (!agent.protected) await bailOutAgent(agent, i);
         };
-    };
-
-    app.econNextTurn = async () => {
-        app.marketEconSimModule.market.currentTurn++;
-        app.marketEconSimModule.market.currentAsks = [];
-        app.marketEconSimModule.market.currentLots = [];
-
-        console.log('Turn #' + app.marketEconSimModule.market.currentTurn);
-        await app.upkeepSimulation();
-        await app.productionSimulation();
-        await app.bailAndRetiretAgents();
-        await app.marketTurnSimulation();
-        console.log('Turn #' + app.marketEconSimModule.market.currentTurn + ' calculation is finished!');
-        //console.log('Agents at the end of the turn');
-        //console.log(app.marketEconSimModule.market.currentAgents);
-        app.refreshMarketModule();
     };
 
     app.refreshMarketModule = () => {
@@ -1314,92 +1372,187 @@
 
         let generatedDOMs = gizmo.querySelectorAll('.generated');
 
-        gizmo.querySelector('.turn-counter').innerHTML = app.marketEconSimModule.market.currentTurn;
+        gizmo.querySelector('.turn-counter').innerHTML = `Раунд ${app.marketEconSimModule.market.currentTurn}`;
         for (let dom of generatedDOMs) dom.parentElement.removeChild(dom);
 
-        //agent cards
-        for (let agent of app.marketEconSimModule.market.currentAgents) {
-            let newAgentCard = agentCardTemplate.cloneNode(true);
+        agentCards: {
+            for (let agent of app.marketEconSimModule.market.currentAgents) {
+                if (!agent.protected) {
+                    let newAgentCard = agentCardTemplate.cloneNode(true);
 
-            newAgentCard.classList.add('generated');
-            newAgentCard.classList.remove ('template');
+                    newAgentCard.classList.add('generated');
+                    newAgentCard.classList.remove ('template');
 
-            newAgentCard.querySelector('.agent-name').innerHTML = agent.name;
-            newAgentCard.querySelector('.agent-type > .value').innerHTML = app.marketEconSimModule.productionRuleSets[agent.type].name;
-            newAgentCard.querySelector('.agent-durability > .value').innerHTML = agent.durability;
-            newAgentCard.querySelector('.agent-wallet > .value').innerHTML = round(agent.wallet, 2);
+                    newAgentCard.querySelector('.agent-name').innerHTML = agent.name;
+                    newAgentCard.querySelector('.agent-type > .value').innerHTML = app.marketEconSimModule.productionRuleSets[agent.type].name;
+                    newAgentCard.querySelector('.agent-durability > .value').innerHTML = agent.durability;
+                    newAgentCard.querySelector('.agent-wallet > .value').innerHTML = round(agent.wallet, 2);
 
-            for (let goodKey of Object.keys(agent.inventory)) {
-                let newGoodField = agentGoodItemTemplate.cloneNode(true);
+                    for (let goodKey of Object.keys(agent.inventory)) {
+                        let newGoodField = agentGoodItemTemplate.cloneNode(true);
 
-                newGoodField.classList.add('generated');
-                newGoodField.classList.remove ('template');
+                        newGoodField.classList.add('generated', `${goodKey}-field`);
+                        newGoodField.classList.remove ('template');
 
-                newGoodField.querySelector('.label').innerHTML = app.marketEconSimModule.goods[goodKey].name;
-                newGoodField.querySelector('.label').title = 'Потребление агента — ' + agent.upkeepRules.filter(x => x.good == goodKey).reduce((a, b) => a + b.quantity, 0) +
-                                                            '\n Нижний порог цены — ' + round(agent.priceBeliefs[goodKey].lowerLimit, 2) + '\n Верхний порог цены — ' + round(agent.priceBeliefs[goodKey].upperLimit, 2);
-                newGoodField.querySelector('.value').innerHTML = agent.inventory[goodKey];
+                        newGoodField.querySelector('.label').innerHTML = app.marketEconSimModule.goods[goodKey].name;
+                        newGoodField.querySelector('.label').title = 'Потребление агента — ' + agent.upkeepRules.filter(x => x.good == goodKey).reduce((a, b) => a + b.quantity, 0) +
+                                                                    '\n Нижний порог цены — ' + round(agent.priceBeliefs[goodKey].lowerLimit, 2) + '\n Верхний порог цены — ' + round(agent.priceBeliefs[goodKey].upperLimit, 2);
+                        newGoodField.querySelector('.value').innerHTML = agent.inventory[goodKey];
 
-                newAgentCard.appendChild(newGoodField);
-            }
+                        newAgentCard.appendChild(newGoodField);
+                    };
 
-            agentContainer.appendChild(newAgentCard);
-        };
-        //mean prices billboard
-        let meanPriceBillboard = billboardTemplate.cloneNode(true);
-
-        meanPriceBillboard.classList.add('generated');
-        meanPriceBillboard.classList.remove ('template');
-
-        meanPriceBillboard.querySelector('.title').innerHTML = 'Средние рыночные цены на товары';
-
-        for (let goodKey of Object.keys(app.marketEconSimModule.market.goodHistoricalMeans)) {
-            let newBillboardItem = billboardItemTempalte.cloneNode(true);
-
-            newBillboardItem.classList.add('generated');
-            newBillboardItem.classList.remove ('template');
-
-            newBillboardItem.querySelector('.label').innerHTML = app.marketEconSimModule.goods[goodKey].name;
-            newBillboardItem.querySelector('.value').innerHTML = round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey], 2);
-
-            meanPriceBillboard.appendChild(newBillboardItem);
+                    agentContainer.appendChild(newAgentCard);
+                };
+            };
         };
 
-        billboardContainer.appendChild(meanPriceBillboard);
+        meanPricesBillboard: {
+            let meanPriceBillboard = billboardTemplate.cloneNode(true);
 
-        //bail out billboard
-        let bailoutBillboard = billboardTemplate.cloneNode(true);
+            meanPriceBillboard.classList.add('generated');
+            meanPriceBillboard.classList.remove ('template');
 
-        bailoutBillboard.classList.add('generated');
-        bailoutBillboard.classList.remove ('template');
+            meanPriceBillboard.querySelector('.title').innerHTML = 'Средние рыночные цены на товары';
 
-        bailoutBillboard.querySelector('.title').innerHTML = 'Инвентарь банка';
+            for (let goodKey of Object.keys(app.marketEconSimModule.market.goodHistoricalMeans)) {
+                let newBillboardItem = billboardItemTempalte.cloneNode(true);
 
-        let bailoutWallet = billboardItemTempalte.cloneNode(true);
+                newBillboardItem.classList.add('generated');
+                newBillboardItem.classList.remove ('template');
 
-        bailoutWallet.classList.add('generated');
-        bailoutWallet.classList.remove ('template');
+                newBillboardItem.querySelector('.label').innerHTML = app.marketEconSimModule.goods[goodKey].name;
+                newBillboardItem.querySelector('.value').innerHTML = round(app.marketEconSimModule.market.goodHistoricalMeans[goodKey], 2);
 
-        bailoutWallet.querySelector('.label').innerHTML = 'Баланс';
-        bailoutWallet.querySelector('.value').innerHTML = round(app.marketEconSimModule.market.bailOutAgent.wallet, 2);
+                meanPriceBillboard.appendChild(newBillboardItem);
+            };
 
-        bailoutBillboard.appendChild(bailoutWallet);
-
-        for (let goodKey of Object.keys(app.marketEconSimModule.market.bailOutAgent.inventory)) {
-            let newBillboardItem = billboardItemTempalte.cloneNode(true);
-
-            newBillboardItem.classList.add('generated');
-            newBillboardItem.classList.remove ('template');
-
-            newBillboardItem.querySelector('.label').innerHTML = app.marketEconSimModule.goods[goodKey].name;
-            newBillboardItem.querySelector('.value').innerHTML = round(app.marketEconSimModule.market.bailOutAgent.inventory[goodKey], 2);
-
-            bailoutBillboard.appendChild(newBillboardItem);
+            billboardContainer.appendChild(meanPriceBillboard);
         };
 
-        billboardContainer.appendChild(bailoutBillboard);       
+        bailOutBillboard: {
+            let bailoutBillboard = billboardTemplate.cloneNode(true);
+            let bankAgent = app.marketEconSimModule.market.currentAgents.filter(x => x.name == 'Банк')[0];
+
+            bailoutBillboard.classList.add('generated');
+            bailoutBillboard.classList.remove ('template');
+
+            bailoutBillboard.querySelector('.title').innerHTML = 'Инвентарь банка';
+
+            /*let bailoutWallet = billboardItemTempalte.cloneNode(true);
+
+            bailoutWallet.classList.add('generated');
+            bailoutWallet.classList.remove ('template');
+
+            bailoutWallet.querySelector('.label').innerHTML = 'Баланс';
+            bailoutWallet.querySelector('.value').innerHTML = round(bankAgent.wallet, 2);
+
+            bailoutBillboard.appendChild(bailoutWallet);*/
+
+            for (let goodKey of Object.keys(bankAgent.inventory)) {
+                let newBillboardItem = billboardItemTempalte.cloneNode(true);
+
+                newBillboardItem.classList.add('generated');
+                newBillboardItem.classList.remove ('template');
+
+                newBillboardItem.querySelector('.label').innerHTML = app.marketEconSimModule.goods[goodKey].name;
+                newBillboardItem.querySelector('.label').title = `${bankAgent.priceBeliefs[goodKey].lowerLimit} - ${bankAgent.priceBeliefs[goodKey].upperLimit}`;
+                newBillboardItem.querySelector('.value').innerHTML = round(bankAgent.inventory[goodKey], 2);
+
+                bailoutBillboard.appendChild(newBillboardItem);
+            };
+
+            billboardContainer.appendChild(bailoutBillboard);   
+        };
+
+        playerAskLotBillboard: {
+            let playerBillboard = billboardTemplate.cloneNode(true);
+            let playerAgent = app.marketEconSimModule.market.currentAgents.filter(x => x.name == 'Игрок')[0];
+
+            playerBillboard.classList.add('generated', 'player-billboard');
+            playerBillboard.classList.remove ('template');
+
+            playerBillboard.querySelector('.title').innerHTML = 'Игрок';
+
+            for (let goodKey of Object.keys(app.marketEconSimModule.market.goodHistoricalMeans)) {
+                let newBillboardItem = billboardItemTempalte.cloneNode(true);
+
+                newBillboardItem.classList.add('generated', 'jc-end', `${goodKey}-field`);
+                newBillboardItem.classList.remove ('template', 'jc-space-betw');
+
+                newBillboardItem.querySelector('.label').innerHTML = app.marketEconSimModule.goods[goodKey].name;
+                newBillboardItem.querySelector('.label').title = `${playerAgent.priceBeliefs[goodKey].lowerLimit} - ${playerAgent.priceBeliefs[goodKey].upperLimit}`;
+                newBillboardItem.querySelector('.value').innerHTML = round(playerAgent.inventory[goodKey], 2);
+                newBillboardItem.querySelector('.amount').style.display = 'block';
+                newBillboardItem.querySelector('.transaction-type').style.display = 'block';
+                newBillboardItem.querySelector('.min-price').style.display = 'block';
+                newBillboardItem.querySelector('.min-price').value = playerAgent.priceBeliefs[goodKey].lowerLimit;
+                newBillboardItem.querySelector('.max-price').style.display = 'block';
+                newBillboardItem.querySelector('.max-price').value = playerAgent.priceBeliefs[goodKey].upperLimit;
+
+                $(newBillboardItem.querySelector('.min-price')).on('change', () => {
+                    playerAgent.priceBeliefs[goodKey].lowerLimit = newBillboardItem.querySelector('.min-price').value;
+                });
+
+                $(newBillboardItem.querySelector('.max-price')).on('change', () => {
+                    playerAgent.priceBeliefs[goodKey].upperLimit = newBillboardItem.querySelector('.max-price').value;
+                });
+
+
+                playerBillboard.appendChild(newBillboardItem);
+            };
+
+            let playerBillboardWallet = billboardItemTempalte.cloneNode(true);
+
+            playerBillboardWallet.classList.add('generated', 'jc-start');
+            playerBillboardWallet.classList.remove ('template', 'jc-space-betw');
+
+            playerBillboardWallet.querySelector('.label').innerHTML = 'Кошелек для торговли';
+            playerBillboardWallet.querySelector('.value').style.display = 'none';
+            playerBillboardWallet.querySelector('.amount').style.display = 'block';
+            playerBillboardWallet.querySelector('.amount').classList.add('short');
+            playerBillboardWallet.querySelector('.amount').value = round(playerAgent.wallet, 2);
+            playerBillboardWallet.querySelector('.reset-player-input.btn').style.display = 'block';
+            playerBillboardWallet.querySelector('.reset-player-input.btn').title = 'Сбросить инвентарь, очистить поля и обнулить кошелек';
+
+            $(playerBillboardWallet.querySelector('.amount')).on('change', () => {
+                playerAgent.wallet = playerBillboardWallet.querySelector('.amount').value;
+            });
+            $(playerBillboardWallet.querySelector('.reset-player-input.btn')).on('click', () => {
+                playerAgent.wallet = 0;
+                for (let goodKey of Object.keys(playerAgent.inventory)) playerAgent.inventory[goodKey] = 0;
+                app.refreshMarketModule();
+            });
+
+            playerBillboard.appendChild(playerBillboardWallet);
+
+            billboardContainer.appendChild(playerBillboard);
+        };
+        
+        if (app.marketEconSimModule.market.currentPlayerMessages.length > 0) $('.market-econ-sim-player-log').html(app.marketEconSimModule.market.currentPlayerMessages.map(x => x.text).join('<br>'));
+
     };
 
+    app.econNextTurn = async () => {
+        app.marketEconSimModule.market.currentTurn++;
+        app.marketEconSimModule.market.currentAsks = [];
+        app.marketEconSimModule.market.currentLots = [];
+
+        console.log(`Turn #${app.marketEconSimModule.market.currentTurn}`);
+        await app.upkeepSimulation();
+        await app.productionSimulation();
+        await app.bailAndRetiretAgents();
+        await app.marketTurnSimulation();
+        console.log('Turn #' + app.marketEconSimModule.market.currentTurn + ' calculation is finished!');
+        //console.log('Agents at the end of the turn');
+        //console.log(app.marketEconSimModule.market.currentAgents);
+        if (app.marketEconSimModule.market.currentPlayerMessages.filter(x => x.turn == app.marketEconSimModule.market.currentTurn).length > 0) {
+            let turnIndex = app.marketEconSimModule.market.currentPlayerMessages.findIndex(x => x.turn == app.marketEconSimModule.market.currentTurn);
+            app.marketEconSimModule.market.currentPlayerMessages.splice(turnIndex, 0, { turn: app.marketEconSimModule.market.currentTurn, text: `Раунд #${app.marketEconSimModule.market.currentTurn - 1}`});
+            app.marketEconSimModule.market.currentPlayerMessages.push({ turn: app.marketEconSimModule.market.currentTurn, text: ``});
+        };
+        app.refreshMarketModule();
+    };
 
     $(function() {
         app.containers.btnPanel = document.querySelector('.gizmos-panel');
@@ -1426,6 +1579,8 @@
         app.fabricatePoliticalAgent();
         app.drawPoliticCanvas();
 
+        app.fabricateNewEconAgent('bank');
+        app.fabricateNewEconAgent('player');
         for (let i of [...Array(100).keys()]) {
             app.fabricateNewEconAgent();
         };
@@ -1475,7 +1630,7 @@
                     setTimeout(() => {
                         $('.market-econ-sim-next-round.btn')[0].click();
                         i++;
-                        (i > 9 ? resolve() : loopClick(i));
+                        (i > 99 ? resolve() : loopClick(i));
                     }, 300);
                 };
                 loopClick(0);
@@ -1483,6 +1638,10 @@
             promise.then(() => console.log('Done clicking!'));
         });
 
+        $('.market-econ-sim-toggle-player-log.btn').on('click', () => {
+            ($('.market-econ-sim-player-log').hasClass('active') ? $('.market-econ-sim-player-log').removeClass('active') : $('.market-econ-sim-player-log').addClass('active'));
+            ($('.market-econ-sim-player-log').hasClass('active') ? $('.market-econ-sim-toggle-player-log.btn').html('Скрыть историю действий игрока') : $('.market-econ-sim-toggle-player-log.btn').html('Показать историю действий игрока'));
+        });
         
     });
 
