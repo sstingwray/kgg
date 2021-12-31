@@ -100,6 +100,7 @@
                 type: 'trader',
                 lastTurnProfit: 0,
                 turnsWithoutProfit: 0,
+                age: 0,
                 upkeepRules: [
                     {
                         good: 'food',
@@ -1043,7 +1044,7 @@
                 await createGoodListingsForAgent(agent);
             };
 
-            console.log(`Done making good listings for turn #${app.marketEconSimModule.market.currentTurn}`);
+            //console.log(`Done making good listings for turn #${app.marketEconSimModule.market.currentTurn}`);
         };
         let matchListings = async () => {
             let goodsDemand = [];
@@ -1182,8 +1183,8 @@
                 //console.log(sortedLots);
                 //console.log(`Asks for ${goodKey}`);
                 //console.log(sortedAsks);
-                console.log(`${goodKey} supply is ${supply}`);
-                console.log(`${goodKey} demand is ${demand}`);
+                //console.log(`${goodKey} supply is ${supply}`);
+                //console.log(`${goodKey} demand is ${demand}`);
                 if (playerLotPosition.length > 0) app.marketEconSimModule.market.currentPlayerMessages.push({ turn: app.marketEconSimModule.market.currentTurn, text: `Позиция запроса игрока на продажу [${app.marketEconSimModule.goods[playerLotPosition[0].good].name}] - ${playerLotPosition[0].index}`});
                 if (playerAskPosition.length > 0) app.marketEconSimModule.market.currentPlayerMessages.push({ turn: app.marketEconSimModule.market.currentTurn, text: `Позиция запроса игрока на покупку [${app.marketEconSimModule.goods[playerAskPosition[0].good].name}] - ${playerAskPosition[0].index}`});
                 
@@ -1291,7 +1292,7 @@
             if (!agent.protected) await agentProduction(agent);
         };
 
-        console.log(`Production for Turn #${app.marketEconSimModule.market.currentTurn} is finished`);
+        //console.log(`Production for Turn #${app.marketEconSimModule.market.currentTurn} is finished`);
     };
 
     app.upkeepSimulation = async () => {
@@ -1317,9 +1318,10 @@
         for await (let agent of app.marketEconSimModule.market.currentAgents) {
             if (!agent.protected) await agentUpkeep(agent)
             else if (agent.name == 'Банк') agent.wallet = 0;
+            agent.age++;
         };
 
-        console.log(`Upkeep for Turn #${app.marketEconSimModule.market.currentTurn} is finished`);
+        //console.log(`Upkeep for Turn #${app.marketEconSimModule.market.currentTurn} is finished`);
     };
 
     app.bailAndRetiretAgents = async () => {
@@ -1338,13 +1340,13 @@
         let bailOutAgent = async (agent, i) => {
             //Bail-out mechanism, that buys all the materials from the agent at a historical mean price in order to let them participate in the market again
             if ((agent.durability <= 0 || agent.wallet <= 0) && agent.bailOutChance) {
-                console.log(`Agent ${agent.name} is being bailed-out`);
+                //console.log(`Agent ${agent.name} is being bailed-out`);
                 for await (let goodKey of Object.keys(agent.inventory)) {
                     await buyOutGood(agent, goodKey, 1);
                 };
             //Retire mechanism, that buys all the materials from the agent at a historical mean price and retires the agent
             } else if ((agent.durability <= 0 || agent.wallet <= 0) && !agent.bailOutChance) {
-                console.log(`Agent ${agent.name} is being retired`);
+                //console.log(`Agent ${agent.name} is being retired`);
                 for await (let goodKey of Object.keys(agent.inventory)) {
                     await buyOutGood(agent, goodKey, 1);
                 };
@@ -1386,6 +1388,7 @@
                     newAgentCard.querySelector('.agent-name').innerHTML = agent.name;
                     newAgentCard.querySelector('.agent-type > .value').innerHTML = app.marketEconSimModule.productionRuleSets[agent.type].name;
                     newAgentCard.querySelector('.agent-durability > .value').innerHTML = agent.durability;
+                    newAgentCard.querySelector('.agent-age > .value').innerHTML = agent.age;
                     newAgentCard.querySelector('.agent-wallet > .value').innerHTML = round(agent.wallet, 2);
 
                     for (let goodKey of Object.keys(agent.inventory)) {
@@ -1538,12 +1541,12 @@
         app.marketEconSimModule.market.currentAsks = [];
         app.marketEconSimModule.market.currentLots = [];
 
-        console.log(`Turn #${app.marketEconSimModule.market.currentTurn}`);
+        //console.log(`Turn #${app.marketEconSimModule.market.currentTurn}`);
         await app.upkeepSimulation();
         await app.productionSimulation();
         await app.bailAndRetiretAgents();
         await app.marketTurnSimulation();
-        console.log('Turn #' + app.marketEconSimModule.market.currentTurn + ' calculation is finished!');
+        //console.log('Turn #' + app.marketEconSimModule.market.currentTurn + ' calculation is finished!');
         //console.log('Agents at the end of the turn');
         //console.log(app.marketEconSimModule.market.currentAgents);
         if (app.marketEconSimModule.market.currentPlayerMessages.filter(x => x.turn == app.marketEconSimModule.market.currentTurn).length > 0) {
