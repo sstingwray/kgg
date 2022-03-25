@@ -54,6 +54,11 @@
                 title: 'Симулятор Рыночной Экономики',
                 btnCaller: 'econMarketSim',
                 class: 'market-econ-sim'
+            },
+            vtmCombatHouserule: {
+                title: 'Калькулятор боевки для WoD V20 KGG™ Edition',
+                btnCaller: 'vtmCombatHouserule',
+                class: 'vtm-combat-houserule'
             }
         },
         btnPatterns: {
@@ -76,6 +81,11 @@
                 title: 'Симулятор Рыночной Экономики',
                 type: 'gizmo',
                 destination: 'econMarketSim'
+            },
+            vtmCombatHouserule: {
+                title: 'Калькулятор боевки для WoD V20 KGG™ Edition',
+                type: 'gizmo',
+                destination: 'vtmCombatHouserule'
             },
         },
         components: {
@@ -1557,6 +1567,85 @@
         app.refreshMarketModule();
     };
 
+    //WOD-COMBAT
+    app.calculateCombat = () => {
+        let gizmo = document.querySelector('.gizmo.vtm-combat-houserule');
+        let resultTemplate = gizmo.querySelector('.combat-item.template');
+        let resultContainer = gizmo.querySelector('.combat-results');
+        let round = gizmo.querySelector('#combat-round-input').value;
+        let attackDicePool = +gizmo.querySelector('#combat-attack-input').value;
+        let difficulty = +gizmo.querySelector('#combat-attack-diff-input').value;
+        let damage = +gizmo.querySelector('#combat-attack-dmg-input').value;
+        let defence = +gizmo.querySelector('#combat-defence-input').value;
+        let soak = +gizmo.querySelector('#combat-soak-input').value;
+        let defenderAction = gizmo.querySelector('#combat-defender-action').value;
+        let defenderPool = +gizmo.querySelector('#combat-defender-pool-input').value;
+        let description = gizmo.querySelector('#combat-attack-descr-input').value;
+
+        let defenderDice = [...Array(defenderPool).keys()].map(x => x = Math.round(Math.random()*9) + 1);
+        let defenderSucc = defenderDice.map(x => (x == 10 ? 2 : x >= 6 ? 1 : x == 1 ? -1 : 0)).reduce((a, b) => a + b, 0);
+        let attackDice = [...Array(attackDicePool - defence).keys()].map(x => x = Math.round(Math.random()*9) + 1);
+        let attackSucc = attackDice.map(x => (x == 10 ? 2 : x >= difficulty ? 1 : x == 1 ? -1 : 0)).reduce((a, b) => a + b, 0);
+        let result = ``;
+
+        
+
+        let newResultItem = resultTemplate.cloneNode(true);
+        newResultItem.classList.add('generated');
+        newResultItem.classList.remove ('template');
+
+        newResultItem.querySelector('.item-round').innerHTML += `<span class="mrg-01em">${round}</span>`;
+
+        newResultItem.querySelector('.item-descr').innerHTML = `<span class="mrg-01em">${description}</span>`;
+
+        //РЕЗУЛЬТАТ
+        newResultItem.querySelector('.item-result > .label').title += `${attackSucc} успехов в атаке, ${(defenderAction == 'dodge' ? defenderSucc : 0)} успехов в защите. ${damage} базового урона, ${(attackSucc - (defenderAction == 'dodge' ? defenderSucc : 0) - 1 < 0 ? 0 : attackSucc - (defenderAction == 'dodge' ? defenderSucc : 0) - 1)} урона за попадание, ${soak} пассивного поглощения, ${(defenderAction == 'block' ? defenderSucc : 0)} поглощения за блок`;
+        if (attackSucc > 0 ) {
+            if (attackSucc - (defenderAction == 'dodge' ? defenderSucc : 0) <= 0) {
+                result = `Защитник увернулся`;
+            } else {
+                if (damage + (attackSucc - 1 < 0 ? 0 : attackSucc - 1) - soak - (defenderAction == 'block' ? defenderSucc : 0) <= 0) {
+                    result = `Защитник блокировал удар`;
+                } else {
+                    result = `Атакующий попал и нанес ${damage + (attackSucc - (defenderAction == 'dodge' ? defenderSucc : 0) - 1 < 0 ? 0 : attackSucc - (defenderAction == 'dodge' ? defenderSucc : 0) - 1) - soak - (defenderAction == 'block' ? defenderSucc : 0)} урона`;
+                }
+            }
+        } else {
+            result = `Атакующий промазал`;
+        }
+        newResultItem.querySelector('.item-result').innerHTML += `<span class="mrg-01em">${result}</span>`;
+
+        //ДЕТАЛИ ПОПАДАНИЯ АТАКИ
+        if (attackDicePool == 0 || attackDicePool - defence <= 0) $(newResultItem.querySelector('.item-attack')).hide()
+        else {
+            newResultItem.querySelector('.item-attack > .label').title += `дайспул ${attackDicePool - defence} (${attackDicePool} атаки - ${defence} защиты)`;
+            for (let die of attackDice) newResultItem.querySelector('.item-attack').innerHTML += `<span class="mrg-01em ${(die >= difficulty ? `color-green` : `color-red`)}">${die}</span>`
+        };
+
+        //ДЕТАЛИ ЗАЩИТЫ
+        if (defenderAction != 'dodge' || defenderDice <= 0) $(newResultItem.querySelector('.item-defence')).hide()
+        else {
+            newResultItem.querySelector('.item-defence > .label').title += `дайспул ${defenderPool}`;
+            for (let die of defenderDice) newResultItem.querySelector('.item-defence').innerHTML += `<span class="mrg-01em ${(die >= 6 ? `color-green` : `color-red`)}">${die}</span>`
+        };
+
+        //ДЕТАЛИ УРОНА
+        if (attackSucc - (defenderAction == 'dodge' ? defenderSucc : 0) <= 0) $(newResultItem.querySelector('.item-damage')).hide()
+        else {
+            newResultItem.querySelector('.item-damage > .label').title += `${(attackSucc - 1 < 0 ? 0 : attackSucc - (defenderAction == 'dodge' ? defenderSucc : 0) - 1)} урона за попадание + ${damage} базового урона - ${soak} пассивного поглощения)`;
+            newResultItem.querySelector('.item-damage').innerHTML += `<span class="mrg-01em">${damage + (attackSucc - (defenderAction == 'dodge' ? defenderSucc : 0) - 1 < 0 ? 0 : attackSucc - (defenderAction == 'dodge' ? defenderSucc : 0) - 1) - soak}</span>`;
+        };
+
+        //ДЕТАЛИ ПОГЛОЩЕНИЯ
+        if (defenderAction != 'block' || defenderDice <= 0) $(newResultItem.querySelector('.item-soak')).hide()
+        else {
+            newResultItem.querySelector('.item-soak > .label').title += `дайспул ${defenderPool}`;
+            for (let die of defenderDice) newResultItem.querySelector('.item-soak').innerHTML += `<span class="mrg-01em ${(die >= 6 ? `color-green` : `color-red`)}">${die}</span>`
+        };
+
+        resultContainer.prepend(newResultItem);
+    }
+
     $(function() {
         app.containers.btnPanel = document.querySelector('.gizmos-panel');
         app.containers.treasureKnobsPanel = document.querySelector('.gen-tweaking-panel');
@@ -1620,7 +1709,7 @@
         });
 
         $('.politic-gen-add-new.btn').on('click', () => {
-            app.fabricatePoliticalAgent()
+            app.fabricatePoliticalAgent();
         });
 
         $('.market-econ-sim-next-round.btn').on('click', () => {
@@ -1644,6 +1733,16 @@
         $('.market-econ-sim-toggle-player-log.btn').on('click', () => {
             ($('.market-econ-sim-player-log').hasClass('active') ? $('.market-econ-sim-player-log').removeClass('active') : $('.market-econ-sim-player-log').addClass('active'));
             ($('.market-econ-sim-player-log').hasClass('active') ? $('.market-econ-sim-toggle-player-log.btn').html('Скрыть историю действий игрока') : $('.market-econ-sim-toggle-player-log.btn').html('Показать историю действий игрока'));
+        });
+
+        $('.combat-calc-attack.btn').on('click', () => {
+            app.calculateCombat();
+        });
+
+        $('#combat-defender-action').on('change', (event) => {
+            event.currentTarget.value = $("option:selected", event.currentTarget).val();
+            if (event.currentTarget.value =='none') $('#combat-defender-pool-input').prop("disabled", true)
+            else $('#combat-defender-pool-input').prop("disabled", false);
         });
         
     });
