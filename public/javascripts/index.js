@@ -54,6 +54,11 @@
                 title: 'Симулятор Рыночной Экономики',
                 btnCaller: 'econMarketSim',
                 class: 'market-econ-sim'
+            },
+            vtmCombatHouserule: {
+                title: 'Калькулятор боевки для WoD V20 KGG™ Edition',
+                btnCaller: 'vtmCombatHouserule',
+                class: 'vtm-combat-houserule'
             }
         },
         btnPatterns: {
@@ -77,6 +82,11 @@
                 type: 'gizmo',
                 destination: 'econMarketSim'
             },
+            vtmCombatHouserule: {
+                title: 'Калькулятор боевки для WoD V20 KGG™ Edition',
+                type: 'gizmo',
+                destination: 'vtmCombatHouserule'
+            },
         },
         components: {
             spinner: {},
@@ -87,7 +97,8 @@
         },
         containers: {
             btnPanel: {},
-            treasureKnobsPanel: {}
+            treasureKnobsPanel: {},
+            combatKnobsPanel: {}
         },
         marketEconSimModule: {
             defaultAgent: {
@@ -1557,9 +1568,104 @@
         app.refreshMarketModule();
     };
 
+    //WOD-COMBAT
+    app.calculateCombat = () => {
+        let gizmo = document.querySelector('.gizmo.vtm-combat-houserule');
+        let resultTemplate = gizmo.querySelector('.combat-item.template');
+        let resultContainer = gizmo.querySelector('.combat-results');
+        let round = gizmo.querySelector('#combat-round-input').value;
+        let attackDicePool = +gizmo.querySelector('#combat-attack-input').value;
+        let difficulty = +gizmo.querySelector('#combat-attack-diff-input').value;
+        let damage = +gizmo.querySelector('#combat-attack-dmg-input').value;
+        let defence = +gizmo.querySelector('#combat-defence-input').value;
+        let soak = +gizmo.querySelector('#combat-soak-input').value;
+        let defenderAction = gizmo.querySelector('#combat-defender-action').value;
+        let defenderPool = +gizmo.querySelector('#combat-defender-pool-input').value;
+        let description = gizmo.querySelector('#combat-attack-descr-input').value;
+
+        let timestamp = new Date();
+
+        let isAttackSpec = gizmo.querySelector('.combat-atk-spec > input').checked;
+        let isDodgeSpec = gizmo.querySelector('.combat-dodge-spec > input').checked;
+        let isBlockSpec = gizmo.querySelector('.combat-block-spec > input').checked;
+        let isBotch = gizmo.querySelector('.combat-botch > input').checked;
+
+        let defenderDice = [...Array(defenderPool).keys()].map(x => x = Math.round(Math.random()*9) + 1);
+        let defenderSucc = defenderDice.map(x => (x == 10 && (defenderAction == 'dodge' ? isDodgeSpec : 0) ? 2 : x >= 6 ? 1 : x == 1 && isBotch ? -1 : 0)).reduce((a, b) => a + b, 0);
+        if (defenderAction == 'dodge') {
+            defenderSucc = defenderDice.map(x => (x == 10 && isDodgeSpec ? 2 : x >= 6 ? 1 : x == 1 && isBotch ? -1 : 0)).reduce((a, b) => a + b, 0);
+        } else if (defenderAction == 'block') {
+            defenderSucc = defenderDice.map(x => (x == 10 && isBlockSpec ? 2 : x >= 6 ? 1 : x == 1 && isBotch ? -1 : 0)).reduce((a, b) => a + b, 0);
+        };
+        let attackDice = [...Array(attackDicePool - defence).keys()].map(x => x = Math.round(Math.random()*9) + 1);
+        let attackSucc = attackDice.map(x => (x == 10 && isAttackSpec ? 2 : x >= difficulty ? 1 : x == 1 && isBotch ? -1 : 0)).reduce((a, b) => a + b, 0);
+        let totalAttackSucc = Math.max(attackSucc - (defenderAction == 'dodge' ? defenderSucc : 0) - 1, 0);
+        let isMiss = attackSucc - (defenderAction == 'dodge' ? defenderSucc : 0) <= 0;
+        let result = ``;
+
+        let newResultItem = resultTemplate.cloneNode(true);
+        newResultItem.classList.add('generated');
+        newResultItem.classList.remove ('template');
+
+        newResultItem.querySelector('.item-timestamp').innerHTML = timestamp.toLocaleTimeString();
+
+        newResultItem.querySelector('.item-round').innerHTML += `<span class="mrg-01em">${round}</span>`;
+
+        newResultItem.querySelector('.item-descr').innerHTML = `<span class="mrg-01em">${description}</span>`;
+
+        //РЕЗУЛЬТАТ
+        newResultItem.querySelector('.item-result > .label').title += `${attackSucc} успехов в атаке, ${(defenderAction == 'dodge' ? defenderSucc : 0)} успехов в защите. ${damage} базового урона, ${totalAttackSucc} урона за попадание, ${soak} пассивного поглощения, ${(defenderAction == 'block' ? defenderSucc : 0)} поглощения за блок`;
+        if (attackSucc > 0 ) {
+            if (attackSucc - (defenderAction == 'dodge' ? defenderSucc : 0) <= 0) {
+                result = `Защитник увернулся`;
+            } else {
+                if (damage + Math.max(attackSucc - 1, 0) - soak - (defenderAction == 'block' ? defenderSucc : 0) <= 0) {
+                    result = `Защитник блокировал удар`;
+                } else {
+                    result = `Атакующий попал и нанес ${damage + (totalAttackSucc) - soak - (defenderAction == 'block' ? defenderSucc : 0)} урона`;
+                }
+            }
+        } else {
+            result = `Атакующий промазал`;
+        }
+        newResultItem.querySelector('.item-result').innerHTML += `<span class="mrg-01em">${result}</span>`;
+
+        //ДЕТАЛИ ПОПАДАНИЯ АТАКИ
+        if (attackDicePool == 0 || attackDicePool - defence <= 0) $(newResultItem.querySelector('.item-attack')).hide()
+        else {
+            newResultItem.querySelector('.item-attack > .label').title += `дайспул ${attackDicePool - defence} (${attackDicePool} атаки - ${defence} защиты)`;
+            for (let die of attackDice) newResultItem.querySelector('.item-attack').innerHTML += `<span class="mrg-01em ${(die >= difficulty ? `color-green` : `color-red`)}">${die}</span>`
+        };
+
+        //ДЕТАЛИ ЗАЩИТЫ
+        if (defenderAction != 'dodge' || defenderDice <= 0) $(newResultItem.querySelector('.item-defence')).hide()
+        else {
+            newResultItem.querySelector('.item-defence > .label').title += `дайспул ${defenderPool}`;
+            for (let die of defenderDice) newResultItem.querySelector('.item-defence').innerHTML += `<span class="mrg-01em ${(die >= 6 ? `color-green` : `color-red`)}">${die}</span>`
+        };
+
+        //ДЕТАЛИ УРОНА
+        if (isMiss) $(newResultItem.querySelector('.item-damage')).hide()
+        else {
+            newResultItem.querySelector('.item-damage > .label').title += `${totalAttackSucc} урона за попадание + ${damage} базового урона - ${soak} пассивного поглощения)`;
+            newResultItem.querySelector('.item-damage').innerHTML += `<span class="mrg-01em">${damage + totalAttackSucc - soak}</span>`;
+        };
+
+        //ДЕТАЛИ ПОГЛОЩЕНИЯ
+        if (defenderAction != 'block' || defenderDice <= 0) $(newResultItem.querySelector('.item-soak')).hide()
+        else {
+            newResultItem.querySelector('.item-soak > .label').title += `дайспул ${defenderPool}`;
+            for (let die of defenderDice) newResultItem.querySelector('.item-soak').innerHTML += `<span class="mrg-01em ${(die >= 6 ? `color-green` : `color-red`)}">${die}</span>`
+        };
+
+        resultContainer.prepend(newResultItem);
+        
+    }
+
     $(function() {
         app.containers.btnPanel = document.querySelector('.gizmos-panel');
         app.containers.treasureKnobsPanel = document.querySelector('.gen-tweaking-panel');
+        app.containers.combatKnobsPanel = document.querySelector('.combat-tweaking-panel');
 
         app.components.spinner = document.querySelector('.spinner-container');
         app.components.btnClose = document.querySelector('.close-btn');
@@ -1571,6 +1677,7 @@
             app.fabricateButton(app.btnPatterns[key]);
         });
 
+        //НАСТРОЙКИ ГЕНЕРАТОРА ЛУТА
         app.fabricateSwitch(app.containers.treasureKnobsPanel, 'Sword & Wizardry множитель [1d3+1]:', 'sw-base-multiplier', true, 'Итоговое значение энкаунтера умножается на случайное число от 2-ух до 4-ех. В базовой версии S&W имеется опция ОГРОМНОГО сокровища, в этом генераторе ее нет.');
         app.fabricateSwitch(app.containers.treasureKnobsPanel, '5000gp обмен:', 'sw-5000-tradeout', true, 'Обмен производиться по правилам Swords & Wizardry Complete Rules');
         app.fabricateSwitch(app.containers.treasureKnobsPanel, '1000gp обмен:', 'sw-1000-tradeout', true, 'Обмен производиться по правилам Swords & Wizardry Complete Rules');
@@ -1579,6 +1686,12 @@
         app.fabricateSwitch(app.containers.treasureKnobsPanel, '*Ремесленный обмен:', 'sw-artisan-goods-tradeout', false, 'Заменяет часть золота на ремесляную продукцию, которую правдоподобно могли носить с собой разумные существа.');
         app.fabricateSwitch(app.containers.treasureKnobsPanel, '*Охотничье-промысловый обмен:', 'sw-bio-goods-tradeout', false, 'Заменяет все оставшиеся после обменов золотые монеты на продукты промысловой охоты, которые могут быть проданы. Их точное описание остается на усмотрение рассказчика.');
 
+        //НАСТРОЙКИ БОЕВКИ WOD
+        app.fabricateSwitch(app.containers.combatKnobsPanel, 'Специализация в атаке', 'combat-atk-spec', true, '10-ки на броске атаки считаются за два успеха');
+        app.fabricateSwitch(app.containers.combatKnobsPanel, 'Специализация в защите', 'combat-dodge-spec', true, '10-ки на броске защиты считаются за два успеха');
+        app.fabricateSwitch(app.containers.combatKnobsPanel, 'Специализация в блоке', 'combat-block-spec', true, '10-ки на броске блока считаются за два успеха');
+        app.fabricateSwitch(app.containers.combatKnobsPanel, '1-цы отнимают успехи', 'combat-botch', true, '1-цы на бросках вычитают один успех из броска');
+        
         app.fabricatePoliticalAgent();
         app.drawPoliticCanvas();
 
@@ -1620,7 +1733,7 @@
         });
 
         $('.politic-gen-add-new.btn').on('click', () => {
-            app.fabricatePoliticalAgent()
+            app.fabricatePoliticalAgent();
         });
 
         $('.market-econ-sim-next-round.btn').on('click', () => {
@@ -1644,6 +1757,21 @@
         $('.market-econ-sim-toggle-player-log.btn').on('click', () => {
             ($('.market-econ-sim-player-log').hasClass('active') ? $('.market-econ-sim-player-log').removeClass('active') : $('.market-econ-sim-player-log').addClass('active'));
             ($('.market-econ-sim-player-log').hasClass('active') ? $('.market-econ-sim-toggle-player-log.btn').html('Скрыть историю действий игрока') : $('.market-econ-sim-toggle-player-log.btn').html('Показать историю действий игрока'));
+        });
+
+        $('.combat-calc-attack.btn').on('click', () => {
+            app.calculateCombat();
+        });
+
+        $('.combat-open-tweak.btn').on('click', () => {
+            ($('.combat-tweaking-panel').hasClass('active') ? $('.combat-tweaking-panel').removeClass('active') : $('.combat-tweaking-panel').addClass('active'));
+            ($('.combat-tweaking-panel').hasClass('active') ? $('.combat-open-tweak.btn').html('Скрыть настройки') : $('.combat-open-tweak.btn').html('Показать настройки'));
+        });
+
+        $('#combat-defender-action').on('change', (event) => {
+            event.currentTarget.value = $("option:selected", event.currentTarget).val();
+            if (event.currentTarget.value =='none') $('#combat-defender-pool-input').prop("disabled", true)
+            else $('#combat-defender-pool-input').prop("disabled", false);
         });
         
     });

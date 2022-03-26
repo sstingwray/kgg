@@ -39,7 +39,7 @@
           <label for="gen-treasure-xp-input">Базовый пул очков:</label> <input id="gen-treasure-xp-input" type="text" class="input-value"> <button class="gen-treasure btn">Сгенерировать сокровища</button> <button class="gen-open-tweak btn">Показать настройки</button>
         </div>
         <div class="flex row gen-tweaking-panel">
-          <div class="flex row align-i-center mrg-01em"><small>* - авторские опции обмена</small></div>
+          <div class="flex row align-i-center mrg-01em"><small>* - домашние правила обмена</small></div>
           <div class="flex row align-i-center gen-tweak-option switch-btn template"><p class="label"></p><div class="switch-container"><label class="switch"><input type="checkbox"><div class="slider"></div></label></div></div>
         </div>
         <div class="flex col gen-results">
@@ -47,19 +47,19 @@
             <div class="item-text">
             </div>
             <div class="item-type flex row jc-space-betw">
-              <span class="label">Тип: </span> <span class="mrg-01em value"></span>
+              <span class="label">Тип</span> <span class="mrg-01em value"></span>
             </div>
             <div class="item-description flex row jc-space-betw">
-              <span class="label">Описание: </span> <span class="mrg-01em value"></span>
+              <span class="label">Описание</span> <span class="mrg-01em value"></span>
             </div>
             <div class="item-value flex row jc-space-betw">
-              <span class="label">Стоимости: </span> <span class="mrg-01em value"></span>
+              <span class="label">Стоимости</span> <span class="mrg-01em value"></span>
             </div>
             <div class="item-weight flex row jc-space-betw">
-              <span class="label">Вес: </span> <span class="mrg-01em value"></span>
+              <span class="label">Вес</span> <span class="mrg-01em value"></span>
             </div>
             <div class="item-rarity flex row jc-space-betw">
-              <span class="label">Редкость: </span> <span class="mrg-01em value"></span>
+              <span class="label">Редкость</span> <span class="mrg-01em value"></span>
             </div>
           </div>
           <div class="flex row wrap mrg-1em gen-container card template"></div>
@@ -122,12 +122,12 @@
               <div class="billboard-item template flex row jc-space-betw">
                 <span class="mrg-01em00 label"></span> <span class="mrg-01em00 value"></span>
                 <input hidden class=" mrg-01em00 manual-input amount" type="text" placeholder="Количество">
-                <select hidden class="mrg-01em00 manual-input transaction-type">
+                <select hidden class="mrg-01em00 manual-input transaction-type" title="Тип сделки">
                   <option selected="selected" value="ask">Покупка</option>
                   <option value="lot">Продажа</option>
                 </select>
-                <input hidden class="mrg-01em00 manual-input min-price" type="text" placeholder="Мин. цена">
-                <input hidden class="mrg-01em00 manual-input max-price" type="text" placeholder="Макс. цена">
+                <input hidden class="mrg-01em00 manual-input min-price" type="text" placeholder="Мин. цена" title="Мин. цена">
+                <input hidden class="mrg-01em00 manual-input max-price" type="text" placeholder="Макс. цена" title="Макс. цена">
                 <button hidden class="apply-player-input btn small" title="Применить" ><i class="fa fa-floppy-o" aria-hidden="true"></i></button>
                 <button hidden class="reset-player-input btn small" title="Сбросить" ><i class="fa fa-refresh" aria-hidden="true"></i></button>
               </div>
@@ -159,6 +159,63 @@
             </div>
             <div class="agent-good template flex row jc-space-betw">
               <span class="label">Предмет: </span> <span class="value"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="gizmo vtm-combat-houserule">
+      <h3 class="title">Калькулятор боевки для WoD V20 KGG™ Edition</h3>
+      <small>Разруливает боевку Мира Тьмы по домашним правилам нашего сервера:</small> <br>
+      <small>Каждый персонаж автоматически уворачивается от атак (если знает о них и имеет возможность это сделать) и поглощает урон в размере половины обычного дайс пула для этих действий.</small> <br>
+      <small>Защита: Половина суммы значения Ловкости и бонусов <em>(напр. Стремительность)</em>. Поглощение: Половина суммы Выносливости и бонусов <em>(напр. Стойкость)</em>. Оба значения округляются вниз.</small> <br>
+      <small>При этом защитные маневры позволяют повысить эффективность этой защиты броском подходящей способности со стандартными бонусами.</small> <br>
+      <small>Нанесение урона так-же происходит автоматически и полностью.</small> <br>
+      <div class="body">
+        <div class="flex row align-i-center no-wrap mrg-1em combat-params">
+          <label for="combat-round-input">Раунд #:</label> <input id="combat-round-input" type="text" class="input-value w-4em" value=1>
+          <label for="combat-attack-input">Кубы атаки:</label> <input id="combat-attack-input" type="text" class="input-value w-4em" value=1>
+          <label for="combat-attack-diff-input">Сложность атаки:</label> <input id="combat-attack-diff-input" type="text" class="input-value w-2em" value=6>
+          <label for="combat-attack-dmg-input">Урон атаки:</label> <input id="combat-attack-dmg-input" type="text" class="input-value w-2em" value=0>
+          <label for="combat-defence-input">Защита цели:</label> <input id="combat-defence-input" type="text" class="input-value w-2em" value=0>
+          <label for="combat-soak-input">Поглощение цели:</label> <input id="combat-soak-input" type="text" class="input-value w-2em" value=0>
+          <label for="combat-defender-action">Защитник:</label> <select id="combat-defender-action">
+            <option selected="selected" value="none">Не защищается</option>
+            <option value="dodge">Защищается</option>
+            <option value="block">Блокирует</option>
+          </select>
+          <label for="combat-defender-pool-input">Кубы защиты:</label> <input disabled id="combat-defender-pool-input" type="text" class="input-value w-4em" value=>
+          <label for="combat-attack-descr-input">Описание атаки:</label> <input id="combat-attack-descr-input" type="text" class="input-value min-w-20em" placeholder="Краткое описание атаки для идентификации">
+        </div>
+        <div class="flex row align-i-center">
+          <button class="combat-calc-attack btn">Посчитать</button> <button class="combat-open-tweak btn">Показать настройки</button>
+        </div>
+        <div class="flex row combat-tweaking-panel">
+          <div class="flex row align-i-center combat-tweak-option switch-btn template"><p class="label"></p><div class="switch-container"><label class="switch"><input type="checkbox"><div class="slider"></div></label></div></div>
+        </div>
+        <div class="flex col combat-results">
+          <div class="flex row mrg-1em pdng-1em white-space-nowrap card reverse-colors combat-item template">
+            <div class="item-timestamp"></div>
+            <div class="item-round flex row jc-space-betw">
+              <span class="label">Раунд #</span>
+            </div>
+            <div class="item-result">
+              <span class="label">Результат</span>
+            </div>
+            <div class="item-attack flex row jc-space-betw">
+              <span class="label">Атака</span>
+            </div>
+            <div class="item-defence flex row jc-space-betw">
+              <span class="label">Защита</span>
+            </div>
+            <div class="item-damage flex row jc-space-betw">
+              <span class="label">Урон</span>
+            </div>
+            <div class="item-soak flex row jc-space-betw">
+              <span class="label">Блок</span>
+            </div>
+            <div class="item-descr flex row jc-space-betw">
+              <span class="label">Описание</span>
             </div>
           </div>
         </div>
