@@ -699,3 +699,20 @@ table.table-100-w {
   padding: 1em 0;
   background-color: var(--bg-alt);
 }
+.combat-tweaking-panel {
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  scrollbar-width: thin;
+  transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
+  }
+  .combat-tweaking-panel.active {
+    opacity: 1;
+    overflow-x: auto;
+    max-height: 4em;
+    padding: 1em 0;
+    background-color: var(--bg-alt);
+  }
+  .combat-tweak-option {
+    margin: 0em 1em;
+  }

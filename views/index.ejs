@@ -39,7 +39,7 @@
           <label for="gen-treasure-xp-input">Базовый пул очков:</label> <input id="gen-treasure-xp-input" type="text" class="input-value"> <button class="gen-treasure btn">Сгенерировать сокровища</button> <button class="gen-open-tweak btn">Показать настройки</button>
         </div>
         <div class="flex row gen-tweaking-panel">
-          <div class="flex row align-i-center mrg-01em"><small>* - авторские опции обмена</small></div>
+          <div class="flex row align-i-center mrg-01em"><small>* - домашние правила обмена</small></div>
           <div class="flex row align-i-center gen-tweak-option switch-btn template"><p class="label"></p><div class="switch-container"><label class="switch"><input type="checkbox"><div class="slider"></div></label></div></div>
         </div>
         <div class="flex col gen-results">
@@ -168,8 +168,8 @@
       <h3 class="title">Калькулятор боевки для WoD V20 KGG™ Edition</h3>
       <small>Разруливает боевку Мира Тьмы по домашним правилам нашего сервера:</small> <br>
       <small>Каждый персонаж автоматически уворачивается от атак (если знает о них и имеет возможность это сделать) и поглощает урон в размере половины обычного дайс пула для этих действий.</small> <br>
-      <small>Защита: Половина суммы значения Ловкости и бонусов. Поглощение: Половина суммы Выносливости и бонусов. Оба значения округляются вниз.</small> <br>
-      <small>При этом защитные маневры позволяют повысить эффективность этой защиты броском кубиков.</small> <br>
+      <small>Защита: Половина суммы значения Ловкости и бонусов <em>(напр. Стремительность)</em>. Поглощение: Половина суммы Выносливости и бонусов <em>(напр. Стойкость)</em>. Оба значения округляются вниз.</small> <br>
+      <small>При этом защитные маневры позволяют повысить эффективность этой защиты броском подходящей способности со стандартными бонусами.</small> <br>
       <small>Нанесение урона так-же происходит автоматически и полностью.</small> <br>
       <div class="body">
         <div class="flex row align-i-center no-wrap mrg-1em combat-params">
@@ -181,15 +181,21 @@
           <label for="combat-soak-input">Поглощение цели:</label> <input id="combat-soak-input" type="text" class="input-value w-2em" value=0>
           <label for="combat-defender-action">Защитник:</label> <select id="combat-defender-action">
             <option selected="selected" value="none">Не защищается</option>
-            <option value="dodge">Уворачивается</option>
+            <option value="dodge">Защищается</option>
             <option value="block">Блокирует</option>
           </select>
           <label for="combat-defender-pool-input">Кубы защиты:</label> <input disabled id="combat-defender-pool-input" type="text" class="input-value w-4em" value=>
           <label for="combat-attack-descr-input">Описание атаки:</label> <input id="combat-attack-descr-input" type="text" class="input-value min-w-20em" placeholder="Краткое описание атаки для идентификации">
         </div>
-        <button class="combat-calc-attack btn">Расчитать</button>
+        <div class="flex row align-i-center">
+          <button class="combat-calc-attack btn">Посчитать</button> <button class="combat-open-tweak btn">Показать настройки</button>
+        </div>
+        <div class="flex row combat-tweaking-panel">
+          <div class="flex row align-i-center combat-tweak-option switch-btn template"><p class="label"></p><div class="switch-container"><label class="switch"><input type="checkbox"><div class="slider"></div></label></div></div>
+        </div>
         <div class="flex col combat-results">
           <div class="flex row mrg-1em pdng-1em white-space-nowrap card reverse-colors combat-item template">
+            <div class="item-timestamp"></div>
             <div class="item-round flex row jc-space-betw">
               <span class="label">Раунд #</span>
             </div>
@@ -200,7 +206,7 @@
               <span class="label">Атака</span>
             </div>
             <div class="item-defence flex row jc-space-betw">
-              <span class="label">Уклонение</span>
+              <span class="label">Защита</span>
             </div>
             <div class="item-damage flex row jc-space-betw">
               <span class="label">Урон</span>
