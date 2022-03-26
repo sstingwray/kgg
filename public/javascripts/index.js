@@ -1607,7 +1607,7 @@
         newResultItem.classList.add('generated');
         newResultItem.classList.remove ('template');
 
-        newResultItem.querySelector('.item-timestamp').innerHTML = timestamp.toLocaleTimeString();
+        newResultItem.querySelector('.item-timestamp').innerHTML += `<span class="mrg-01em">${timestamp.toLocaleTimeString()}</span>`;
 
         newResultItem.querySelector('.item-round').innerHTML += `<span class="mrg-01em">${round}</span>`;
 
