@@ -93,7 +93,8 @@
             btnClose: {},
             btnTemplate: {},
             switchTemplate: {},
-            gizmoTemplate: {}
+            gizmoTemplate: {},
+            separatorTemplate: {},
         },
         containers: {
             btnPanel: {},
@@ -410,6 +411,15 @@
         app.fabricateButton(app.btnPatterns[gizmoPattern.btnCaller]);
         $(newGizmo).hide();
         document.body.appendChild(newGizmo);
+    };
+
+    app.addSeparator = (container) => {
+        let newSeparator = app.components.separatorTemplate.cloneNode(true);
+
+        newSeparator.classList.add('generated');
+        newSeparator.classList.remove ('template');
+
+        container.prepend(newSeparator);
     };
 
     //TREASUREGEN
@@ -1569,11 +1579,10 @@
     };
 
     //WOD-COMBAT
-    app.calculateCombat = () => {
+    app.calculateAttack = () => {
         let gizmo = document.querySelector('.gizmo.vtm-combat-houserule');
         let resultTemplate = gizmo.querySelector('.combat-item.template');
         let resultContainer = gizmo.querySelector('.combat-results');
-        let round = gizmo.querySelector('#combat-round-input').value;
         let attackDicePool = +gizmo.querySelector('#combat-attack-input').value;
         let difficulty = +gizmo.querySelector('#combat-attack-diff-input').value;
         let damage = +gizmo.querySelector('#combat-attack-dmg-input').value;
@@ -1609,12 +1618,10 @@
 
         newResultItem.querySelector('.item-timestamp').innerHTML += `<span class="mrg-01em">${timestamp.toLocaleTimeString()}</span>`;
 
-        newResultItem.querySelector('.item-round').innerHTML += `<span class="mrg-01em">${round}</span>`;
-
         newResultItem.querySelector('.item-descr').innerHTML = `<span class="mrg-01em">${description}</span>`;
 
         //РЕЗУЛЬТАТ
-        newResultItem.querySelector('.item-result > .label').title += `${attackSucc} успехов в атаке, ${(defenderAction == 'dodge' ? defenderSucc : 0)} успехов в защите. ${damage} базового урона, ${totalAttackSucc} урона за попадание, ${soak} пассивного поглощения, ${(defenderAction == 'block' ? defenderSucc : 0)} поглощения за блок`;
+        newResultItem.querySelector('.item-result > .label').title += `${attackSucc} успехов в атаке, ${(defenderAction == 'dodge' ? defenderSucc : 0)} успехов в уклонении. ${damage} базового урона, ${totalAttackSucc} урона за попадание, ${soak} пассивного поглощения, ${(defenderAction == 'block' ? defenderSucc : 0)} поглощения за блок`;
         if (attackSucc > 0 ) {
             if (attackSucc - (defenderAction == 'dodge' ? defenderSucc : 0) <= 0) {
                 result = `Защитник увернулся`;
@@ -1631,36 +1638,65 @@
         newResultItem.querySelector('.item-result').innerHTML += `<span class="mrg-01em">${result}</span>`;
 
         //ДЕТАЛИ ПОПАДАНИЯ АТАКИ
-        if (attackDicePool == 0 || attackDicePool - defence <= 0) $(newResultItem.querySelector('.item-attack')).hide()
+        if (attackDicePool == 0 || attackDicePool - defence <= 0) $(newResultItem.querySelector('.item-attack')).remove()
         else {
             newResultItem.querySelector('.item-attack > .label').title += `дайспул ${attackDicePool - defence} (${attackDicePool} атаки - ${defence} защиты)`;
             for (let die of attackDice) newResultItem.querySelector('.item-attack').innerHTML += `<span class="mrg-01em ${(die >= difficulty ? `color-green` : `color-red`)}">${die}</span>`
         };
 
         //ДЕТАЛИ ЗАЩИТЫ
-        if (defenderAction != 'dodge' || defenderDice <= 0) $(newResultItem.querySelector('.item-defence')).hide()
+        if (defenderAction != 'dodge' || defenderDice <= 0) $(newResultItem.querySelector('.item-defence')).remove()
         else {
             newResultItem.querySelector('.item-defence > .label').title += `дайспул ${defenderPool}`;
             for (let die of defenderDice) newResultItem.querySelector('.item-defence').innerHTML += `<span class="mrg-01em ${(die >= 6 ? `color-green` : `color-red`)}">${die}</span>`
         };
 
         //ДЕТАЛИ УРОНА
-        if (isMiss) $(newResultItem.querySelector('.item-damage')).hide()
+        if (isMiss) $(newResultItem.querySelector('.item-damage')).remove()
         else {
             newResultItem.querySelector('.item-damage > .label').title += `${totalAttackSucc} урона за попадание + ${damage} базового урона - ${soak} пассивного поглощения)`;
             newResultItem.querySelector('.item-damage').innerHTML += `<span class="mrg-01em">${damage + totalAttackSucc - soak}</span>`;
         };
 
         //ДЕТАЛИ ПОГЛОЩЕНИЯ
-        if (defenderAction != 'block' || defenderDice <= 0) $(newResultItem.querySelector('.item-soak')).hide()
+        if (defenderAction != 'block' || defenderDice <= 0) $(newResultItem.querySelector('.item-soak')).remove()
         else {
             newResultItem.querySelector('.item-soak > .label').title += `дайспул ${defenderPool}`;
             for (let die of defenderDice) newResultItem.querySelector('.item-soak').innerHTML += `<span class="mrg-01em ${(die >= 6 ? `color-green` : `color-red`)}">${die}</span>`
         };
 
         resultContainer.prepend(newResultItem);
-        
-    }
+    };
+
+    app.calculateInitiative = () => {
+        let gizmo = document.querySelector('.gizmo.vtm-combat-houserule');
+        let resultTemplate = gizmo.querySelector('.combat-item.template');
+        let resultContainer = gizmo.querySelector('.combat-results');
+        let name = gizmo.querySelector('#combat-name-input').value;
+        let initBonus = gizmo.querySelector('#combat-init-input').value;
+
+        let timestamp = new Date();
+
+        let initRoll = [...Array(2).keys()].map(x => x = Math.round(Math.random()*5) + 1);
+        let initResult = initRoll.reduce((a,b) => a + b) + parseInt(initBonus);
+
+        let newResultItem = resultTemplate.cloneNode(true);
+
+        newResultItem.classList.add('generated');
+        newResultItem.classList.remove ('template');
+
+        newResultItem.querySelector('.item-timestamp').innerHTML += `<span class="mrg-01em">${timestamp.toLocaleTimeString()}</span>`;
+        newResultItem.querySelector('.item-result > .label').title += `${initRoll.join(` + `)} + ${initBonus}`;
+        newResultItem.querySelector('.item-result').innerHTML += `<span class="mrg-01em">Инициатива ${name} — ${initResult}</span>`;
+
+        $(newResultItem.querySelector('.item-attack')).remove();
+        $(newResultItem.querySelector('.item-defence')).remove();
+        $(newResultItem.querySelector('.item-damage')).remove();
+        $(newResultItem.querySelector('.item-soak')).remove();
+        $(newResultItem.querySelector('.item-descr')).remove();
+
+        resultContainer.prepend(newResultItem);
+    };
 
     $(function() {
         app.containers.btnPanel = document.querySelector('.gizmos-panel');
@@ -1672,6 +1708,7 @@
         app.components.btnTemplate = document.querySelector('.btn.template');
         app.components.switchTemplate = document.querySelector('.switch-btn.template');
         app.components.gizmoTemplate = document.querySelector('.gizmo.template');
+        app.components.separatorTemplate = document.querySelector('.separator.template');
 
         Object.keys(app.btnPatterns).forEach(key => {
             app.fabricateButton(app.btnPatterns[key]);
@@ -1759,8 +1796,16 @@
             ($('.market-econ-sim-player-log').hasClass('active') ? $('.market-econ-sim-toggle-player-log.btn').html('Скрыть историю действий игрока') : $('.market-econ-sim-toggle-player-log.btn').html('Показать историю действий игрока'));
         });
 
+        $('.combat-calc-init.btn').on('click', () => {
+            app.calculateInitiative();
+        });
+
         $('.combat-calc-attack.btn').on('click', () => {
-            app.calculateCombat();
+            app.calculateAttack();
+        });
+
+        $('.combat-add-separator.btn').on('click', () => {
+            app.addSeparator(document.querySelector('.combat-results'));
         });
 
         $('.combat-open-tweak.btn').on('click', () => {

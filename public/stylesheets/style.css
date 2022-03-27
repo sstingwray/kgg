@@ -558,6 +558,11 @@ span.label {
       background-color: var(--bg-opaq-light);
     }
 
+.separator {
+  border: solid var(--crimson-ua);
+  margin: 1em 0;
+}
+
 .gen-tweaking-panel {
   opacity: 0;
   max-height: 0;
@@ -571,9 +576,6 @@ span.label {
     max-height: 4em;
     padding: 1em 0;
     background-color: var(--bg-alt);
-  }
-  .gen-tweak-option {
-    margin: 0em 1em;
   }
 
 .gen-container {
