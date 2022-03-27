@@ -20,10 +20,6 @@
       </div>
     </div>
     <button class="close-btn">X</button>
-    <div class="gizmo template">
-      <div class="title"><h3 class="title"></h3></div>
-      <div class="body"></div>
-    </div>
     <div class="gizmo treasure-gen">
       <h3 class="title">Генератор Фэнтези* Сокровищ</h3>
       <small>* на основе Sword & Wizardry</small> <br><br>
@@ -40,7 +36,6 @@
         </div>
         <div class="flex row gen-tweaking-panel">
           <div class="flex row align-i-center mrg-01em"><small>* - домашние правила обмена</small></div>
-          <div class="flex row align-i-center gen-tweak-option switch-btn template"><p class="label"></p><div class="switch-container"><label class="switch"><input type="checkbox"><div class="slider"></div></label></div></div>
         </div>
         <div class="flex col gen-results">
           <div class="flex col mrg-1em pdng-1em jc-center white-space-nowrap card reverse-colors gen-item template">
@@ -168,12 +163,16 @@
       <h3 class="title">Калькулятор боевки для WoD V20 KGG™ Edition</h3>
       <small>Разруливает боевку Мира Тьмы по домашним правилам нашего сервера:</small> <br>
       <small>Каждый персонаж автоматически уворачивается от атак (если знает о них и имеет возможность это сделать) и поглощает урон в размере половины обычного дайс пула для этих действий.</small> <br>
-      <small>Защита: Половина суммы значения Ловкости и бонусов <em>(напр. Стремительность)</em>. Поглощение: Половина суммы Выносливости и бонусов <em>(напр. Стойкость)</em>. Оба значения округляются вниз.</small> <br>
-      <small>При этом защитные маневры позволяют повысить эффективность этой защиты броском подходящей способности со стандартными бонусами.</small> <br>
+      <small>Защита: Половина суммы значения Ловкости и бонусов <em>(напр. Стремительность)</em>. Поглощение: сумма Выносливости и бонусов <em>(напр. Стойкость, броня)</em>. Оба значения округляются вниз.</small> <br>
+      <small>При этом защитные маневры позволяют повысить эффективность этой защиты броском подходящей способности <em>(напр. Атлетика, Ближний Бой)</em> со стандартными бонусами.</small> <br>
       <small>Нанесение урона так-же происходит автоматически и полностью.</small> <br>
+      <small>Расчет инициативы происходит броском 2d6 + Сообразительность + Ловкость.</small> <br>
       <div class="body">
         <div class="flex row align-i-center no-wrap mrg-1em combat-params">
-          <label for="combat-round-input">Раунд #:</label> <input id="combat-round-input" type="text" class="input-value w-4em" value=1>
+          <label for="combat-name-input">Имя персонажа:</label> <input id="combat-name-input" type="text" class="input-value w-8em">
+          <label for="combat-init-input">Бонус инициативы: <em></em></label> <input id="combat-init-input" type="text" class="input-value w-2em" value=1>
+        </div>
+        <div class="flex row align-i-center no-wrap mrg-1em combat-params">
           <label for="combat-attack-input">Кубы атаки:</label> <input id="combat-attack-input" type="text" class="input-value w-4em" value=1>
           <label for="combat-attack-diff-input">Сложность атаки:</label> <input id="combat-attack-diff-input" type="text" class="input-value w-2em" value=6>
           <label for="combat-attack-dmg-input">Урон атаки:</label> <input id="combat-attack-dmg-input" type="text" class="input-value w-2em" value=0>
@@ -181,14 +180,14 @@
           <label for="combat-soak-input">Поглощение цели:</label> <input id="combat-soak-input" type="text" class="input-value w-2em" value=0>
           <label for="combat-defender-action">Защитник:</label> <select id="combat-defender-action">
             <option selected="selected" value="none">Не защищается</option>
-            <option value="dodge">Защищается</option>
+            <option value="dodge">Уклоняется</option>
             <option value="block">Блокирует</option>
           </select>
           <label for="combat-defender-pool-input">Кубы защиты:</label> <input disabled id="combat-defender-pool-input" type="text" class="input-value w-4em" value=>
           <label for="combat-attack-descr-input">Описание атаки:</label> <input id="combat-attack-descr-input" type="text" class="input-value min-w-20em" placeholder="Краткое описание атаки для идентификации">
         </div>
         <div class="flex row align-i-center">
-          <button class="combat-calc-attack btn">Посчитать</button> <button class="combat-open-tweak btn">Показать настройки</button>
+          <button class="combat-calc-init btn">Посчитать инициативу</button> <button class="combat-calc-attack btn">Посчитать атаку</button> <button class="combat-add-separator btn">Отделить раунд</button>  <button class="combat-open-tweak btn">Показать настройки</button>
         </div>
         <div class="flex row combat-tweaking-panel">
           <div class="flex row align-i-center combat-tweak-option switch-btn template"><p class="label"></p><div class="switch-container"><label class="switch"><input type="checkbox"><div class="slider"></div></label></div></div>
@@ -196,9 +195,6 @@
         <div class="flex col combat-results">
           <div class="flex row mrg-1em pdng-1em white-space-nowrap card reverse-colors combat-item template">
             <div class="item-timestamp"></div>
-            <div class="item-round flex row jc-space-betw">
-              <span class="label">Раунд #</span>
-            </div>
             <div class="item-result">
               <span class="label">Результат</span>
             </div>
@@ -206,7 +202,7 @@
               <span class="label">Атака</span>
             </div>
             <div class="item-defence flex row jc-space-betw">
-              <span class="label">Защита</span>
+              <span class="label">Уклонение</span>
             </div>
             <div class="item-damage flex row jc-space-betw">
               <span class="label">Урон</span>
@@ -225,7 +221,6 @@
       <div class="flex col align-i-center jc-center mrg-1em">
         <small>Наши инструменты:</small>
       </div>
-      <button class="btn template"></button>
     </div>
     <div class="flex row wrap jc-space-ar links-panel main-content-block">
       <a target="_blank" href="https://discord.gg/z3z2hxMADr"><img class="img-link" src="/images/link-discord.png" alt="Discord — discord.gg/z3z2hxMADr"></a>
@@ -234,8 +229,17 @@
       <a target="_blank" href="https://twitter.com/_stingwray"><img class="img-link" src="/images/link-twitter.png" alt="Twitter — twitter.com/_stingwray"></a>
       <a target="_blank" href="https://vk.com/alexkostrounstreams"><img class="img-link" src="/images/link-vk.png" alt="VK — vk.com/alexkostrounstreams"></a>
     </div>
+    <div class="template">
+      <button class="btn template"></button>
+      <div class="gizmo template">
+        <div class="title"><h3 class="title"></h3></div>
+        <div class="body"></div>
+      </div>
+      <div class="flex row align-i-center mrg-01em switch-btn template"><p class="label"></p><div class="switch-container"><label class="switch"><input type="checkbox"><div class="slider"></div></label></div></div>
+      <div class="separator template"></div>
+    </div>
     <div class="flex row wrap jc-space-ar footer">
-      Kostroun.gg © 2021
+      Kostroun.gg © 2022
     </div>
   </body>
 </html>
