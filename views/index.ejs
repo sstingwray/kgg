@@ -4,7 +4,9 @@
     <title>Kostroun.gg</title>
     <link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon">
     <link rel='stylesheet' href='/stylesheets/style.css' />
-    <link rel="stylesheet" href="/stylesheets/font-awesome.css">
+    <link rel="stylesheet" href="/stylesheets/fontawesome.css">
+    <link rel="stylesheet" href="/stylesheets/brands.css">
+    <link rel="stylesheet" href="/stylesheets/solid.css">
     <script src="/javascripts/jquery.min.js"></script>
     <script src="/javascripts/tinysort.min.js"></script>
     <script src="/javascripts/index.js"></script>
@@ -13,13 +15,40 @@
   </head>
   <body>
     <div class="spinner-container flex jc-center align-i-center"><div class="lds-ring"><div></div><div></div><div></div><div></div></div></div>
-    <div class="flex row header">
+    <div class="flex row header bg-alt">
       <button class="logo" tabindex="1"><span class="kstr">Kostroun.</span><span class="gg">gg</span></button>
       <div class="flex col align-i-center mrg-1em">
         <h2>Сообщество для любителей настольных, ролевых и видео- игр</h2>
       </div>
     </div>
-    <button class="close-btn">X</button>
+    <button class="close-btn"><i class="fa fa-long-arrow-left"></i></button>
+    <div class="flex align-i-center jc-center popup">
+      <div class="flex row align-i-center mrg-1em form add-new-character-form card">
+        <button class="close-add-new-form close-popup-btn"><i class="fa-solid fa-x"></i></button>
+        <label for="new-char-name-input">   Имя:</label>            <input id="new-char-name-input"   type="text" class="input-value w-4em" value=1>
+        <label for="new-char-attack-input"> Пул атаки:</label>      <input id="new-char-attack-input" type="text" class="input-value w-4em" value=1>
+        <label for="new-char-diff-input">   Сложность:</label>      <input id="new-char-diff-input"   type="text" class="input-value w-4em" value=6>
+        <label for="new-char-dmg-input">    Урон:</label>           <input id="new-char-dmg-input"    type="text" class="input-value w-4em" value=1>
+        <label for="new-char-def-input">    Защита:</label>         <input id="new-char-def-input"    type="text" class="input-value w-4em" value=0>
+        <label for="new-char-soak-input">   Поглощение:</label>     <input id="new-char-soak-input"   type="text" class="input-value w-4em" value=0>
+        <label for="new-char-dodge-input">  Пул Уклонения:</label>  <input id="new-char-dodge-input"  type="text" class="input-value w-4em" value=0>
+        <label for="new-char-block-input">  Пул Блока:</label>      <input id="new-char-block-input"  type="text" class="input-value w-4em" value=0>
+        <button class="add-new-character-form-submit btn">Сохранить</button>
+      </div>
+
+      <div class="flex row align-i-center mrg-1em form edit-character-form card">
+        <button class="close-edit-form close-popup-btn"><i class="fa-solid fa-x"></i></button>
+        <label for="char-name-input">   Имя:</label>           <input id="char-name-input"   type="text" class="input-value w-4em" value=1>
+        <label for="char-attack-input"> Пул атаки:</label>     <input id="char-attack-input" type="text" class="input-value w-4em" value=1>
+        <label for="char-diff-input">   Сложность:</label>     <input id="char-diff-input"   type="text" class="input-value w-4em" value=6>
+        <label for="char-dmg-input">    Урон:</label>          <input id="char-dmg-input"    type="text" class="input-value w-4em" value=1>
+        <label for="char-def-input">    Защита:</label>        <input id="char-def-input"    type="text" class="input-value w-4em" value=0>
+        <label for="char-soak-input">   Поглощение:</label>    <input id="char-soak-input"   type="text" class="input-value w-4em" value=0>
+        <label for="char-dodge-input">  Пул Уклонения:</label> <input id="char-dodge-input"  type="text" class="input-value w-4em" value=0>
+        <label for="char-block-input">  Пул Блока:</label>     <input id="char-block-input"  type="text" class="input-value w-4em" value=0>
+        <button class="edit-character-form-submit btn">Сохранить</button>
+      </div>
+    </div>
     <div class="gizmo treasure-gen">
       <h3 class="title">Генератор Фэнтези* Сокровищ</h3>
       <small>* на основе Sword & Wizardry</small> <br><br>
@@ -27,34 +56,34 @@
       <small>Каждый тип обмена может быть включен или выключен индивидуально в настройках. Авторские опции обмена используют простую систему стоимости:</small> <br>
       <small>Обычное — стоимость предмета на обмен считает как случайное от 0 до 50% от денежного эквивалента обмена</small> <br>
       <small>Необычное — стоимость предмета на обмен считает как случайное от 50% до 100% от денежного эквивалента обмена</small> <br>
-      <small>Редкое — стоимость предмета на обмен считает как случайное от 100% до 150% от денежного эквивалента обмена</small> <br>
+      <small>Редкое — стоимость пр едмета на обмен считает как случайное от 100% до 150% от денежного эквивалента обмена</small> <br>
       <small>Очень Редкое — стоимость предмета на обмен считает как случайное от 150% до 200% от денежного эквивалента обмена</small> <br>
       <small>Предполагается, что игроки имеют возможность поторговаться и поднять стоимость выше (или опустить, в случае дурной репутации) выпавшей</small> <br>
       <div class="body">
-        <div class="flex row align-i-center">
-          <label for="gen-treasure-xp-input">Базовый пул очков:</label> <input id="gen-treasure-xp-input" type="text" class="input-value"> <button class="gen-treasure btn">Сгенерировать сокровища</button> <button class="gen-open-tweak btn">Показать настройки</button>
+        <div class="flex row align-i-center treasure-btn-panel">
+          <label for="gen-treasure-xp-input">Базовый пул очков:</label> <input id="gen-treasure-xp-input" type="text" class="input-value">
         </div>
-        <div class="flex row gen-tweaking-panel">
+        <div class="flex row treasure-knob-panel switch-panel">
           <div class="flex row align-i-center mrg-01em"><small>* - домашние правила обмена</small></div>
         </div>
         <div class="flex col gen-results">
-          <div class="flex col mrg-1em pdng-1em jc-center white-space-nowrap card reverse-colors gen-item template">
+          <div class="flex col mrg-1em pdng-1em jc-center white-space-nowrap card bg-main gen-item template">
             <div class="item-text">
             </div>
             <div class="item-type flex row jc-space-betw">
-              <span class="label">Тип</span> <span class="mrg-01em value"></span>
+              <span class="label">Тип</span>        <span class="mrg-01em value"></span>
             </div>
             <div class="item-description flex row jc-space-betw">
-              <span class="label">Описание</span> <span class="mrg-01em value"></span>
+              <span class="label">Описание</span>   <span class="mrg-01em value"></span>
             </div>
             <div class="item-value flex row jc-space-betw">
-              <span class="label">Стоимости</span> <span class="mrg-01em value"></span>
+              <span class="label">Стоимости</span>  <span class="mrg-01em value"></span>
             </div>
             <div class="item-weight flex row jc-space-betw">
-              <span class="label">Вес</span> <span class="mrg-01em value"></span>
+              <span class="label">Вес</span>        <span class="mrg-01em value"></span>
             </div>
             <div class="item-rarity flex row jc-space-betw">
-              <span class="label">Редкость</span> <span class="mrg-01em value"></span>
+              <span class="label">Редкость</span>   <span class="mrg-01em value"></span>
             </div>
           </div>
           <div class="flex row wrap mrg-1em gen-container first-elem-hightlight anim-rslide card template"></div>
@@ -67,8 +96,7 @@
       <div class="body">
         <div class="flex row wrap align-i-start">
           <div class="flex col max-w-60 min-w-30">
-            <div class="flex align-i-center wrap mrg-1em politic-gen-controls">
-              <button class="politic-gen-add-new btn">Добавить Агента</button>
+            <div class="flex align-i-center wrap mrg-1em politic-btn-panel">
             </div>
             <div class="flex">
               <table class=" table-100-w politic-gen-agents">
@@ -81,22 +109,22 @@
                     <th>Свобода-Контроль</th>
                     <th></th>
                   </tr>
-                  <tr class="table-field politic-gen-agent template">
+                  <tr class="politic-gen-agent template">
                     <td class="name"><input type="text" class="input-value"></td>
                     <td class="tag"><input type="text" class="input-value"></td>
                     <td class="color">
                       <select>
                         <option selected="selected" value="#F1F4F4">Белый</option>
-                        <option value="#933232">Красный</option>
+                        <option value="#933232">Красный   </option>
                         <option value="#329393">Изумрудный</option>
-                        <option value="#BFB340">Желтый</option>
-                        <option value="#43A63F">Зеленый</option>
-                        <option value="#336394">Синий</option>
+                        <option value="#BFB340">Желтый    </option>
+                        <option value="#43A63F">Зеленый   </option>
+                        <option value="#336394">Синий     </option>
                       </select>
                     </td>
-                    <td class="trad-prog"><input type="text" class="input-value"></td>
+                    <td class="trad-prog"><input   type="text" class="input-value"></td>
                     <td class="contr-freed"><input type="text" class="input-value"></td>
-                    <td><button title="Удалить запись из таблицы" class="remove btn small"><i class="fas fa-trash"></i></button></td>
+                    <td><button title="Удалить запись из таблицы" class="remove btn"><i class="fa-solid fa-trash-can"></i></td>
                   </tr>
                 </tbody>
               </table>
@@ -106,94 +134,120 @@
         </div>
       </div>
     </div>
-    <div class="gizmo market-econ-sim">
+    <div class="gizmo econ-sim">
       <h3 class="title">Симулятор Рыночной Экономики</h3>
       <small>Симулирует простую рыночную экономику для быстрого реалистичного отыгрыша экономического эффекта от действий игроков</small> <br>
       <div class="body">
         <div class="flex align-i-start wrap mrg-1em market-billboard-container">
-            <div class="mrg-1em card market-billboard template">
-              <div class="billboard-item title flex row jc-space-betw">
-              </div>
-              <div class="billboard-item template flex row jc-space-betw">
-                <span class="mrg-01em00 label"></span> <span class="mrg-01em00 value"></span>
-                <input hidden class=" mrg-01em00 manual-input amount" type="text" placeholder="Количество">
-                <select hidden class="mrg-01em00 manual-input transaction-type" title="Тип сделки">
-                  <option selected="selected" value="ask">Покупка</option>
-                  <option value="lot">Продажа</option>
-                </select>
-                <input hidden class="mrg-01em00 manual-input min-price" type="text" placeholder="Мин. цена" title="Мин. цена">
-                <input hidden class="mrg-01em00 manual-input max-price" type="text" placeholder="Макс. цена" title="Макс. цена">
-                <button hidden class="apply-player-input btn small" title="Применить" ><i class="fa fa-floppy-o" aria-hidden="true"></i></button>
-                <button hidden class="reset-player-input btn small" title="Сбросить" ><i class="fa fa-refresh" aria-hidden="true"></i></button>
-              </div>
+          <div class="mrg-1em card market-billboard template">
+            <div class="billboard-item title flex row jc-space-betw">
+            </div>
+            <div class="billboard-item template flex row jc-space-betw">
+              <span class="label"></span> <span class="value"></span>
+              <input hidden class="manual-input amount" type="text" placeholder="Количество">
+              <select hidden class="manual-input transaction-type" title="Тип сделки">
+                <option selected="selected" value="ask">Покупка</option>
+                <option value="lot">Продажа</option>
+              </select>
+              <input hidden class="manual-input min-price" type="text" placeholder="Мин. цена" title="Мин. цена">
+              <input hidden class="manual-input max-price" type="text" placeholder="Макс. цена" title="Макс. цена">
+              <button hidden class="reset-player-input btn small" title="Сбросить" ><i class="fa fa-refresh" aria-hidden="true"></i></button>
             </div>
           </div>
-        <div class="flex align-i-center wrap mrg-1em market-econ-sim-controls">
-          <div class="flex align-i-center jc-center mrg-1em turn-counter"></div>
-          <button class="market-econ-sim-next-round btn">Следующий раунд</button>
-          <button class="market-econ-sim-100-rounds btn">Симулировать 100 раундов</button>
-          <button class="market-econ-sim-toggle-player-log btn">Показать историю действий игрока</button>
         </div>
-        <div class="flex row market-econ-sim-player-log">
+        <div class="flex align-i-center wrap mrg-1em econ-btn-panel">
+          <div class="flex align-i-center jc-center mrg-1em turn-counter"></div>
+        </div>
+        <div class="flex row econ-sim-player-log">
         </div>
         <div class="flex row wrap mrg-1em agent-card-container">
           <div class="flex col mrg-1em card agent-card template">
             <div class="agent-name flex row jc-space-betw">
             </div>
             <div class="agent-type flex row jc-space-betw">
-              <span class="label">Тип: </span> <span class="value"></span>
+              <span class="label">Тип: </span>        <span class="value"></span>
             </div>
             <div class="agent-durability flex row jc-space-betw">
-              <span class="label">Стойкость: </span> <span class="value"></span>
+              <span class="label">Стойкость: </span>  <span class="value"></span>
             </div>
             <div class="agent-age flex row jc-space-betw">
-              <span class="label">Возраст: </span> <span class="value"></span>
+              <span class="label">Возраст: </span>    <span class="value"></span>
             </div>
             <div class="agent-wallet flex row jc-space-betw">
-              <span class="label">Кошелек: </span> <span class="value"></span>
+              <span class="label">Кошелек: </span>    <span class="value"></span>
             </div>
             <div class="agent-good template flex row jc-space-betw">
-              <span class="label">Предмет: </span> <span class="value"></span>
+              <span class="label">Предмет: </span>    <span class="value"></span>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="gizmo vtm-combat-houserule">
-      <h3 class="title">Калькулятор боевки для WoD V20 KGG™ Edition</h3>
+    <div class="gizmo wod-combat-houserule">
+      <h3 class="title">Калькулятор боевки для WoD 20th KGG™ Edition</h3>
       <small>Разруливает боевку Мира Тьмы по домашним правилам нашего сервера:</small> <br>
       <small>Каждый персонаж автоматически уворачивается от атак (если знает о них и имеет возможность это сделать) и поглощает урон в размере половины обычного дайс пула для этих действий.</small> <br>
       <small>Защита: Половина суммы значения Ловкости и бонусов <em>(напр. Стремительность)</em>. Поглощение: сумма Выносливости и бонусов <em>(напр. Стойкость, броня)</em>. Оба значения округляются вниз.</small> <br>
       <small>При этом защитные маневры позволяют повысить эффективность этой защиты броском подходящей способности <em>(напр. Атлетика, Ближний Бой)</em> со стандартными бонусами.</small> <br>
       <small>Нанесение урона так-же происходит автоматически и полностью.</small> <br>
-      <small>Расчет инициативы происходит броском 2d6 + Сообразительность + Ловкость.</small> <br>
+      <small>Расчет инициативы происходит броском 1d10 на каждую из сторон конфликта</small> <br>
       <div class="body">
         <div class="flex row align-i-center no-wrap mrg-1em combat-params">
-          <label for="combat-name-input">Имя персонажа:</label> <input id="combat-name-input" type="text" class="input-value w-8em">
-          <label for="combat-init-input">Бонус инициативы: <em></em></label> <input id="combat-init-input" type="text" class="input-value w-2em" value=1>
+          <label for="combat-name-input">Название стороны:</label> <input id="combat-name-input" type="text" class="input-value w-8em">
+          <label for="combat-init-input">Бонус инициативы: <em></em></label> <input id="combat-init-input" type="text" class="input-value w-2em" value=0>
         </div>
-        <div class="flex row align-i-center no-wrap mrg-1em combat-params">
-          <label for="combat-attack-input">Кубы атаки:</label> <input id="combat-attack-input" type="text" class="input-value w-4em" value=1>
-          <label for="combat-attack-diff-input">Сложность атаки:</label> <input id="combat-attack-diff-input" type="text" class="input-value w-2em" value=6>
-          <label for="combat-attack-dmg-input">Урон атаки:</label> <input id="combat-attack-dmg-input" type="text" class="input-value w-2em" value=0>
-          <label for="combat-defence-input">Защита цели:</label> <input id="combat-defence-input" type="text" class="input-value w-2em" value=0>
-          <label for="combat-soak-input">Поглощение цели:</label> <input id="combat-soak-input" type="text" class="input-value w-2em" value=0>
-          <label for="combat-defender-action">Защитник:</label> <select id="combat-defender-action">
+        <div class="flex row align-i-center mrg-1em character-card-container">
+          <button title="Добавить" class="add-new-character btn"><i class="fa-solid fa-plus"></i></button>
+          <div class="flex col no-wrap mrg-1em combat-char-card card">
+            <div class="char-name flex row jc-space-betw char-param">
+              <span class="label">Имя</span><span class="value">Персонаж</span>
+            </div>
+            <div class="char-attack flex row jc-space-betw char-param">
+              <span class="label">Пул атаки</span>      <span class="value">1</span>
+            </div>
+            <div class="char-diff flex row jc-space-betw char-param">
+              <span class="label">Сложность</span>      <span class="value">6</span>
+            </div>
+            <div class="char-dmg flex row jc-space-betw char-param">
+              <span class="label">Урон</span>           <span class="value">1</span>
+            </div>
+            <div class="char-def flex row jc-space-betw char-param">
+              <span class="label">Защита</span>         <span class="value">0</span>
+            </div>
+            <div class="char-soak flex row jc-space-betw char-param">
+              <span class="label">Поглощение</span>     <span class="value">0</span>
+            </div>
+            <div class="char-dodge flex row jc-space-betw char-param">
+              <span class="label">Пул Уклонения</span>  <span class="value">0</span>
+            </div>
+            <div class="char-block flex row jc-space-betw char-param">
+              <span class="label">Пул Блока</span>      <span class="value">0</span>
+            </div>
+            <button title="Изменить" class="edit compact btn">  <i class="fa-solid fa-file-pen"></i> </button>
+            <button title="Удалить"  class="remove compact btn"><i class="fa-solid fa-trash-can"></i></button>
+          </div>
+        </div>
+        <div class="flex row align-i-center no-wrap mrg-1em combat-params-panel">
+          <label for="combat-attack-input">       Кубы атаки:</label>     <input id="combat-attack-input"        type="text" class="input-value w-4em" value=1>
+          <label for="combat-attack-diff-input">  Сложность атаки:</label><input id="combat-attack-diff-input"   type="text" class="input-value w-2em" value=6>
+          <label for="combat-attack-dmg-input">   Урон атаки:</label>     <input id="combat-attack-dmg-input"    type="text" class="input-value w-2em" value=1>
+          <label for="combat-defence-input">      Защита цели:</label>    <input id="combat-defence-input"       type="text" class="input-value w-2em" value=0>
+          <label for="combat-soak-input">         Поглощение цели:</label><input id="combat-soak-input"          type="text" class="input-value w-2em" value=0>
+          <label for="combat-defender-action">    Защитник:</label> <select id="combat-defender-action">
             <option selected="selected" value="none">Не защищается</option>
             <option value="dodge">Уклоняется</option>
             <option value="block">Блокирует</option>
           </select>
-          <label for="combat-defender-pool-input">Кубы защиты:</label> <input disabled id="combat-defender-pool-input" type="text" class="input-value w-4em" value=>
-          <label for="combat-attack-descr-input">Описание атаки:</label> <input id="combat-attack-descr-input" type="text" class="input-value min-w-20em" placeholder="Краткое описание атаки для идентификации">
+          <label for="combat-defender-pool-input">Кубы защиты:</label>    <input id="combat-defender-pool-input" type="text" class="input-value w-4em" value="" disabled>
+          <label for="combat-attack-descr-input"> Описание атаки:</label> <input id="combat-attack-descr-input"  type="text" class="input-value min-w-20em" placeholder="Краткое описание атаки для идентификации">
         </div>
-        <div class="flex row align-i-center">
-          <button class="combat-calc-init btn">Посчитать инициативу</button> <button class="combat-calc-attack btn">Посчитать атаку</button> <button class="combat-add-separator btn">Отделить раунд</button>  <button class="combat-open-tweak btn">Показать настройки</button>
+        <div class="flex row align-i-center combat-btn-panel">
         </div>
-        <div class="flex row combat-tweaking-panel">
+        <div class="flex row combat-knob-panel switch-panel">
           <div class="flex row align-i-center combat-tweak-option switch-btn template"><p class="label"></p><div class="switch-container"><label class="switch"><input type="checkbox"><div class="slider"></div></label></div></div>
         </div>
         <div class="flex col combat-results">
-          <div class="flex row mrg-1em pdng-1em white-space-nowrap card reverse-colors combat-item first-elem-hightlight anim-rslide template">
+          <div class="flex row mrg-1em pdng-1em white-space-nowrap card combat-item first-elem-hightlight anim-rslide template">
             <div class="item-timestamp"></div>
             <div class="item-result">
               <span class="label">Результат</span>
@@ -217,17 +271,19 @@
         </div>
       </div>
     </div>
-    <div class="flex row wrap gizmos-panel main-content-block">
-      <div class="flex col align-i-center jc-center mrg-1em">
-        <small>Наши инструменты:</small>
+    <div class="landing-page-content">
+      <div class="flex row wrap gizmos-panel bg-alt mrg-1em brd-rad-1em">
+        <div class="flex col align-i-center jc-center mrg-1em">
+          <small>Наши инструменты:</small>
+        </div>
       </div>
-    </div>
-    <div class="flex row wrap jc-space-ar links-panel main-content-block">
-      <a target="_blank" href="https://discord.gg/z3z2hxMADr"><img class="img-link" src="/images/link-discord.png" alt="Discord — discord.gg/z3z2hxMADr"></a>
-      <a target="_blank" href="https://www.youtube.com/catatonicnonsense"><img class="img-link" src="/images/link-youtube.png" alt="Youtube — www.youtube.com/catatonicnonsense"></a>
-      <a target="_blank" href="https://www.twitch.tv/alexkostroun"><img class="img-link" src="/images/link-twitch.png" alt="Twitch — www.twitch.tv/alexkostroun"></a>
-      <a target="_blank" href="https://twitter.com/_stingwray"><img class="img-link" src="/images/link-twitter.png" alt="Twitter — twitter.com/_stingwray"></a>
-      <a target="_blank" href="https://vk.com/alexkostrounstreams"><img class="img-link" src="/images/link-vk.png" alt="VK — vk.com/alexkostrounstreams"></a>
+      <div class="flex row wrap jc-space-ar links-panel bg-alt mrg-1em brd-rad-1em">
+        <a target="_blank" href="https://discord.gg/z3z2hxMADr">            <img class="img-link" src="/images/link-discord.png" alt="Discord — discord.gg/z3z2hxMADr"></a>
+        <a target="_blank" href="https://www.youtube.com/catatonicnonsense"><img class="img-link" src="/images/link-youtube.png" alt="Youtube — www.youtube.com/catatonicnonsense"></a>
+        <a target="_blank" href="https://www.twitch.tv/alexkostroun">       <img class="img-link" src="/images/link-twitch.png"  alt="Twitch — www.twitch.tv/alexkostroun"></a>
+        <a target="_blank" href="https://twitter.com/_stingwray">           <img class="img-link" src="/images/link-twitter.png" alt="Twitter — twitter.com/_stingwray"></a>
+        <a target="_blank" href="https://vk.com/alexkostrounstreams">       <img class="img-link" src="/images/link-vk.png"      alt="VK — vk.com/alexkostrounstreams"></a>
+      </div>
     </div>
     <div class="template">
       <button class="btn template"></button>
@@ -238,7 +294,7 @@
       <div class="flex row align-i-center mrg-01em switch-btn template"><p class="label"></p><div class="switch-container"><label class="switch"><input type="checkbox"><div class="slider"></div></label></div></div>
       <div class="separator template"></div>
     </div>
-    <div class="flex row wrap jc-space-ar footer">
+    <div class="flex row wrap jc-space-ar footer bg-main">
       Kostroun.gg © 2022
     </div>
   </body>
