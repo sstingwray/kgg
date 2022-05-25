@@ -343,7 +343,7 @@
         },
     };
 
-    app.fabricateButton = (contrainer, labelText, type, target, btnClass, hintText = '') => {
+    app.fabricateButton = (btnClass, labelText, type, target, toDoFunction, container, hintText = '') => {
         let newBtn = app.components.btnTemplate.cloneNode(true);
 
         newBtn.classList.add('generated');
@@ -371,11 +371,16 @@
                     window.open(btnPattern.target, '_blank');
                 });
                 break;
+        case 'function':
+                $(newBtn).on('click', () => {
+                    toDoFunction();
+                });
+                break;
             default:
 
                 break;
         }
-        contrainer.appendChild(newBtn);
+        container.appendChild(newBtn);
     };
 
     app.fabricateSwitch = (container, labelText, checkboxClass, checked = true, hintText = '') => {
@@ -389,7 +394,7 @@
         newSwitch.querySelector('input').checked = checked;
 
         container.appendChild(newSwitch);
-    }
+    };
 
     app.addSeparator = (container) => {
         let newSeparator = app.components.separatorTemplate.cloneNode(true);
@@ -398,6 +403,25 @@
         newSeparator.classList.remove ('template');
 
         container.prepend(newSeparator);
+    };
+    
+    app.confirmExecutionPopup = (confirmationText, toDoFunction) => {
+        let form = document.querySelector('.confirm-form.form');
+        let paragraph = form.querySelector('.confirmation-text');
+
+        $('.popup').addClass('active');
+        $('.form').hide();
+        $('.confirm-form.form').show();
+        $('.gizmo').addClass('blurred');
+
+        paragraph.innerHTML = confirmationText;
+        form.querySelector('.confirm.form-submit').focus();
+
+        $(form.querySelector('.confirm.form-submit')).off();
+        $(form.querySelector('.confirm.form-submit')).on('click', () => {
+            toDoFunction();
+            $('.close-popup-btn')[0].click();
+        });
     };
 
     //TREASUREGEN
@@ -1677,20 +1701,21 @@
         resultContainer.prepend(newResultItem);
     };
 
-    app.getCharacterFormData = async () => {
-        let form = document.querySelector('.add-new-character-form');
-        let newCharacterData = JSON.parse(JSON.stringify(app.wodCombatCharacters.defaultCharacter));
+    app.getCharacterFormData = (isNew, characterData) => {
+        let form = document.querySelector('.add-edit-character-form');
 
-        newCharacterData.name = form.querySelector('#new-char-name-input').value;
-        newCharacterData.attack = form.querySelector('#new-char-attack-input').innerHTML;
-        newCharacterData.difficulty = form.querySelector('#new-char-diff-input').innerHTML;
-        newCharacterData.damage = form.querySelector('#new-char-dmg-input').innerHTML;
-        newCharacterData.defence = form.querySelector('#new-char-def-input').innerHTML;
-        newCharacterData.soak = form.querySelector('#new-char-soak-input').innerHTML;
-        newCharacterData.dodge = form.querySelector('#new-char-dodge-input').innerHTML;
-        newCharacterData.block = form.querySelector('#new-char-block-input').innerHTML;
+        characterData.name = form.querySelector('.char-name.input-value').value;
+        characterData.attack = form.querySelector('.char-attack.input-value').value;
+        characterData.difficulty = form.querySelector('.char-difficulty.input-value').value;
+        characterData.damage = form.querySelector('.char-damage.input-value').value;
+        characterData.defence = form.querySelector('.char-defence.input-value').value;
+        characterData.soak = form.querySelector('.char-soak.input-value').value;
+        characterData.dodge = form.querySelector('.char-dodge.input-value').value;
+        characterData.block = form.querySelector('.char-block.input-value').value;
 
-        app.wodCombatCharacters.currentCharacters.push(newCharacterData);
+        if (isNew) app.wodCombatCharacters.currentCharacters.push(characterData);
+
+        console.log((isNew ? `Added ${characterData.name}!` : `Edited ${characterData.name}!`));
     };
 
     app.refreshCombatModule = () => {
@@ -1699,7 +1724,11 @@
         let characterCardContainer = gizmo.querySelector('.character-card-container');
         let characterCardTemplate = gizmo.querySelector('.combat-char-card.template');
 
-        for (let char of app.wodCombatCharacters.currentCharacters) {
+        let generatedCards = gizmo.querySelectorAll('.generated.combat-char-card');
+
+        for (let dom of generatedCards) dom.parentElement.removeChild(dom);
+
+        for (let [i, char] of app.wodCombatCharacters.currentCharacters.entries()) {
             
             let newCharacterCard = characterCardTemplate.cloneNode(true);
 
@@ -1708,23 +1737,98 @@
 
             newCharacterCard.querySelector('.char-name > .value').innerHTML = char.name;
             newCharacterCard.querySelector('.char-attack > .value').innerHTML = char.attack;
-            newCharacterCard.querySelector('.char-diff > .value').innerHTML = char.diff;
-            newCharacterCard.querySelector('.char-dmg > .value').innerHTML = char.dmg;
-            newCharacterCard.querySelector('.char-def > .value').innerHTML = char.def;
+            newCharacterCard.querySelector('.char-difficulty > .value').innerHTML = char.difficulty;
+            newCharacterCard.querySelector('.char-damage > .value').innerHTML = char.damage;
+            newCharacterCard.querySelector('.char-defence > .value').innerHTML = char.defence;
             newCharacterCard.querySelector('.char-soak > .value').innerHTML = char.soak;
             newCharacterCard.querySelector('.char-dodge > .value').innerHTML = char.dodge;
             newCharacterCard.querySelector('.char-block > .value').innerHTML = char.block;
 
-            $(newCharacterCard.querySelector('.edit.btn')).on('click', () => {
+            $(newCharacterCard.querySelector('.char-name')).on('click', () => {
+                gizmo.querySelector('#combat-name-input').value = char.name;
+                $('.char-name').removeClass('active');
+                $(newCharacterCard.querySelector('.char-name')).addClass('active');
+            });
+            
+            $(newCharacterCard.querySelector('.char-attack')).on('click', () => {
+                gizmo.querySelector('#combat-attack-input').value = char.attack;
+                $('.char-attack').removeClass('active');
+                $(newCharacterCard.querySelector('.char-attack')).addClass('active');
+            });
 
+            $(newCharacterCard.querySelector('.char-difficulty')).on('click', () => {
+                gizmo.querySelector('#combat-attack-diff-input').value = char.difficulty;
+                $('.char-difficulty').removeClass('active');
+                $(newCharacterCard.querySelector('.char-difficulty')).addClass('active');
+            });
+
+            $(newCharacterCard.querySelector('.char-damage')).on('click', () => {
+                gizmo.querySelector('#combat-attack-dmg-input').value = char.damage;
+                $('.char-damage').removeClass('active');
+                $(newCharacterCard.querySelector('.char-damage')).addClass('active');
+            });
+
+            $(newCharacterCard.querySelector('.char-defence')).on('click', () => {
+                gizmo.querySelector('#combat-defence-input').value = char.defence;
+                $('.char-defence').removeClass('active');
+                $(newCharacterCard.querySelector('.char-defence')).addClass('active');
+            });
+
+            $(newCharacterCard.querySelector('.char-soak')).on('click', () => {
+                gizmo.querySelector('#combat-soak-input').value = char.soak;
+                $('.char-soak').removeClass('active');
+                $(newCharacterCard.querySelector('.char-soak')).addClass('active');
+            });
+
+            $(newCharacterCard.querySelector('.char-dodge')).on('click', () => {
+                gizmo.querySelector('#combat-defender-pool-input').value = char.dodge;
+                $('.char-dodge').removeClass('active');
+                $('.char-block').removeClass('active');
+                $(newCharacterCard.querySelector('.char-dodge')).addClass('active');
+            });
+
+            $(newCharacterCard.querySelector('.char-block')).on('click', () => {
+                gizmo.querySelector('#combat-defender-pool-input').value = char.block;
+                $('.char-dodge').removeClass('active');
+                $('.char-block').removeClass('active');
+                $(newCharacterCard.querySelector('.char-block')).addClass('active');
             });
 
             $(newCharacterCard.querySelector('.edit.btn')).on('click', () => {
-                
+                $('.popup').addClass('active');
+                $('.form').hide();
+                $('.add-edit-character-form').show();
+                $('.gizmo').addClass('blurred');
+
+                let form = document.querySelector('.add-edit-character-form');
+
+                form.querySelector('.char-name.input-value').value = char.name;
+                form.querySelector('.char-attack.input-value').value = char.attack;
+                form.querySelector('.char-difficulty.input-value').value = char.difficulty;
+                form.querySelector('.char-damage.input-value').value = char.damage;
+                form.querySelector('.char-defence.input-value').value = char.defence;
+                form.querySelector('.char-soak.input-value').value = char.soak;
+                form.querySelector('.char-dodge.input-value').value = char.dodge;
+                form.querySelector('.char-block.input-value').value = char.block;
+
+                $(form.querySelector('.add-edit.form-submit')).off();
+                $(form.querySelector('.add-edit.form-submit')).on('click', () => {
+                    app.getCharacterFormData(false, char);
+                    app.refreshCombatModule();
+                    $('.close-popup-btn')[0].click();
+                });
+
             });
 
+            $(newCharacterCard.querySelector('.remove.btn')).on('click', () => {
+                app.confirmExecutionPopup(`Точно удалить эту карточку персонажа?`, () => {
+                    app.wodCombatCharacters.currentCharacters.splice(i, 1);
+                    app.refreshCombatModule();
+                });
+            });
+
+            characterCardContainer.appendChild(newCharacterCard);
         };
-
     };
 
     $(function() {
@@ -1738,15 +1842,14 @@
         app.components.separatorTemplate = document.querySelector('.separator.template');
 
         Object.keys(app.gizmoPatterns).forEach(key => {
-            app.fabricateButton(app.containers.btnPanel, app.gizmoPatterns[key].title, 'gizmo', app.gizmoPatterns[key].class, `${app.gizmoPatterns[key].class}-btn`);
+            app.fabricateButton(`${app.gizmoPatterns[key].class}-btn`, app.gizmoPatterns[key].title, 'gizmo', app.gizmoPatterns[key].class, null, app.containers.btnPanel);
         });
-
 
         {
             let container = document.querySelector(app.gizmoPatterns.treasureGen.btnPanel);
 
-            app.fabricateButton(container, 'Сгенерировать сокровища', '', '', 'gen-treasure');
-            app.fabricateButton(container, 'Показать настройки', '', '', 'gen-open-tweak');
+            app.fabricateButton('gen-treasure', 'Сгенерировать сокровища', null, null, null, container);
+            app.fabricateButton('gen-open-tweak', 'Показать настройки', null, null, null, container);
         };
         {
             let container = document.querySelector(app.gizmoPatterns.treasureGen.knobPanel);
@@ -1761,22 +1864,29 @@
 
         {
             let container = document.querySelector(app.gizmoPatterns.politicGen.btnPanel);
-            app.fabricateButton(container, 'Добавить Агента', '', '', 'politic-gen-add-new');
+            app.fabricateButton('politic-gen-add-new', 'Добавить Агента', null, null, null, container);
         };
 
         {
             let container = document.querySelector(app.gizmoPatterns.econMarketSim.btnPanel);
-            app.fabricateButton(container, 'Следующий раунд', '', '', 'econ-sim-next-round');
-            app.fabricateButton(container, 'Симулировать 100 раундов', '', '', 'econ-sim-100-rounds');
-            app.fabricateButton(container, 'Показать историю действий игрока', '', '', 'econ-sim-toggle-player-log');
+            app.fabricateButton('econ-sim-next-round', 'Следующий раунд', null, null, null, container);
+            app.fabricateButton('econ-sim-100-rounds', 'Симулировать 100 раундов', null, null, null, container);
+            app.fabricateButton('econ-sim-toggle-player-log', 'Показать историю действий игрока', null, null, null, container);
         };
 
         {
             let container = document.querySelector(app.gizmoPatterns.wodCombatHouserule.btnPanel);
-            app.fabricateButton(container, 'Посчитать инициативу', '', '', 'combat-calc-init');
-            app.fabricateButton(container, 'Посчитать атаку', '', '', 'combat-calc-attack');
-            app.fabricateButton(container, 'Отделить раунд', '', '', 'combat-add-separator');
-            app.fabricateButton(container, 'Показать настройки', '', '', 'combat-open-tweak');
+            app.fabricateButton('combat-calc-init', 'Посчитать инициативу', null, null, null, container);
+            app.fabricateButton('combat-calc-attack', 'Посчитать атаку', null, null, null, container);
+            app.fabricateButton('combat-add-separator', 'Отделить раунд', null, null, null, container);
+            app.fabricateButton('combat-open-tweak', 'Показать настройки', null, null, null, container);
+            app.fabricateButton('combat-save-data', 'Сохранить данные', 'function', null, () => {
+                window.localStorage.wodCombatCharacters = JSON.stringify(app.wodCombatCharacters);
+            }, container);
+            app.fabricateButton('combat-load-data', 'Загрузить данные', 'function', null, () => {
+                app.wodCombatCharacters = JSON.parse(window.localStorage.wodCombatCharacters);
+                app.refreshCombatModule();
+            }, container);
         };
         {
             let container = document.querySelector(app.gizmoPatterns.wodCombatHouserule.knobPanel);
@@ -1816,6 +1926,10 @@
                 $('.gizmo').hide();
                 $(app.components.btnClose).hide();
             }, app.parameters.animationDelay);
+        });
+
+        $('.cancel.form-submit.btn').on('click', () => {
+            $('.close-popup-btn')[0].click();
         });
 
         $('.gen-treasure.btn').on('click', () => {
@@ -1861,11 +1975,22 @@
         $('.add-new-character.btn').on('click', () => {
             $('.popup').addClass('active');
             $('.form').hide();
-            $('.add-new-character-form').show();
+            $('.add-edit-character-form').show();
             $('.gizmo').addClass('blurred');
+
+            let form = document.querySelector('.add-edit-character-form');
+
+            form.querySelector('.form-submit').focus();
+
+            $(form.querySelector('.add-edit.form-submit')).off();
+            $(form.querySelector('.add-edit.form-submit')).on('click', () => {
+                app.getCharacterFormData(true, JSON.parse(JSON.stringify(app.wodCombatCharacters.defaultCharacter)));
+                app.refreshCombatModule();
+                $('.close-popup-btn')[0].click();
+            });
         });
 
-        $('.close-add-new-form.close-popup-btn').on('click', () => {
+        $('.close-popup-btn').on('click', () => {
             $('.popup').removeClass('active');
             $('.form').hide();
             $('.gizmo').removeClass('blurred');

@@ -23,30 +23,24 @@
     </div>
     <button class="close-btn"><i class="fa fa-long-arrow-left"></i></button>
     <div class="flex align-i-center jc-center popup">
-      <div class="flex row align-i-center mrg-1em form add-new-character-form card">
-        <button class="close-add-new-form close-popup-btn"><i class="fa-solid fa-x"></i></button>
-        <label for="new-char-name-input">   Имя:</label>            <input id="new-char-name-input"   type="text" class="input-value w-4em" value=1>
-        <label for="new-char-attack-input"> Пул атаки:</label>      <input id="new-char-attack-input" type="text" class="input-value w-4em" value=1>
-        <label for="new-char-diff-input">   Сложность:</label>      <input id="new-char-diff-input"   type="text" class="input-value w-4em" value=6>
-        <label for="new-char-dmg-input">    Урон:</label>           <input id="new-char-dmg-input"    type="text" class="input-value w-4em" value=1>
-        <label for="new-char-def-input">    Защита:</label>         <input id="new-char-def-input"    type="text" class="input-value w-4em" value=0>
-        <label for="new-char-soak-input">   Поглощение:</label>     <input id="new-char-soak-input"   type="text" class="input-value w-4em" value=0>
-        <label for="new-char-dodge-input">  Пул Уклонения:</label>  <input id="new-char-dodge-input"  type="text" class="input-value w-4em" value=0>
-        <label for="new-char-block-input">  Пул Блока:</label>      <input id="new-char-block-input"  type="text" class="input-value w-4em" value=0>
-        <button class="add-new-character-form-submit btn">Сохранить</button>
+      <div class="flex col align-i-center mrg-1em form confirm-form card">
+        <p class="confirmation-text"></p>
+        <div class="flex row">
+          <button class="cancel form-submit btn">Отменить</button>
+          <button class="confirm form-submit btn">Подтвердить</button>
+        </div>
       </div>
-
-      <div class="flex row align-i-center mrg-1em form edit-character-form card">
-        <button class="close-edit-form close-popup-btn"><i class="fa-solid fa-x"></i></button>
-        <label for="char-name-input">   Имя:</label>           <input id="char-name-input"   type="text" class="input-value w-4em" value=1>
-        <label for="char-attack-input"> Пул атаки:</label>     <input id="char-attack-input" type="text" class="input-value w-4em" value=1>
-        <label for="char-diff-input">   Сложность:</label>     <input id="char-diff-input"   type="text" class="input-value w-4em" value=6>
-        <label for="char-dmg-input">    Урон:</label>          <input id="char-dmg-input"    type="text" class="input-value w-4em" value=1>
-        <label for="char-def-input">    Защита:</label>        <input id="char-def-input"    type="text" class="input-value w-4em" value=0>
-        <label for="char-soak-input">   Поглощение:</label>    <input id="char-soak-input"   type="text" class="input-value w-4em" value=0>
-        <label for="char-dodge-input">  Пул Уклонения:</label> <input id="char-dodge-input"  type="text" class="input-value w-4em" value=0>
-        <label for="char-block-input">  Пул Блока:</label>     <input id="char-block-input"  type="text" class="input-value w-4em" value=0>
-        <button class="edit-character-form-submit btn">Сохранить</button>
+      <div class="flex row align-i-center mrg-1em form add-edit-character-form card">
+        <button class="close-add-edit-form close-popup-btn"><i class="fa-solid fa-x"></i></button>
+        <label>Имя:          <input type="text" class="char-name input-value w-8em"       value="Персонаж"></label>
+        <label>Пул атаки:    <input type="text" class="char-attack input-value w-4em"     value=1>         </label>
+        <label>Сложность:    <input type="text" class="char-difficulty input-value w-4em" value=6>         </label>
+        <label>Урон:         <input type="text" class="char-damage input-value w-4em"     value=1>         </label>
+        <label>Защита:       <input type="text" class="char-defence input-value w-4em"    value=0>         </label>
+        <label>Поглощение:   <input type="text" class="char-soak input-value w-4em"       value=0>         </label>
+        <label>Пул Уклонения:<input type="text" class="char-dodge input-value w-4em"      value=0>         </label>
+        <label>Пул Блока:    <input type="text" class="char-block input-value w-4em"      value=0>         </label>
+        <button class="add-edit form-submit btn">Сохранить</button>
       </div>
     </div>
     <div class="gizmo treasure-gen">
@@ -198,20 +192,20 @@
         </div>
         <div class="flex row align-i-center mrg-1em character-card-container">
           <button title="Добавить" class="add-new-character btn"><i class="fa-solid fa-plus"></i></button>
-          <div class="flex col no-wrap mrg-1em combat-char-card card">
+          <div class="flex col no-wrap mrg-1em combat-char-card template card">
             <div class="char-name flex row jc-space-betw char-param">
               <span class="label">Имя</span><span class="value">Персонаж</span>
             </div>
             <div class="char-attack flex row jc-space-betw char-param">
               <span class="label">Пул атаки</span>      <span class="value">1</span>
             </div>
-            <div class="char-diff flex row jc-space-betw char-param">
+            <div class="char-difficulty flex row jc-space-betw char-param">
               <span class="label">Сложность</span>      <span class="value">6</span>
             </div>
-            <div class="char-dmg flex row jc-space-betw char-param">
+            <div class="char-damage flex row jc-space-betw char-param">
               <span class="label">Урон</span>           <span class="value">1</span>
             </div>
-            <div class="char-def flex row jc-space-betw char-param">
+            <div class="char-defence flex row jc-space-betw char-param">
               <span class="label">Защита</span>         <span class="value">0</span>
             </div>
             <div class="char-soak flex row jc-space-betw char-param">
@@ -223,14 +217,16 @@
             <div class="char-block flex row jc-space-betw char-param">
               <span class="label">Пул Блока</span>      <span class="value">0</span>
             </div>
-            <button title="Изменить" class="edit compact btn">  <i class="fa-solid fa-file-pen"></i> </button>
-            <button title="Удалить"  class="remove compact btn"><i class="fa-solid fa-trash-can"></i></button>
+            <div class="flex row jc-space-ar">
+              <button title="Изменить" class="edit btn">  <i class="fa-solid fa-file-pen"> </i></button>
+              <button title="Удалить"  class="remove btn"><i class="fa-solid fa-trash-can"></i></button>
+            </div>
           </div>
         </div>
         <div class="flex row align-i-center no-wrap mrg-1em combat-params-panel">
-          <label for="combat-attack-input">       Кубы атаки:</label>     <input id="combat-attack-input"        type="text" class="input-value w-4em" value=1>
-          <label for="combat-attack-diff-input">  Сложность атаки:</label><input id="combat-attack-diff-input"   type="text" class="input-value w-2em" value=6>
-          <label for="combat-attack-dmg-input">   Урон атаки:</label>     <input id="combat-attack-dmg-input"    type="text" class="input-value w-2em" value=1>
+          <label for="combat-attack-input">       Пул атаки:</label>     <input id="combat-attack-input"        type="text" class="input-value w-4em" value=1>
+          <label for="combat-attack-diff-input">  Сложность:</label><input id="combat-attack-diff-input"   type="text" class="input-value w-2em" value=6>
+          <label for="combat-attack-dmg-input">   Урон:</label>     <input id="combat-attack-dmg-input"    type="text" class="input-value w-2em" value=1>
           <label for="combat-defence-input">      Защита цели:</label>    <input id="combat-defence-input"       type="text" class="input-value w-2em" value=0>
           <label for="combat-soak-input">         Поглощение цели:</label><input id="combat-soak-input"          type="text" class="input-value w-2em" value=0>
           <label for="combat-defender-action">    Защитник:</label> <select id="combat-defender-action">
@@ -238,7 +234,7 @@
             <option value="dodge">Уклоняется</option>
             <option value="block">Блокирует</option>
           </select>
-          <label for="combat-defender-pool-input">Кубы защиты:</label>    <input id="combat-defender-pool-input" type="text" class="input-value w-4em" value="" disabled>
+          <label for="combat-defender-pool-input">Пул маневра:</label>    <input id="combat-defender-pool-input" type="text" class="input-value w-4em" value="" disabled>
           <label for="combat-attack-descr-input"> Описание атаки:</label> <input id="combat-attack-descr-input"  type="text" class="input-value min-w-20em" placeholder="Краткое описание атаки для идентификации">
         </div>
         <div class="flex row align-i-center combat-btn-panel">

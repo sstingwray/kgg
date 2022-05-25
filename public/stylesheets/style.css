@@ -653,6 +653,9 @@ table.table-100-w {
       background-color: var(--accent-opaq-light);
       box-shadow: var(--shadow-heavy), var(--shadow-light), var(--accent-opaq-light);
     }
+    .char-param.active {
+      background-color: var(--accent-opaq-light);
+    }
 
 .flex {
   display: flex;
