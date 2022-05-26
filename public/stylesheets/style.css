@@ -294,6 +294,11 @@ span.label {
     padding: 0.5em;
     margin: 0;
   }
+  .btn.icon {
+    font-size: 0.8em;
+    padding: 0.8em;
+    margin: 0.2em;
+  }
   .btn:hover {
     cursor: pointer;
     background-color: var(--accent-opaq-light);
