@@ -17,11 +17,9 @@
     <div class="spinner-container flex jc-center align-i-center"><div class="lds-ring"><div></div><div></div><div></div><div></div></div></div>
     <div class="flex row header bg-alt">
       <button class="logo" tabindex="1"><span class="kstr">Kostroun.</span><span class="gg">gg</span></button>
-      <div class="flex col align-i-center mrg-1em">
-        <h2>Сообщество для любителей настольных, ролевых и видео- игр</h2>
-      </div>
     </div>
     <button class="close-btn"><i class="fa fa-long-arrow-left"></i></button>
+    <div class="flex col no-wrap notification-panel"></div>
     <div class="flex align-i-center jc-center popup">
       <div class="flex col align-i-center mrg-1em form confirm-form card">
         <p class="confirmation-text"></p>
@@ -30,16 +28,16 @@
           <button class="confirm form-submit btn">Подтвердить</button>
         </div>
       </div>
-      <div class="flex row align-i-center mrg-1em form add-edit-character-form card">
+      <div class="flex row wrap align-i-center mrg-1em form add-edit-character-form card">
         <button class="close-add-edit-form close-popup-btn"><i class="fa-solid fa-x"></i></button>
-        <label>Имя:          <input type="text" class="char-name input-value w-8em"       value="Персонаж"></label>
-        <label>Пул атаки:    <input type="text" class="char-attack input-value w-4em"     value=1>         </label>
-        <label>Сложность:    <input type="text" class="char-difficulty input-value w-4em" value=6>         </label>
-        <label>Урон:         <input type="text" class="char-damage input-value w-4em"     value=1>         </label>
-        <label>Защита:       <input type="text" class="char-defence input-value w-4em"    value=0>         </label>
-        <label>Поглощение:   <input type="text" class="char-soak input-value w-4em"       value=0>         </label>
-        <label>Пул Уклонения:<input type="text" class="char-dodge input-value w-4em"      value=0>         </label>
-        <label>Пул Блока:    <input type="text" class="char-block input-value w-4em"      value=0>         </label>
+        <label class="mrg-1em">Имя:          <input type="text" class="char-name input-value w-8em"       value="Персонаж"></label>
+        <label class="mrg-1em">Пул атаки:    <input type="text" class="char-attack input-value w-4em"     value=1>         </label>
+        <label class="mrg-1em">Сложность:    <input type="text" class="char-difficulty input-value w-4em" value=6>         </label>
+        <label class="mrg-1em">Урон:         <input type="text" class="char-damage input-value w-4em"     value=1>         </label>
+        <label class="mrg-1em">Защита:       <input type="text" class="char-defence input-value w-4em"    value=0>         </label>
+        <label class="mrg-1em">Поглощение:   <input type="text" class="char-soak input-value w-4em"       value=0>         </label>
+        <label class="mrg-1em">Пул Уклонения:<input type="text" class="char-dodge input-value w-4em"      value=0>         </label>
+        <label class="mrg-1em">Пул Блока:    <input type="text" class="char-block input-value w-4em"      value=0>         </label>
         <button class="add-edit form-submit btn">Сохранить</button>
       </div>
     </div>
@@ -88,43 +86,38 @@
       <h3 class="title">Генератор политического компаса</h3>
       <small>Быстро делайте простые и понятные политические графики с основными действующими лицами</small> <br>
       <div class="body">
-        <div class="flex row wrap align-i-start">
-          <div class="flex col max-w-60 min-w-30">
-            <div class="flex align-i-center wrap mrg-1em politic-btn-panel">
-            </div>
-            <div class="flex">
-              <table class=" table-100-w politic-gen-agents">
-                <tbody>
-                  <tr>
-                    <th>Имя</th>
-                    <th>Тэг [XXXX]</th>
-                    <th>Цвет</th>
-                    <th>Традиции-Прогресс</th>
-                    <th>Свобода-Контроль</th>
-                    <th></th>
-                  </tr>
-                  <tr class="politic-gen-agent template">
-                    <td class="name"><input type="text" class="input-value"></td>
-                    <td class="tag"><input type="text" class="input-value"></td>
-                    <td class="color">
-                      <select>
-                        <option selected="selected" value="#F1F4F4">Белый</option>
-                        <option value="#933232">Красный   </option>
-                        <option value="#329393">Изумрудный</option>
-                        <option value="#BFB340">Желтый    </option>
-                        <option value="#43A63F">Зеленый   </option>
-                        <option value="#336394">Синий     </option>
-                      </select>
-                    </td>
-                    <td class="trad-prog"><input   type="text" class="input-value"></td>
-                    <td class="contr-freed"><input type="text" class="input-value"></td>
-                    <td><button title="Удалить запись из таблицы" class="remove btn"><i class="fa-solid fa-trash-can"></i></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
+        <div class="flex col wrap align-i-start">
           <div class="flex mrg-1em politic-gen-graph"><canvas class="politic-canvas back" id="politicCanvas"></canvas><canvas class="politic-canvas front" id="politicCanvas"></canvas></div>
+          <div class="flex align-i-center wrap mrg-1em politic-btn-panel"></div>
+          <table class="mgr-1em politic-gen-agents">
+            <tbody>
+              <tr>
+                <th>Имя</th>
+                <th>Тэг [XXXX]</th>
+                <th>Цвет</th>
+                <th>Прогресс-Традиции</th>
+                <th>Свобода-Контроль</th>
+                <th></th>
+              </tr>
+              <tr class="politic-gen-agent template">
+                <td class="name"><input type="text" class="input-value"></td>
+                <td class="tag"><input type="text" class="input-value"></td>
+                <td class="color">
+                  <select>
+                    <option selected="selected" value="#F1F4F4">Белый</option>
+                    <option value="#933232">Красный   </option>
+                    <option value="#329393">Изумрудный</option>
+                    <option value="#BFB340">Желтый    </option>
+                    <option value="#43A63F">Зеленый   </option>
+                    <option value="#336394">Синий     </option>
+                  </select>
+                </td>
+                <td class="trad-prog"><input   type="text" class="input-value"></td>
+                <td class="contr-freed"><input type="text" class="input-value"></td>
+                <td><button title="Удалить запись из таблицы" class="remove btn"><i class="fa-solid fa-trash-can"></i></td>
+              </tr>
+            </tbody>
+          </table>          
         </div>
       </div>
     </div>
@@ -224,18 +217,18 @@
           </div>
         </div>
         <div class="flex row align-i-center no-wrap mrg-1em combat-params-panel">
-          <label for="combat-attack-input">       Пул атаки:</label>     <input id="combat-attack-input"        type="text" class="input-value w-4em" value=1>
-          <label for="combat-attack-diff-input">  Сложность:</label><input id="combat-attack-diff-input"   type="text" class="input-value w-2em" value=6>
-          <label for="combat-attack-dmg-input">   Урон:</label>     <input id="combat-attack-dmg-input"    type="text" class="input-value w-2em" value=1>
-          <label for="combat-defence-input">      Защита цели:</label>    <input id="combat-defence-input"       type="text" class="input-value w-2em" value=0>
-          <label for="combat-soak-input">         Поглощение цели:</label><input id="combat-soak-input"          type="text" class="input-value w-2em" value=0>
-          <label for="combat-defender-action">    Защитник:</label> <select id="combat-defender-action">
+          <label class="mrg-1em" for="combat-attack-input">       Пул атаки:</label>     <input id="combat-attack-input"        type="text" class="input-value w-4em" value=1>
+          <label class="mrg-1em" for="combat-attack-diff-input">  Сложность:</label><input id="combat-attack-diff-input"   type="text" class="input-value w-2em" value=6>
+          <label class="mrg-1em" for="combat-attack-dmg-input">   Урон:</label>     <input id="combat-attack-dmg-input"    type="text" class="input-value w-2em" value=1>
+          <label class="mrg-1em" for="combat-defence-input">      Защита цели:</label>    <input id="combat-defence-input"       type="text" class="input-value w-2em" value=0>
+          <label class="mrg-1em" for="combat-soak-input">         Поглощение цели:</label><input id="combat-soak-input"          type="text" class="input-value w-2em" value=0>
+          <label class="mrg-1em" for="combat-defender-action">    Защитник:</label> <select id="combat-defender-action">
             <option selected="selected" value="none">Не защищается</option>
             <option value="dodge">Уклоняется</option>
             <option value="block">Блокирует</option>
           </select>
-          <label for="combat-defender-pool-input">Пул маневра:</label>    <input id="combat-defender-pool-input" type="text" class="input-value w-4em" value="" disabled>
-          <label for="combat-attack-descr-input"> Описание атаки:</label> <input id="combat-attack-descr-input"  type="text" class="input-value min-w-20em" placeholder="Краткое описание атаки для идентификации">
+          <label class="mrg-1em" for="combat-defender-pool-input">Пул маневра:</label>    <input id="combat-defender-pool-input" type="text" class="input-value w-4em" value="" disabled>
+          <label class="mrg-1em" for="combat-attack-descr-input"> Описание атаки:</label> <input id="combat-attack-descr-input"  type="text" class="input-value min-w-20em" placeholder="Краткое описание атаки для идентификации">
         </div>
         <div class="flex row align-i-center combat-btn-panel">
         </div>
@@ -268,6 +261,9 @@
       </div>
     </div>
     <div class="landing-page-content">
+      <div class="flex col align-i-left mrg-1em brd-rad-1em">
+        <h2>Сообщество для любителей настольных, ролевых и видео- игр</h2>
+      </div>
       <div class="flex row wrap gizmos-panel bg-alt mrg-1em brd-rad-1em">
         <div class="flex col align-i-center jc-center mrg-1em">
           <small>Наши инструменты:</small>
@@ -289,6 +285,7 @@
       </div>
       <div class="flex row align-i-center mrg-01em switch-btn template"><p class="label"></p><div class="switch-container"><label class="switch"><input type="checkbox"><div class="slider"></div></label></div></div>
       <div class="separator template"></div>
+      <div class="flex bg-alt mrg-1em notification template"><p class="mrg-1em notification-text"></p></div>
     </div>
     <div class="flex row wrap jc-space-ar footer bg-main">
       Kostroun.gg © 2022

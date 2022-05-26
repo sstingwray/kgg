@@ -72,9 +72,21 @@
             switchTemplate: {},
             gizmoTemplate: {},
             separatorTemplate: {},
+            notificationTemplate: {},
         },
         containers: {
-            gizmoBtnPanel: {}
+            gizmoBtnPanel: {},
+            notificationPanel: {},
+        },
+        politicGenAgents: {
+            defaultAgent: {
+                name: 'Агент',
+                tag: 'ABCD',
+                color: '#F1F4F4',
+                traditionProgress: 0.5,
+                controlFreedom: 0.5
+            },
+            currentAgents: []
         },
         marketEconSimModule: {
             defaultAgent: {
@@ -422,6 +434,46 @@
             toDoFunction();
             $('.close-popup-btn')[0].click();
         });
+    };
+
+    app.showNotificationToast = (text, type = '') => {
+        let newNotification = app.components.notificationTemplate.cloneNode(true);
+
+        newNotification.classList.add('generated');
+        newNotification.classList.remove ('template');
+
+        switch (type) {
+            case 'positive':
+                newNotification.classList.add('positive');
+                break;
+            case 'negative':
+                newNotification.classList.add('negative');
+                break;
+            default:
+                break;
+        };
+
+        newNotification.querySelector('.notification-text').innerHTML = text;
+
+        $(newNotification).on('click', () => {
+            newNotification.classList.add('fading');
+            setTimeout(() => {
+                newNotification.remove();
+                if (!app.containers.notificationPanel.firstChild) $(app.containers.notificationPanel).hide();
+            }, app.parameters.animationDelay);
+        });
+
+        setTimeout(() => {
+            newNotification.classList.add('fading');
+            setTimeout(() => {
+                newNotification.remove();
+                if (!app.containers.notificationPanel.firstChild) $(app.containers.notificationPanel).hide();
+            }, app.parameters.animationDelay);
+        }, 10*app.parameters.animationDelay);
+
+        $(app.containers.notificationPanel).show();
+
+        app.containers.notificationPanel.prepend(newNotification);
     };
 
     //TREASUREGEN
@@ -812,34 +864,69 @@
     };
 
     //POLCOMPASS
-    app.fabricatePoliticalAgent = () => {
+    app.generatePoliticAgent = () => {
+        let newPoliticAgent = JSON.parse(JSON.stringify(app.politicGenAgents.defaultAgent));
+
+        newPoliticAgent.traditionProgress = round(Math.random(), 2);
+        newPoliticAgent.controlFreedom = round(Math.random(), 2);
+
+        app.politicGenAgents.currentAgents.push(newPoliticAgent);
+    };
+
+    app.refreshPoliticTable = () => {
         let gizmo = document.querySelector('.gizmo.politic-gen');
         let agentsContainer = gizmo.querySelector('table.politic-gen-agents > tbody');
         let agentRowTemplate = gizmo.querySelector('.politic-gen-agent.template');
-        let newAgentRow = agentRowTemplate.cloneNode(true);
 
-        newAgentRow.classList.add('generated');
-        newAgentRow.classList.remove ('template');
+        let generatedDOMs = gizmo.querySelectorAll('.politic-gen-agent.generated');
 
-        newAgentRow.querySelector('td.tag > input').value = 'ABCD';
-        newAgentRow.querySelector('td.trad-prog > input').value = round(Math.random(), 2);
-        newAgentRow.querySelector('td.contr-freed > input').value = round(Math.random(), 2);
+        for (let dom of generatedDOMs) dom.parentElement.removeChild(dom);
 
-        $(newAgentRow.querySelectorAll('td > input')).on('change', () => {
-            app.drawPoliticCanvas();
-        });
+        for (let [i, agent] of app.politicGenAgents.currentAgents.entries()) {
+            let newAgentRow = agentRowTemplate.cloneNode(true);
 
-        $(newAgentRow.querySelector('td > select')).on('change', (event) => {
-            event.currentTarget.value = $("option:selected", event.currentTarget).val();
-            app.drawPoliticCanvas();
-        });
+            newAgentRow.classList.add('generated');
+            newAgentRow.classList.remove ('template');
 
-        $(newAgentRow.querySelector('td > .remove')).on('click', (event) => {
-            $(event.currentTarget).closest('tr').remove();
-            app.drawPoliticCanvas();
-        });
+            newAgentRow.querySelector('td.name > input').value = agent.name;
+            newAgentRow.querySelector('td.tag > input').value = agent.tag;
+            newAgentRow.querySelector('td.color > select').value = agent.color;
+            newAgentRow.querySelector('td.trad-prog > input').value = agent.traditionProgress;
+            newAgentRow.querySelector('td.contr-freed > input').value = agent.controlFreedom;
 
-        agentsContainer.appendChild(newAgentRow);
+            $(newAgentRow.querySelectorAll('td.name > input')).on('change', (event) => {
+                agent.name = $(event.currentTarget).val();
+                app.refreshPoliticTable();
+            });
+
+            $(newAgentRow.querySelectorAll('td.tag > input')).on('change', (event) => {
+                agent.tag = $(event.currentTarget).val();
+                app.refreshPoliticTable();
+            });
+
+            $(newAgentRow.querySelector('td > select')).on('change', (event) => {
+                agent.color = $("option:selected", event.currentTarget).val();
+                app.refreshPoliticTable();
+            });
+
+            $(newAgentRow.querySelectorAll('td.trad-prog > input')).on('change', (event) => {
+                agent.traditionProgress = $(event.currentTarget).val();
+                app.refreshPoliticTable();
+            });
+
+            $(newAgentRow.querySelectorAll('td.contr-freed > input')).on('change', (event) => {
+                agent.controlFreedom = $(event.currentTarget).val();
+                app.refreshPoliticTable();
+            });
+
+            $(newAgentRow.querySelector('td > .remove')).on('click', (event) => {
+                app.politicGenAgents.currentAgents.splice(i, 1);
+                app.refreshPoliticTable();
+            });
+
+            agentsContainer.appendChild(newAgentRow);
+        }
+        
         app.drawPoliticCanvas();
     };
 
@@ -928,9 +1015,9 @@
 
             return new Promise ((resolve) => {
                 contextFront.strokeStyle = actor.querySelector('td.color > select').value;
-                contextFront.lineWidth = 8;
+                contextFront.lineWidth = 16;
                 contextFront.beginPath();
-                contextFront.arc(canvasWidth*x, canvasHeight*y, 20, 0, 2*Math.PI);
+                contextFront.arc(canvasWidth*x, canvasHeight*y, 16, 0, 2*Math.PI);
                 contextFront.stroke();
                 contextFront.fill();
                 resolve();
@@ -1811,6 +1898,8 @@
                 form.querySelector('.char-dodge.input-value').value = char.dodge;
                 form.querySelector('.char-block.input-value').value = char.block;
 
+                form.querySelector('.add-edit.form-submit').innerHTML = 'Сохранить';
+
                 $(form.querySelector('.add-edit.form-submit')).off();
                 $(form.querySelector('.add-edit.form-submit')).on('click', () => {
                     app.getCharacterFormData(false, char);
@@ -1833,6 +1922,7 @@
 
     $(function() {
         app.containers.btnPanel = document.querySelector('.gizmos-panel');
+        app.containers.notificationPanel = document.querySelector('.notification-panel');
 
         app.components.spinner = document.querySelector('.spinner-container');
         app.components.btnClose = document.querySelector('.close-btn');
@@ -1840,6 +1930,7 @@
         app.components.switchTemplate = document.querySelector('.switch-btn.template');
         app.components.gizmoTemplate = document.querySelector('.gizmo.template');
         app.components.separatorTemplate = document.querySelector('.separator.template');
+        app.components.notificationTemplate = document.querySelector('.notification.template');
 
         Object.keys(app.gizmoPatterns).forEach(key => {
             app.fabricateButton(`${app.gizmoPatterns[key].class}-btn`, app.gizmoPatterns[key].title, 'gizmo', app.gizmoPatterns[key].class, null, app.containers.btnPanel);
@@ -1865,6 +1956,21 @@
         {
             let container = document.querySelector(app.gizmoPatterns.politicGen.btnPanel);
             app.fabricateButton('politic-gen-add-new', 'Добавить Агента', null, null, null, container);
+            app.fabricateButton('politic-save-data', 'Сохранить данные', 'function', null, () => {
+                window.localStorage.politicGenAgents = JSON.stringify(app.politicGenAgents);
+                app.showNotificationToast('Политические агенты сохранены!', 'positive');
+            }, container, 'Использует локальную память браузера. Внимание, ее очистка для страницы приведет в потере данных!');
+            app.fabricateButton('politic-load-data', 'Загрузить данные', 'function', null, () => {
+                if (window.localStorage.politicGenAgents) {
+                    try {
+                        app.politicGenAgents = JSON.parse(window.localStorage.politicGenAgents);
+                        app.showNotificationToast('Политические агенты загружены!', 'positive');
+                    } catch (error) {
+                        app.showNotificationToast(`Ошибка загрузки политических агентов! ${error}`, 'negative');
+                    };
+                } else app.showNotificationToast('В памяти нет политических агентов!');
+                app.refreshPoliticTable();
+            }, container, 'Использует локальную память браузера. Внимание, ее очистка для страницы приведет в потере данных!');
         };
 
         {
@@ -1882,11 +1988,19 @@
             app.fabricateButton('combat-open-tweak', 'Показать настройки', null, null, null, container);
             app.fabricateButton('combat-save-data', 'Сохранить данные', 'function', null, () => {
                 window.localStorage.wodCombatCharacters = JSON.stringify(app.wodCombatCharacters);
-            }, container);
+                app.showNotificationToast('Персонажи сохранены!', 'positive');
+            }, container, 'Использует локальную память браузера. Внимание, ее очистка для страницы приведет в потере данных!');
             app.fabricateButton('combat-load-data', 'Загрузить данные', 'function', null, () => {
-                app.wodCombatCharacters = JSON.parse(window.localStorage.wodCombatCharacters);
+                if (window.localStorage.wodCombatCharacters) {
+                    try {
+                        app.wodCombatCharacters = JSON.parse(window.localStorage.wodCombatCharacters);
+                        app.showNotificationToast('Персонажи загружены!', 'positive');
+                    } catch (error) {
+                        app.showNotificationToast(`Ошибка загрузки персонажей! ${error}`, 'negative');
+                    };
+                } else app.showNotificationToast('В памяти нет персонажей!');
                 app.refreshCombatModule();
-            }, container);
+            }, container, 'Использует локальную память браузера. Внимание, ее очистка для страницы приведет в потере данных!');
         };
         {
             let container = document.querySelector(app.gizmoPatterns.wodCombatHouserule.knobPanel);
@@ -1895,9 +2009,9 @@
             app.fabricateSwitch(container, 'Специализация в блоке', 'combat-block-spec', true, '10-ки на броске блока считаются за два успеха');
             app.fabricateSwitch(container, '1-цы отнимают успехи', 'combat-botch', true, '1-цы на бросках вычитают один успех из броска');
         };
-        
-        app.fabricatePoliticalAgent();
-        app.drawPoliticCanvas();
+
+        $('.politic-load-data')[0].click();
+        app.refreshPoliticTable();
 
         app.fabricateNewEconAgent('bank');
         app.fabricateNewEconAgent('player');
@@ -1905,12 +2019,15 @@
             app.fabricateNewEconAgent();
         };
         app.refreshMarketModule();
+
+        $('.combat-load-data')[0].click();
+        app.refreshCombatModule();
         
         $(app.components.spinner).hide();
         $(app.components.btnClose).hide();
         $(app.components.btnClose).removeClass('active');
         $('.gizmo').hide();
-        $('.gizmo').removeClass('active');    
+        $('.gizmo').removeClass('active');
 
         $('.logo').on('click', () => {
             window.location.href="/";
@@ -1942,7 +2059,8 @@
         });
 
         $('.politic-gen-add-new.btn').on('click', () => {
-            app.fabricatePoliticalAgent();
+            app.generatePoliticAgent();
+            app.refreshPoliticTable();
         });
 
         $('.econ-sim-next-round.btn').on('click', () => {
@@ -1981,6 +2099,8 @@
             let form = document.querySelector('.add-edit-character-form');
 
             form.querySelector('.form-submit').focus();
+
+            form.querySelector('.add-edit.form-submit').innerHTML = 'Добавить';
 
             $(form.querySelector('.add-edit.form-submit')).off();
             $(form.querySelector('.add-edit.form-submit')).on('click', () => {
