@@ -42,51 +42,28 @@
         gizmoPatterns: {
             treasureGen: {
                 title:'Генератор Фэнтези Сокровищ',
-                btnCaller: 'treasureGen',
                 class: 'treasure-gen',
+                btnPanel: '.treasure-btn-panel',
+                knobPanel: '.treasure-knob-panel',
             },
             politicGen: {
                 title:'Генератор политического компаса',
-                btnCaller: 'politicGen',
                 class: 'politic-gen',
+                btnPanel: '.politic-btn-panel',
+                knobPanel: '',
             },
             econMarketSim: {
                 title: 'Симулятор Рыночной Экономики',
-                btnCaller: 'econMarketSim',
-                class: 'market-econ-sim'
+                class: 'econ-sim',
+                btnPanel: '.econ-btn-panel',
+                knobPanel: '',
             },
-            vtmCombatHouserule: {
-                title: 'Калькулятор боевки для WoD V20 KGG™ Edition',
-                btnCaller: 'vtmCombatHouserule',
-                class: 'vtm-combat-houserule'
+            wodCombatHouserule: {
+                title: 'Калькулятор боевки для WoD 20th KGG™ Edition',
+                class: 'wod-combat-houserule',
+                btnPanel: '.combat-btn-panel',
+                knobPanel: '.combat-knob-panel',
             }
-        },
-        btnPatterns: {
-            treasureGen: {
-                title: 'Генератор Фэнтези Сокровищ',
-                type: 'gizmo',
-                destination: 'treasureGen'
-            },
-            /*nuAvalon: {
-                title: '[WIP] Экономика Ню-Авалона',
-                type: 'link',
-                destination: './nu-avalon'
-            },*/
-            politicGen: {
-                title: 'Генератор политического компаса',
-                type: 'gizmo',
-                destination: 'politicGen'
-            },
-            econMarketSim: {
-                title: 'Симулятор Рыночной Экономики',
-                type: 'gizmo',
-                destination: 'econMarketSim'
-            },
-            vtmCombatHouserule: {
-                title: 'Калькулятор боевки для WoD V20 KGG™ Edition',
-                type: 'gizmo',
-                destination: 'vtmCombatHouserule'
-            },
         },
         components: {
             spinner: {},
@@ -95,11 +72,21 @@
             switchTemplate: {},
             gizmoTemplate: {},
             separatorTemplate: {},
+            notificationTemplate: {},
         },
         containers: {
-            btnPanel: {},
-            treasureKnobsPanel: {},
-            combatKnobsPanel: {}
+            gizmoBtnPanel: {},
+            notificationPanel: {},
+        },
+        politicGenAgents: {
+            defaultAgent: {
+                name: 'Агент',
+                tag: 'ABCD',
+                color: '#F1F4F4',
+                traditionProgress: 0.5,
+                controlFreedom: 0.5
+            },
+            currentAgents: []
         },
         marketEconSimModule: {
             defaultAgent: {
@@ -352,40 +339,60 @@
                     baseCost: 0,
                 },
             }
-        }
+        },
+        wodCombatCharacters: {
+            defaultCharacter: {
+                name: 'Персонаж',
+                attack: 0,
+                difficulty: 6,
+                damage: 1,
+                defence: 0,
+                soak: 0,
+                dodge: 0,
+                block: 0,
+            },
+            currentCharacters: []
+        },
+    };
 
-    }
-
-    app.fabricateButton = (btnPattern) => {
+    app.fabricateButton = (btnClass, labelText, type, target, toDoFunction, container, hintText = '') => {
         let newBtn = app.components.btnTemplate.cloneNode(true);
 
         newBtn.classList.add('generated');
+        newBtn.classList.add(btnClass);
+        newBtn.classList.add('btn');
         newBtn.classList.remove ('template');
 
-        newBtn.innerHTML = btnPattern.title;
+        newBtn.innerHTML = labelText;
+        newBtn.title = hintText;
 
-        switch (btnPattern.type) {
+        switch (type) {
             case 'gizmo':
                 $(newBtn).on('click', () => {
-                    $('.gizmo.' + app.gizmoPatterns[btnPattern.destination].class).show();
-                    $('.gizmo.' + app.gizmoPatterns[btnPattern.destination].class).addClass('active');
+                    $(`.gizmo.${target}`).show();
+                    $(`.gizmo.${target}`).addClass('active');
+                    $(`.landing-page-content`).addClass('hidden');
                     $(app.components.btnClose).show();
                     $(app.components.btnClose).addClass('active');
-                    $('.main-content-block').addClass('blurred');
+                    $('.landing-page-content').addClass('blurred');
                     $('body').addClass('locked');
                 });
                 break;
             case 'link':
                 $(newBtn).on('click', () => {
-                    window.open(btnPattern.destination, '_blank');
+                    window.open(btnPattern.target, '_blank');
+                });
+                break;
+        case 'function':
+                $(newBtn).on('click', () => {
+                    toDoFunction();
                 });
                 break;
             default:
 
                 break;
         }
-        app.containers.btnPanel.appendChild(newBtn);
-
+        container.appendChild(newBtn);
     };
 
     app.fabricateSwitch = (container, labelText, checkboxClass, checked = true, hintText = '') => {
@@ -399,18 +406,6 @@
         newSwitch.querySelector('input').checked = checked;
 
         container.appendChild(newSwitch);
-    }
-
-    app.fabricateGizmo = (gizmoPattern) => {
-        let newGizmo = app.components.gizmoTemplate.cloneNode(true);
-
-        newGizmo.classList.add('generated ' && gizmoPattern.class);
-        newGizmo.classList.remove ('template');
-
-        newGizmo.querySelector('.title').innerHTML = gizmoPattern.title;
-        app.fabricateButton(app.btnPatterns[gizmoPattern.btnCaller]);
-        $(newGizmo).hide();
-        document.body.appendChild(newGizmo);
     };
 
     app.addSeparator = (container) => {
@@ -420,6 +415,65 @@
         newSeparator.classList.remove ('template');
 
         container.prepend(newSeparator);
+    };
+    
+    app.confirmExecutionPopup = (confirmationText, toDoFunction) => {
+        let form = document.querySelector('.confirm-form.form');
+        let paragraph = form.querySelector('.confirmation-text');
+
+        $('.popup').addClass('active');
+        $('.form').hide();
+        $('.confirm-form.form').show();
+        $('.gizmo').addClass('blurred');
+
+        paragraph.innerHTML = confirmationText;
+        form.querySelector('.confirm.form-submit').focus();
+
+        $(form.querySelector('.confirm.form-submit')).off();
+        $(form.querySelector('.confirm.form-submit')).on('click', () => {
+            toDoFunction();
+            $('.close-popup-btn')[0].click();
+        });
+    };
+
+    app.showNotificationToast = (text, type = '') => {
+        let newNotification = app.components.notificationTemplate.cloneNode(true);
+
+        newNotification.classList.add('generated');
+        newNotification.classList.remove ('template');
+
+        switch (type) {
+            case 'positive':
+                newNotification.classList.add('positive');
+                break;
+            case 'negative':
+                newNotification.classList.add('negative');
+                break;
+            default:
+                break;
+        };
+
+        newNotification.querySelector('.notification-text').innerHTML = text;
+
+        $(newNotification).on('click', () => {
+            newNotification.classList.add('fading');
+            setTimeout(() => {
+                newNotification.remove();
+                if (!app.containers.notificationPanel.firstChild) $(app.containers.notificationPanel).hide();
+            }, app.parameters.animationDelay);
+        });
+
+        setTimeout(() => {
+            newNotification.classList.add('fading');
+            setTimeout(() => {
+                newNotification.remove();
+                if (!app.containers.notificationPanel.firstChild) $(app.containers.notificationPanel).hide();
+            }, app.parameters.animationDelay);
+        }, 10*app.parameters.animationDelay);
+
+        $(app.containers.notificationPanel).show();
+
+        app.containers.notificationPanel.prepend(newNotification);
     };
 
     //TREASUREGEN
@@ -810,34 +864,69 @@
     };
 
     //POLCOMPASS
-    app.fabricatePoliticalAgent = () => {
+    app.generatePoliticAgent = () => {
+        let newPoliticAgent = JSON.parse(JSON.stringify(app.politicGenAgents.defaultAgent));
+
+        newPoliticAgent.traditionProgress = round(Math.random(), 2);
+        newPoliticAgent.controlFreedom = round(Math.random(), 2);
+
+        app.politicGenAgents.currentAgents.push(newPoliticAgent);
+    };
+
+    app.refreshPoliticTable = () => {
         let gizmo = document.querySelector('.gizmo.politic-gen');
         let agentsContainer = gizmo.querySelector('table.politic-gen-agents > tbody');
         let agentRowTemplate = gizmo.querySelector('.politic-gen-agent.template');
-        let newAgentRow = agentRowTemplate.cloneNode(true);
 
-        newAgentRow.classList.add('generated');
-        newAgentRow.classList.remove ('template');
+        let generatedDOMs = gizmo.querySelectorAll('.politic-gen-agent.generated');
 
-        newAgentRow.querySelector('td.tag > input').value = 'ABCD';
-        newAgentRow.querySelector('td.trad-prog > input').value = round(Math.random(), 2);
-        newAgentRow.querySelector('td.contr-freed > input').value = round(Math.random(), 2);
+        for (let dom of generatedDOMs) dom.parentElement.removeChild(dom);
 
-        $(newAgentRow.querySelectorAll('td > input')).on('change', () => {
-            app.drawPoliticCanvas();
-        });
+        for (let [i, agent] of app.politicGenAgents.currentAgents.entries()) {
+            let newAgentRow = agentRowTemplate.cloneNode(true);
 
-        $(newAgentRow.querySelector('td > select')).on('change', (event) => {
-            event.currentTarget.value = $("option:selected", event.currentTarget).val();
-            app.drawPoliticCanvas();
-        });
+            newAgentRow.classList.add('generated');
+            newAgentRow.classList.remove ('template');
 
-        $(newAgentRow.querySelector('td > .remove')).on('click', (event) => {
-            $(event.currentTarget).closest('tr').remove();
-            app.drawPoliticCanvas();
-        });
+            newAgentRow.querySelector('td.name > input').value = agent.name;
+            newAgentRow.querySelector('td.tag > input').value = agent.tag;
+            newAgentRow.querySelector('td.color > select').value = agent.color;
+            newAgentRow.querySelector('td.trad-prog > input').value = agent.traditionProgress;
+            newAgentRow.querySelector('td.contr-freed > input').value = agent.controlFreedom;
 
-        agentsContainer.appendChild(newAgentRow);
+            $(newAgentRow.querySelectorAll('td.name > input')).on('change', (event) => {
+                agent.name = $(event.currentTarget).val();
+                app.refreshPoliticTable();
+            });
+
+            $(newAgentRow.querySelectorAll('td.tag > input')).on('change', (event) => {
+                agent.tag = $(event.currentTarget).val();
+                app.refreshPoliticTable();
+            });
+
+            $(newAgentRow.querySelector('td > select')).on('change', (event) => {
+                agent.color = $("option:selected", event.currentTarget).val();
+                app.refreshPoliticTable();
+            });
+
+            $(newAgentRow.querySelectorAll('td.trad-prog > input')).on('change', (event) => {
+                agent.traditionProgress = $(event.currentTarget).val();
+                app.refreshPoliticTable();
+            });
+
+            $(newAgentRow.querySelectorAll('td.contr-freed > input')).on('change', (event) => {
+                agent.controlFreedom = $(event.currentTarget).val();
+                app.refreshPoliticTable();
+            });
+
+            $(newAgentRow.querySelector('td > .remove')).on('click', (event) => {
+                app.politicGenAgents.currentAgents.splice(i, 1);
+                app.refreshPoliticTable();
+            });
+
+            agentsContainer.appendChild(newAgentRow);
+        }
+        
         app.drawPoliticCanvas();
     };
 
@@ -926,9 +1015,9 @@
 
             return new Promise ((resolve) => {
                 contextFront.strokeStyle = actor.querySelector('td.color > select').value;
-                contextFront.lineWidth = 8;
+                contextFront.lineWidth = 16;
                 contextFront.beginPath();
-                contextFront.arc(canvasWidth*x, canvasHeight*y, 20, 0, 2*Math.PI);
+                contextFront.arc(canvasWidth*x, canvasHeight*y, 16, 0, 2*Math.PI);
                 contextFront.stroke();
                 contextFront.fill();
                 resolve();
@@ -1383,7 +1472,7 @@
     };
 
     app.refreshMarketModule = () => {
-        let gizmo = document.querySelector('.gizmo.market-econ-sim');
+        let gizmo = document.querySelector('.gizmo.econ-sim');
 
         let billboardContainer = gizmo.querySelector('.market-billboard-container');
         let billboardTemplate = billboardContainer.querySelector('.market-billboard.template');
@@ -1393,10 +1482,12 @@
         let agentGoodItemTemplate = agentCardTemplate.querySelector('.agent-good.template');
         let agentContainer = gizmo.querySelector('.agent-card-container');
 
-        let generatedDOMs = gizmo.querySelectorAll('.generated');
+        let generatedAgentDOMs = agentContainer.querySelectorAll('.generated');
+        let generatedBillboardDOMs = billboardContainer.querySelectorAll('.generated');
 
         gizmo.querySelector('.turn-counter').innerHTML = `Раунд ${app.marketEconSimModule.market.currentTurn}`;
-        for (let dom of generatedDOMs) dom.parentElement.removeChild(dom);
+        for (let dom of generatedAgentDOMs) dom.parentElement.removeChild(dom);
+        for (let dom of generatedBillboardDOMs) dom.parentElement.removeChild(dom);
 
         agentCards: {
             for (let agent of app.marketEconSimModule.market.currentAgents) {
@@ -1580,7 +1671,7 @@
 
     //WOD-COMBAT
     app.calculateAttack = () => {
-        let gizmo = document.querySelector('.gizmo.vtm-combat-houserule');
+        let gizmo = document.querySelector('.gizmo.wod-combat-houserule');
         let resultTemplate = gizmo.querySelector('.combat-item.template');
         let resultContainer = gizmo.querySelector('.combat-results');
         let attackDicePool = +gizmo.querySelector('#combat-attack-input').value;
@@ -1669,7 +1760,7 @@
     };
 
     app.calculateInitiative = () => {
-        let gizmo = document.querySelector('.gizmo.vtm-combat-houserule');
+        let gizmo = document.querySelector('.gizmo.wod-combat-houserule');
         let resultTemplate = gizmo.querySelector('.combat-item.template');
         let resultContainer = gizmo.querySelector('.combat-results');
         let name = gizmo.querySelector('#combat-name-input').value;
@@ -1677,14 +1768,13 @@
 
         let timestamp = new Date();
 
-        let initRoll = [...Array(2).keys()].map(x => x = Math.round(Math.random()*5) + 1);
+        let initRoll = [...Array(1).keys()].map(x => x = Math.round(Math.random()*10) + 1);
         let initResult = initRoll.reduce((a,b) => a + b) + parseInt(initBonus);
 
         let newResultItem = resultTemplate.cloneNode(true);
 
         newResultItem.classList.add('generated');
         newResultItem.classList.remove ('template');
-
         newResultItem.querySelector('.item-timestamp').innerHTML += `<span class="mrg-01em">${timestamp.toLocaleTimeString()}</span>`;
         newResultItem.querySelector('.item-result > .label').title += `${initRoll.join(` + `)} + ${initBonus}`;
         newResultItem.querySelector('.item-result').innerHTML += `<span class="mrg-01em">Инициатива ${name} — ${initResult}</span>`;
@@ -1698,10 +1788,141 @@
         resultContainer.prepend(newResultItem);
     };
 
+    app.getCharacterFormData = (isNew, characterData) => {
+        let form = document.querySelector('.add-edit-character-form');
+
+        characterData.name = form.querySelector('.char-name.input-value').value;
+        characterData.attack = form.querySelector('.char-attack.input-value').value;
+        characterData.difficulty = form.querySelector('.char-difficulty.input-value').value;
+        characterData.damage = form.querySelector('.char-damage.input-value').value;
+        characterData.defence = form.querySelector('.char-defence.input-value').value;
+        characterData.soak = form.querySelector('.char-soak.input-value').value;
+        characterData.dodge = form.querySelector('.char-dodge.input-value').value;
+        characterData.block = form.querySelector('.char-block.input-value').value;
+
+        if (isNew) app.wodCombatCharacters.currentCharacters.push(characterData);
+
+        console.log((isNew ? `Added ${characterData.name}!` : `Edited ${characterData.name}!`));
+    };
+
+    app.refreshCombatModule = () => {
+        let gizmo = document.querySelector('.gizmo.wod-combat-houserule');
+
+        let characterCardContainer = gizmo.querySelector('.character-card-container');
+        let characterCardTemplate = gizmo.querySelector('.combat-char-card.template');
+
+        let generatedCards = gizmo.querySelectorAll('.generated.combat-char-card');
+
+        for (let dom of generatedCards) dom.parentElement.removeChild(dom);
+
+        for (let [i, char] of app.wodCombatCharacters.currentCharacters.entries()) {
+            
+            let newCharacterCard = characterCardTemplate.cloneNode(true);
+
+            newCharacterCard.classList.add('generated');
+            newCharacterCard.classList.remove ('template');
+
+            newCharacterCard.querySelector('.char-name > .value').innerHTML = char.name;
+            newCharacterCard.querySelector('.char-attack > .value').innerHTML = char.attack;
+            newCharacterCard.querySelector('.char-difficulty > .value').innerHTML = char.difficulty;
+            newCharacterCard.querySelector('.char-damage > .value').innerHTML = char.damage;
+            newCharacterCard.querySelector('.char-defence > .value').innerHTML = char.defence;
+            newCharacterCard.querySelector('.char-soak > .value').innerHTML = char.soak;
+            newCharacterCard.querySelector('.char-dodge > .value').innerHTML = char.dodge;
+            newCharacterCard.querySelector('.char-block > .value').innerHTML = char.block;
+
+            $(newCharacterCard.querySelector('.char-name')).on('click', () => {
+                gizmo.querySelector('#combat-name-input').value = char.name;
+                $('.char-name').removeClass('active');
+                $(newCharacterCard.querySelector('.char-name')).addClass('active');
+            });
+            
+            $(newCharacterCard.querySelector('.char-attack')).on('click', () => {
+                gizmo.querySelector('#combat-attack-input').value = char.attack;
+                $('.char-attack').removeClass('active');
+                $(newCharacterCard.querySelector('.char-attack')).addClass('active');
+            });
+
+            $(newCharacterCard.querySelector('.char-difficulty')).on('click', () => {
+                gizmo.querySelector('#combat-attack-diff-input').value = char.difficulty;
+                $('.char-difficulty').removeClass('active');
+                $(newCharacterCard.querySelector('.char-difficulty')).addClass('active');
+            });
+
+            $(newCharacterCard.querySelector('.char-damage')).on('click', () => {
+                gizmo.querySelector('#combat-attack-dmg-input').value = char.damage;
+                $('.char-damage').removeClass('active');
+                $(newCharacterCard.querySelector('.char-damage')).addClass('active');
+            });
+
+            $(newCharacterCard.querySelector('.char-defence')).on('click', () => {
+                gizmo.querySelector('#combat-defence-input').value = char.defence;
+                $('.char-defence').removeClass('active');
+                $(newCharacterCard.querySelector('.char-defence')).addClass('active');
+            });
+
+            $(newCharacterCard.querySelector('.char-soak')).on('click', () => {
+                gizmo.querySelector('#combat-soak-input').value = char.soak;
+                $('.char-soak').removeClass('active');
+                $(newCharacterCard.querySelector('.char-soak')).addClass('active');
+            });
+
+            $(newCharacterCard.querySelector('.char-dodge')).on('click', () => {
+                gizmo.querySelector('#combat-defender-pool-input').value = char.dodge;
+                $('.char-dodge').removeClass('active');
+                $('.char-block').removeClass('active');
+                $(newCharacterCard.querySelector('.char-dodge')).addClass('active');
+            });
+
+            $(newCharacterCard.querySelector('.char-block')).on('click', () => {
+                gizmo.querySelector('#combat-defender-pool-input').value = char.block;
+                $('.char-dodge').removeClass('active');
+                $('.char-block').removeClass('active');
+                $(newCharacterCard.querySelector('.char-block')).addClass('active');
+            });
+
+            $(newCharacterCard.querySelector('.edit.btn')).on('click', () => {
+                $('.popup').addClass('active');
+                $('.form').hide();
+                $('.add-edit-character-form').show();
+                $('.gizmo').addClass('blurred');
+
+                let form = document.querySelector('.add-edit-character-form');
+
+                form.querySelector('.char-name.input-value').value = char.name;
+                form.querySelector('.char-attack.input-value').value = char.attack;
+                form.querySelector('.char-difficulty.input-value').value = char.difficulty;
+                form.querySelector('.char-damage.input-value').value = char.damage;
+                form.querySelector('.char-defence.input-value').value = char.defence;
+                form.querySelector('.char-soak.input-value').value = char.soak;
+                form.querySelector('.char-dodge.input-value').value = char.dodge;
+                form.querySelector('.char-block.input-value').value = char.block;
+
+                form.querySelector('.add-edit.form-submit').innerHTML = 'Сохранить';
+
+                $(form.querySelector('.add-edit.form-submit')).off();
+                $(form.querySelector('.add-edit.form-submit')).on('click', () => {
+                    app.getCharacterFormData(false, char);
+                    app.refreshCombatModule();
+                    $('.close-popup-btn')[0].click();
+                });
+
+            });
+
+            $(newCharacterCard.querySelector('.remove.btn')).on('click', () => {
+                app.confirmExecutionPopup(`Точно удалить эту карточку персонажа?`, () => {
+                    app.wodCombatCharacters.currentCharacters.splice(i, 1);
+                    app.refreshCombatModule();
+                });
+            });
+
+            characterCardContainer.appendChild(newCharacterCard);
+        };
+    };
+
     $(function() {
         app.containers.btnPanel = document.querySelector('.gizmos-panel');
-        app.containers.treasureKnobsPanel = document.querySelector('.gen-tweaking-panel');
-        app.containers.combatKnobsPanel = document.querySelector('.combat-tweaking-panel');
+        app.containers.notificationPanel = document.querySelector('.notification-panel');
 
         app.components.spinner = document.querySelector('.spinner-container');
         app.components.btnClose = document.querySelector('.close-btn');
@@ -1709,28 +1930,88 @@
         app.components.switchTemplate = document.querySelector('.switch-btn.template');
         app.components.gizmoTemplate = document.querySelector('.gizmo.template');
         app.components.separatorTemplate = document.querySelector('.separator.template');
+        app.components.notificationTemplate = document.querySelector('.notification.template');
 
-        Object.keys(app.btnPatterns).forEach(key => {
-            app.fabricateButton(app.btnPatterns[key]);
+        Object.keys(app.gizmoPatterns).forEach(key => {
+            app.fabricateButton(`${app.gizmoPatterns[key].class}-btn`, app.gizmoPatterns[key].title, 'gizmo', app.gizmoPatterns[key].class, null, app.containers.btnPanel);
         });
 
-        //НАСТРОЙКИ ГЕНЕРАТОРА ЛУТА
-        app.fabricateSwitch(app.containers.treasureKnobsPanel, 'Sword & Wizardry множитель [1d3+1]:', 'sw-base-multiplier', true, 'Итоговое значение энкаунтера умножается на случайное число от 2-ух до 4-ех. В базовой версии S&W имеется опция ОГРОМНОГО сокровища, в этом генераторе ее нет.');
-        app.fabricateSwitch(app.containers.treasureKnobsPanel, '5000gp обмен:', 'sw-5000-tradeout', true, 'Обмен производиться по правилам Swords & Wizardry Complete Rules');
-        app.fabricateSwitch(app.containers.treasureKnobsPanel, '1000gp обмен:', 'sw-1000-tradeout', true, 'Обмен производиться по правилам Swords & Wizardry Complete Rules');
-        app.fabricateSwitch(app.containers.treasureKnobsPanel, '100gp обмен:', 'sw-100-tradeout', true, 'Обмен производиться по правилам Swords & Wizardry Complete Rules');
-        app.fabricateSwitch(app.containers.treasureKnobsPanel, '*Антикварный обмен:', 'sw-antique-tradeout', false, 'Заменяет часть золота на антикварные продукты, которую правдоподобно могу быть обнаружены в руинах и проданы экспедициям и т.п.');
-        app.fabricateSwitch(app.containers.treasureKnobsPanel, '*Ремесленный обмен:', 'sw-artisan-goods-tradeout', false, 'Заменяет часть золота на ремесляную продукцию, которую правдоподобно могли носить с собой разумные существа.');
-        app.fabricateSwitch(app.containers.treasureKnobsPanel, '*Охотничье-промысловый обмен:', 'sw-bio-goods-tradeout', false, 'Заменяет все оставшиеся после обменов золотые монеты на продукты промысловой охоты, которые могут быть проданы. Их точное описание остается на усмотрение рассказчика.');
+        {
+            let container = document.querySelector(app.gizmoPatterns.treasureGen.btnPanel);
 
-        //НАСТРОЙКИ БОЕВКИ WOD
-        app.fabricateSwitch(app.containers.combatKnobsPanel, 'Специализация в атаке', 'combat-atk-spec', true, '10-ки на броске атаки считаются за два успеха');
-        app.fabricateSwitch(app.containers.combatKnobsPanel, 'Специализация в защите', 'combat-dodge-spec', true, '10-ки на броске защиты считаются за два успеха');
-        app.fabricateSwitch(app.containers.combatKnobsPanel, 'Специализация в блоке', 'combat-block-spec', true, '10-ки на броске блока считаются за два успеха');
-        app.fabricateSwitch(app.containers.combatKnobsPanel, '1-цы отнимают успехи', 'combat-botch', true, '1-цы на бросках вычитают один успех из броска');
-        
-        app.fabricatePoliticalAgent();
-        app.drawPoliticCanvas();
+            app.fabricateButton('gen-treasure', 'Сгенерировать сокровища', null, null, null, container);
+            app.fabricateButton('gen-open-tweak', 'Показать настройки', null, null, null, container);
+        };
+        {
+            let container = document.querySelector(app.gizmoPatterns.treasureGen.knobPanel);
+            app.fabricateSwitch(container, 'Sword & Wizardry множитель [1d3+1]:', 'sw-base-multiplier', true, 'Итоговое значение энкаунтера умножается на случайное число от 2-ух до 4-ех. В базовой версии S&W имеется опция ОГРОМНОГО сокровища, в этом генераторе ее нет.');
+            app.fabricateSwitch(container, '5000gp обмен:', 'sw-5000-tradeout', true, 'Обмен производиться по правилам Swords & Wizardry Complete Rules');
+            app.fabricateSwitch(container, '1000gp обмен:', 'sw-1000-tradeout', true, 'Обмен производиться по правилам Swords & Wizardry Complete Rules');
+            app.fabricateSwitch(container, '100gp обмен:', 'sw-100-tradeout', true, 'Обмен производиться по правилам Swords & Wizardry Complete Rules');
+            app.fabricateSwitch(container, '*Антикварный обмен:', 'sw-antique-tradeout', false, 'Заменяет часть золота на антикварные продукты, которую правдоподобно могу быть обнаружены в руинах и проданы экспедициям и т.п.');
+            app.fabricateSwitch(container, '*Ремесленный обмен:', 'sw-artisan-goods-tradeout', false, 'Заменяет часть золота на ремесляную продукцию, которую правдоподобно могли носить с собой разумные существа.');
+            app.fabricateSwitch(container, '*Охотничье-промысловый обмен:', 'sw-bio-goods-tradeout', false, 'Заменяет все оставшиеся после обменов золотые монеты на продукты промысловой охоты, которые могут быть проданы. Их точное описание остается на усмотрение рассказчика.');
+        };
+
+        {
+            let container = document.querySelector(app.gizmoPatterns.politicGen.btnPanel);
+            app.fabricateButton('politic-gen-add-new', 'Добавить Агента', null, null, null, container);
+            app.fabricateButton('politic-save-data', 'Сохранить данные', 'function', null, () => {
+                window.localStorage.politicGenAgents = JSON.stringify(app.politicGenAgents);
+                app.showNotificationToast('Политические агенты сохранены!', 'positive');
+            }, container, 'Использует локальную память браузера. Внимание, ее очистка для страницы приведет в потере данных!');
+            app.fabricateButton('politic-load-data', 'Загрузить данные', 'function', null, () => {
+                if (window.localStorage.politicGenAgents) {
+                    try {
+                        app.politicGenAgents = JSON.parse(window.localStorage.politicGenAgents);
+                        app.showNotificationToast('Политические агенты загружены!', 'positive');
+                    } catch (error) {
+                        app.showNotificationToast(`Ошибка загрузки политических агентов! ${error}`, 'negative');
+                    };
+                } else app.showNotificationToast('В памяти нет политических агентов!');
+                app.refreshPoliticTable();
+            }, container, 'Использует локальную память браузера. Внимание, ее очистка для страницы приведет в потере данных!');
+        };
+
+        {
+            let container = document.querySelector(app.gizmoPatterns.econMarketSim.btnPanel);
+            app.fabricateButton('econ-sim-next-round', 'Следующий раунд', null, null, null, container);
+            app.fabricateButton('econ-sim-100-rounds', 'Симулировать 100 раундов', null, null, null, container);
+            app.fabricateButton('econ-sim-toggle-player-log', 'Показать историю действий игрока', null, null, null, container);
+        };
+
+        {
+            let container = document.querySelector(app.gizmoPatterns.wodCombatHouserule.btnPanel);
+            app.fabricateButton('combat-calc-init', 'Посчитать инициативу', null, null, null, container);
+            app.fabricateButton('combat-calc-attack', 'Посчитать атаку', null, null, null, container);
+            app.fabricateButton('combat-add-separator', 'Отделить раунд', null, null, null, container);
+            app.fabricateButton('combat-open-tweak', 'Показать настройки', null, null, null, container);
+            app.fabricateButton('combat-save-data', 'Сохранить данные', 'function', null, () => {
+                window.localStorage.wodCombatCharacters = JSON.stringify(app.wodCombatCharacters);
+                app.showNotificationToast('Персонажи сохранены!', 'positive');
+            }, container, 'Использует локальную память браузера. Внимание, ее очистка для страницы приведет в потере данных!');
+            app.fabricateButton('combat-load-data', 'Загрузить данные', 'function', null, () => {
+                if (window.localStorage.wodCombatCharacters) {
+                    try {
+                        app.wodCombatCharacters = JSON.parse(window.localStorage.wodCombatCharacters);
+                        app.showNotificationToast('Персонажи загружены!', 'positive');
+                    } catch (error) {
+                        app.showNotificationToast(`Ошибка загрузки персонажей! ${error}`, 'negative');
+                    };
+                } else app.showNotificationToast('В памяти нет персонажей!');
+                app.refreshCombatModule();
+            }, container, 'Использует локальную память браузера. Внимание, ее очистка для страницы приведет в потере данных!');
+        };
+        {
+            let container = document.querySelector(app.gizmoPatterns.wodCombatHouserule.knobPanel);
+            app.fabricateSwitch(container, 'Специализация в атаке', 'combat-atk-spec', true, '10-ки на броске атаки считаются за два успеха');
+            app.fabricateSwitch(container, 'Специализация в защите', 'combat-dodge-spec', true, '10-ки на броске защиты считаются за два успеха');
+            app.fabricateSwitch(container, 'Специализация в блоке', 'combat-block-spec', true, '10-ки на броске блока считаются за два успеха');
+            app.fabricateSwitch(container, '1-цы отнимают успехи', 'combat-botch', true, '1-цы на бросках вычитают один успех из броска');
+        };
+
+        $('.politic-load-data')[0].click();
+        app.refreshPoliticTable();
 
         app.fabricateNewEconAgent('bank');
         app.fabricateNewEconAgent('player');
@@ -1738,12 +2019,15 @@
             app.fabricateNewEconAgent();
         };
         app.refreshMarketModule();
+
+        $('.combat-load-data')[0].click();
+        app.refreshCombatModule();
         
         $(app.components.spinner).hide();
         $(app.components.btnClose).hide();
         $(app.components.btnClose).removeClass('active');
         $('.gizmo').hide();
-        $('.gizmo').removeClass('active');    
+        $('.gizmo').removeClass('active');
 
         $('.logo').on('click', () => {
             window.location.href="/";
@@ -1752,7 +2036,8 @@
         $(app.components.btnClose).on('click', () => {
             $(app.components.btnClose).removeClass('active');
             $('.gizmo').removeClass('active');
-            $('.main-content-block').removeClass('blurred');
+            $('.landing-page-content').removeClass('blurred');
+            $(`.landing-page-content`).removeClass('hidden');
             $('body').removeClass('locked');
             setTimeout(() => {
                 $('.gizmo').hide();
@@ -1760,28 +2045,33 @@
             }, app.parameters.animationDelay);
         });
 
+        $('.cancel.form-submit.btn').on('click', () => {
+            $('.close-popup-btn')[0].click();
+        });
+
         $('.gen-treasure.btn').on('click', () => {
             app.treasureTradeouts();
         });
 
         $('.gen-open-tweak.btn').on('click', () => {
-            ($('.gen-tweaking-panel').hasClass('active') ? $('.gen-tweaking-panel').removeClass('active') : $('.gen-tweaking-panel').addClass('active'));
-            ($('.gen-tweaking-panel').hasClass('active') ? $('.gen-open-tweak.btn').html('Скрыть настройки') : $('.gen-open-tweak.btn').html('Показать настройки'));
+            ($('.treasure-knob-panel').hasClass('active') ? $('.treasure-knob-panel').removeClass('active') : $('.treasure-knob-panel').addClass('active'));
+            ($('.treasure-knob-panel').hasClass('active') ? $('.gen-open-tweak.btn').html('Скрыть настройки') : $('.gen-open-tweak.btn').html('Показать настройки'));
         });
 
         $('.politic-gen-add-new.btn').on('click', () => {
-            app.fabricatePoliticalAgent();
+            app.generatePoliticAgent();
+            app.refreshPoliticTable();
         });
 
-        $('.market-econ-sim-next-round.btn').on('click', () => {
+        $('.econ-sim-next-round.btn').on('click', () => {
             app.econNextTurn();
         });
 
-        $('.market-econ-sim-100-rounds.btn').on('click', () => {
+        $('.econ-sim-100-rounds.btn').on('click', () => {
             let promise = new Promise(resolve => {
                 let loopClick = i => {
                     setTimeout(() => {
-                        $('.market-econ-sim-next-round.btn')[0].click();
+                        $('.econ-sim-next-round.btn')[0].click();
                         i++;
                         (i > 99 ? resolve() : loopClick(i));
                     }, 300);
@@ -1791,13 +2081,39 @@
             promise.then(() => console.log('Done clicking!'));
         });
 
-        $('.market-econ-sim-toggle-player-log.btn').on('click', () => {
-            ($('.market-econ-sim-player-log').hasClass('active') ? $('.market-econ-sim-player-log').removeClass('active') : $('.market-econ-sim-player-log').addClass('active'));
-            ($('.market-econ-sim-player-log').hasClass('active') ? $('.market-econ-sim-toggle-player-log.btn').html('Скрыть историю действий игрока') : $('.market-econ-sim-toggle-player-log.btn').html('Показать историю действий игрока'));
+        $('.econ-sim-toggle-player-log.btn').on('click', () => {
+            ($('.econ-sim-player-log').hasClass('active') ? $('.econ-sim-player-log').removeClass('active') : $('.econ-sim-player-log').addClass('active'));
+            ($('.econ-sim-player-log').hasClass('active') ? $('.econ-sim-toggle-player-log.btn').html('Скрыть историю действий игрока') : $('.econ-sim-toggle-player-log.btn').html('Показать историю действий игрока'));
         });
 
         $('.combat-calc-init.btn').on('click', () => {
             app.calculateInitiative();
+        });
+
+        $('.add-new-character.btn').on('click', () => {
+            $('.popup').addClass('active');
+            $('.form').hide();
+            $('.add-edit-character-form').show();
+            $('.gizmo').addClass('blurred');
+
+            let form = document.querySelector('.add-edit-character-form');
+
+            form.querySelector('.form-submit').focus();
+
+            form.querySelector('.add-edit.form-submit').innerHTML = 'Добавить';
+
+            $(form.querySelector('.add-edit.form-submit')).off();
+            $(form.querySelector('.add-edit.form-submit')).on('click', () => {
+                app.getCharacterFormData(true, JSON.parse(JSON.stringify(app.wodCombatCharacters.defaultCharacter)));
+                app.refreshCombatModule();
+                $('.close-popup-btn')[0].click();
+            });
+        });
+
+        $('.close-popup-btn').on('click', () => {
+            $('.popup').removeClass('active');
+            $('.form').hide();
+            $('.gizmo').removeClass('blurred');
         });
 
         $('.combat-calc-attack.btn').on('click', () => {
@@ -1809,8 +2125,8 @@
         });
 
         $('.combat-open-tweak.btn').on('click', () => {
-            ($('.combat-tweaking-panel').hasClass('active') ? $('.combat-tweaking-panel').removeClass('active') : $('.combat-tweaking-panel').addClass('active'));
-            ($('.combat-tweaking-panel').hasClass('active') ? $('.combat-open-tweak.btn').html('Скрыть настройки') : $('.combat-open-tweak.btn').html('Показать настройки'));
+            ($('.combat-knob-panel').hasClass('active') ? $('.combat-knob-panel').removeClass('active') : $('.combat-knob-panel').addClass('active'));
+            ($('.combat-knob-panel').hasClass('active') ? $('.combat-open-tweak.btn').html('Скрыть настройки') : $('.combat-open-tweak.btn').html('Показать настройки'));
         });
 
         $('#combat-defender-action').on('change', (event) => {
