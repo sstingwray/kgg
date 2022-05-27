@@ -172,12 +172,11 @@
     </div>
     <div class="gizmo wod-combat-houserule">
       <h3 class="title">Калькулятор боевки для WoD 20th KGG™ Edition</h3>
-      <small>Разруливает боевку Мира Тьмы по домашним правилам нашего сервера:</small> <br>
-      <small>Каждый персонаж автоматически уворачивается от атак (если знает о них и имеет возможность это сделать) и поглощает урон в размере половины обычного дайс пула для этих действий.</small> <br>
-      <small>Защита: Половина суммы значения Ловкости и бонусов <em>(напр. Стремительность)</em>. Поглощение: сумма Выносливости и бонусов <em>(напр. Стойкость, броня)</em>. Оба значения округляются вниз.</small> <br>
-      <small>При этом защитные маневры позволяют повысить эффективность этой защиты броском подходящей способности <em>(напр. Атлетика, Ближний Бой)</em> со стандартными бонусами.</small> <br>
-      <small>Нанесение урона так-же происходит автоматически и полностью.</small> <br>
-      <small>Расчет инициативы происходит броском 1d10 на каждую из сторон конфликта</small> <br>
+      <small>Разруливает боевку Мира Тьмы по домашним правилам нашего дискорд-сервера (за подробностями идите по ссылке на главной странице):</small> <br>
+      <small>Каждый персонаж автоматически уворачивается от атак (если знает о них и имеет возможность это сделать), поглощает и наносит урон.</small> <br>
+      <small>Защита: Половина суммы значения Ловкости и бонусов <em>(напр. Стремительность)</em>. Поглощение: сумма Выносливости и бонусов <em>(напр. Стойкость, броня)</em>. Урон: сумма Силы и бонусов <em>(напр. Могущество, оружие).</em></small> <br>
+      <small>При этом защитные маневры позволяют повысить эффективность этой защиты броском подходящей способности [без характеристики] <em>(напр. Атлетика, Ближний Бой)</em> со стандартными бонусами.</small> <br>
+      <small>Расчет инициативы происходит броском 1d10 на каждую из сторон конфликта. Для индивидуальной инициативы по стандартным правилам оставлено поле для бонуса (Ловкость + Сообразительность).</small><br>
       <div class="body">
         <div class="flex row align-i-center no-wrap mrg-1em combat-params">
           <label for="combat-name-input">Название стороны:</label> <input id="combat-name-input" type="text" class="input-value w-8em">
@@ -227,7 +226,7 @@
             <option value="dodge">Уклоняется</option>
             <option value="block">Блокирует</option>
           </select>
-          <label class="mrg-1em" for="combat-defender-pool-input">Пул маневра:</label>    <input id="combat-defender-pool-input" type="text" class="input-value w-4em" value="" disabled>
+          <label class="mrg-1em" for="combat-defender-pool-input">Пул маневра:</label>    <input id="combat-defender-pool-input" type="text" class="input-value w-4em" value="">
           <label class="mrg-1em" for="combat-attack-descr-input"> Описание атаки:</label> <input id="combat-attack-descr-input"  type="text" class="input-value min-w-20em" placeholder="Краткое описание атаки для идентификации">
         </div>
         <div class="flex row align-i-center combat-btn-panel">

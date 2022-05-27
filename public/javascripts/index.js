@@ -1869,6 +1869,7 @@
 
             $(newCharacterCard.querySelector('.char-dodge')).on('click', () => {
                 gizmo.querySelector('#combat-defender-pool-input').value = char.dodge;
+                gizmo.querySelector('#combat-defender-action').value = 'dodge';
                 $('.char-dodge').removeClass('active');
                 $('.char-block').removeClass('active');
                 $(newCharacterCard.querySelector('.char-dodge')).addClass('active');
@@ -1876,6 +1877,7 @@
 
             $(newCharacterCard.querySelector('.char-block')).on('click', () => {
                 gizmo.querySelector('#combat-defender-pool-input').value = char.block;
+                gizmo.querySelector('#combat-defender-action').value = 'block';
                 $('.char-dodge').removeClass('active');
                 $('.char-block').removeClass('active');
                 $(newCharacterCard.querySelector('.char-block')).addClass('active');
@@ -2127,12 +2129,6 @@
         $('.combat-open-tweak.btn').on('click', () => {
             ($('.combat-knob-panel').hasClass('active') ? $('.combat-knob-panel').removeClass('active') : $('.combat-knob-panel').addClass('active'));
             ($('.combat-knob-panel').hasClass('active') ? $('.combat-open-tweak.btn').html('Скрыть настройки') : $('.combat-open-tweak.btn').html('Показать настройки'));
-        });
-
-        $('#combat-defender-action').on('change', (event) => {
-            event.currentTarget.value = $("option:selected", event.currentTarget).val();
-            if (event.currentTarget.value =='none') $('#combat-defender-pool-input').prop("disabled", true)
-            else $('#combat-defender-pool-input').prop("disabled", false);
         });
         
     });
