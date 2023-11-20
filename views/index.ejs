@@ -3,7 +3,8 @@
   <head>
     <title>Kostroun.gg</title>
     <link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon">
-    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <link rel='stylesheet' href='/stylesheets/common.css'/>
+    <link rel='stylesheet' href='/stylesheets/index.css'/>
     <link rel="stylesheet" href="/stylesheets/fontawesome.css">
     <link rel="stylesheet" href="/stylesheets/brands.css">
     <link rel="stylesheet" href="/stylesheets/solid.css">
@@ -14,280 +15,26 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap" rel="stylesheet"> 
   </head>
   <body>
+    <div class="work-in-progress flex jc-center align-i-center">Something is brewing here...</div>
     <div class="spinner-container flex jc-center align-i-center"><div class="lds-ring"><div></div><div></div><div></div><div></div></div></div>
     <div class="flex row header bg-alt">
       <button class="logo" tabindex="1"><span class="kstr">Kostroun.</span><span class="gg">gg</span></button>
     </div>
-    <button class="close-btn"><i class="fa fa-long-arrow-left"></i></button>
     <div class="flex col no-wrap notification-panel"></div>
     <div class="flex align-i-center jc-center popup">
-      <div class="flex col align-i-center mrg-1em form confirm-form card">
-        <p class="confirmation-text"></p>
-        <div class="flex row">
-          <button class="cancel form-submit btn">Отменить</button>
-          <button class="confirm form-submit btn">Подтвердить</button>
-        </div>
-      </div>
-      <div class="flex row wrap align-i-center mrg-1em form add-edit-character-form card">
-        <button class="close-add-edit-form close-popup-btn"><i class="fa-solid fa-x"></i></button>
-        <label class="mrg-1em">Имя:          <input type="text" class="char-name input-value w-8em"       value="Персонаж"></label>
-        <label class="mrg-1em">Пул атаки:    <input type="text" class="char-attack input-value w-4em"     value=1>         </label>
-        <label class="mrg-1em">Сложность:    <input type="text" class="char-difficulty input-value w-4em" value=6>         </label>
-        <label class="mrg-1em">Урон:         <input type="text" class="char-damage input-value w-4em"     value=1>         </label>
-        <label class="mrg-1em">Защита:       <input type="text" class="char-defence input-value w-4em"    value=0>         </label>
-        <label class="mrg-1em">Поглощение:   <input type="text" class="char-soak input-value w-4em"       value=0>         </label>
-        <label class="mrg-1em">Пул Уклонения:<input type="text" class="char-dodge input-value w-4em"      value=0>         </label>
-        <label class="mrg-1em">Пул Блока:    <input type="text" class="char-block input-value w-4em"      value=0>         </label>
-        <button class="add-edit form-submit btn">Сохранить</button>
-      </div>
+      <button class="close-popup-btn"><i class="fa fa-times"></i></button>
     </div>
-    <div class="gizmo treasure-gen">
-      <h3 class="title">Генератор Фэнтези* Сокровищ</h3>
-      <small>* на основе Sword & Wizardry</small> <br><br>
-      <small>Быстро создавайте добычу на основе базового пула очков (например XP Столкновения из S&W) с помощью модульных обменов</small> <br>
-      <small>Каждый тип обмена может быть включен или выключен индивидуально в настройках. Авторские опции обмена используют простую систему стоимости:</small> <br>
-      <small>Обычное — стоимость предмета на обмен считает как случайное от 0 до 50% от денежного эквивалента обмена</small> <br>
-      <small>Необычное — стоимость предмета на обмен считает как случайное от 50% до 100% от денежного эквивалента обмена</small> <br>
-      <small>Редкое — стоимость пр едмета на обмен считает как случайное от 100% до 150% от денежного эквивалента обмена</small> <br>
-      <small>Очень Редкое — стоимость предмета на обмен считает как случайное от 150% до 200% от денежного эквивалента обмена</small> <br>
-      <small>Предполагается, что игроки имеют возможность поторговаться и поднять стоимость выше (или опустить, в случае дурной репутации) выпавшей</small> <br>
-      <div class="body">
-        <div class="flex row align-i-center treasure-btn-panel">
-          <label for="gen-treasure-xp-input">Базовый пул очков:</label> <input id="gen-treasure-xp-input" type="text" class="input-value">
-        </div>
-        <div class="flex row treasure-knob-panel switch-panel">
-          <div class="flex row align-i-center mrg-01em"><small>* - домашние правила обмена</small></div>
-        </div>
-        <div class="flex col gen-results">
-          <div class="flex col mrg-1em pdng-1em jc-center white-space-nowrap card bg-main gen-item template">
-            <div class="item-text">
-            </div>
-            <div class="item-type flex row jc-space-betw">
-              <span class="label">Тип</span>        <span class="mrg-01em value"></span>
-            </div>
-            <div class="item-description flex row jc-space-betw">
-              <span class="label">Описание</span>   <span class="mrg-01em value"></span>
-            </div>
-            <div class="item-value flex row jc-space-betw">
-              <span class="label">Стоимости</span>  <span class="mrg-01em value"></span>
-            </div>
-            <div class="item-weight flex row jc-space-betw">
-              <span class="label">Вес</span>        <span class="mrg-01em value"></span>
-            </div>
-            <div class="item-rarity flex row jc-space-betw">
-              <span class="label">Редкость</span>   <span class="mrg-01em value"></span>
-            </div>
-          </div>
-          <div class="flex row wrap mrg-1em gen-container first-elem-hightlight anim-rslide card template"></div>
-        </div>
-      </div>
-    </div>
-    <div class="gizmo politic-gen">
-      <h3 class="title">Генератор политического компаса</h3>
-      <small>Быстро делайте простые и понятные политические графики с основными действующими лицами</small> <br>
-      <div class="body">
-        <div class="flex col wrap align-i-start">
-          <div class="flex mrg-1em politic-gen-graph"><canvas class="politic-canvas back" id="politicCanvas"></canvas><canvas class="politic-canvas front" id="politicCanvas"></canvas></div>
-          <div class="flex align-i-center wrap mrg-1em politic-btn-panel"></div>
-          <table class="mgr-1em politic-gen-agents">
-            <tbody>
-              <tr>
-                <th>Имя</th>
-                <th>Тэг [XXXX]</th>
-                <th>Цвет</th>
-                <th>Прогресс-Традиции</th>
-                <th>Свобода-Контроль</th>
-                <th></th>
-              </tr>
-              <tr class="politic-gen-agent template">
-                <td class="name"><input type="text" class="input-value"></td>
-                <td class="tag"><input type="text" class="input-value"></td>
-                <td class="color">
-                  <select>
-                    <option selected="selected" value="#F1F4F4">Белый</option>
-                    <option value="#933232">Красный   </option>
-                    <option value="#329393">Изумрудный</option>
-                    <option value="#BFB340">Желтый    </option>
-                    <option value="#43A63F">Зеленый   </option>
-                    <option value="#336394">Синий     </option>
-                  </select>
-                </td>
-                <td class="trad-prog"><input   type="text" class="input-value"></td>
-                <td class="contr-freed"><input type="text" class="input-value"></td>
-                <td><button title="Удалить запись из таблицы" class="remove btn"><i class="fa-solid fa-trash-can"></i></td>
-              </tr>
-            </tbody>
-          </table>          
-        </div>
-      </div>
-    </div>
-    <div class="gizmo econ-sim">
-      <h3 class="title">Симулятор Рыночной Экономики</h3>
-      <small>Симулирует простую рыночную экономику для быстрого реалистичного отыгрыша экономического эффекта от действий игроков</small> <br>
-      <div class="body">
-        <div class="flex align-i-start wrap mrg-1em market-billboard-container">
-          <div class="mrg-1em card market-billboard template">
-            <div class="billboard-item title flex row jc-space-betw">
-            </div>
-            <div class="billboard-item template flex row jc-space-betw">
-              <span class="label"></span> <span class="value"></span>
-              <input hidden class="manual-input amount" type="text" placeholder="Количество">
-              <select hidden class="manual-input transaction-type" title="Тип сделки">
-                <option selected="selected" value="ask">Покупка</option>
-                <option value="lot">Продажа</option>
-              </select>
-              <input hidden class="manual-input min-price" type="text" placeholder="Мин. цена" title="Мин. цена">
-              <input hidden class="manual-input max-price" type="text" placeholder="Макс. цена" title="Макс. цена">
-              <button hidden class="reset-player-input btn small" title="Сбросить" ><i class="fa fa-refresh" aria-hidden="true"></i></button>
-            </div>
-          </div>
-        </div>
-        <div class="flex align-i-center wrap mrg-1em econ-btn-panel">
-          <div class="flex align-i-center jc-center mrg-1em turn-counter"></div>
-        </div>
-        <div class="flex row econ-sim-player-log">
-        </div>
-        <div class="flex row wrap mrg-1em agent-card-container">
-          <div class="flex col mrg-1em card agent-card template">
-            <div class="agent-name flex row jc-space-betw">
-            </div>
-            <div class="agent-type flex row jc-space-betw">
-              <span class="label">Тип: </span>        <span class="value"></span>
-            </div>
-            <div class="agent-durability flex row jc-space-betw">
-              <span class="label">Стойкость: </span>  <span class="value"></span>
-            </div>
-            <div class="agent-age flex row jc-space-betw">
-              <span class="label">Возраст: </span>    <span class="value"></span>
-            </div>
-            <div class="agent-wallet flex row jc-space-betw">
-              <span class="label">Кошелек: </span>    <span class="value"></span>
-            </div>
-            <div class="agent-good template flex row jc-space-betw">
-              <span class="label">Предмет: </span>    <span class="value"></span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="gizmo wod-combat-houserule">
-      <h3 class="title">Калькулятор боевки для WoD 20th KGG™ Edition</h3>
-      <small>Разруливает боевку Мира Тьмы по домашним правилам нашего дискорд-сервера (за подробностями идите по ссылке на главной странице):</small> <br>
-      <small>Каждый персонаж автоматически уворачивается от атак (если знает о них и имеет возможность это сделать), поглощает и наносит урон.</small> <br>
-      <small>Защита: Половина суммы значения Ловкости и бонусов <em>(напр. Стремительность)</em>. Поглощение: сумма Выносливости и бонусов <em>(напр. Стойкость, броня)</em>. Урон: сумма Силы и бонусов <em>(напр. Могущество, оружие).</em></small> <br>
-      <small>При этом защитные маневры позволяют повысить эффективность этой защиты броском подходящей способности [без характеристики] <em>(напр. Атлетика, Ближний Бой)</em> со стандартными бонусами.</small> <br>
-      <small>Расчет инициативы происходит броском 1d10 на каждую из сторон конфликта. Для индивидуальной инициативы по стандартным правилам оставлено поле для бонуса (Ловкость + Сообразительность).</small><br>
-      <div class="body">
-        <div class="flex row align-i-center no-wrap mrg-1em combat-params">
-          <label for="combat-name-input">Название стороны:</label> <input id="combat-name-input" type="text" class="input-value w-8em">
-          <label for="combat-init-input">Бонус инициативы: <em></em></label> <input id="combat-init-input" type="text" class="input-value w-2em" value=0>
-        </div>
-        <div class="flex row align-i-center wrap mrg-1em character-card-container">
-          <button title="Добавить" class="add-new-character btn"><i class="fa-solid fa-plus"></i></button>
-          <div class="flex col no-wrap mrg-1em combat-char-card template card">
-            <div class="char-name flex row jc-space-betw char-param">
-              <span class="label">Имя</span><span class="value">Персонаж</span>
-            </div>
-            <div class="char-attack flex row jc-space-betw char-param">
-              <span class="label">Пул атаки</span>      <span class="value">1</span>
-            </div>
-            <div class="char-difficulty flex row jc-space-betw char-param">
-              <span class="label">Сложность</span>      <span class="value">6</span>
-            </div>
-            <div class="char-damage flex row jc-space-betw char-param">
-              <span class="label">Урон</span>           <span class="value">1</span>
-            </div>
-            <div class="char-defence flex row jc-space-betw char-param">
-              <span class="label">Защита</span>         <span class="value">0</span>
-            </div>
-            <div class="char-soak flex row jc-space-betw char-param">
-              <span class="label">Поглощение</span>     <span class="value">0</span>
-            </div>
-            <div class="char-dodge flex row jc-space-betw char-param">
-              <span class="label">Пул Уклонения</span>  <span class="value">0</span>
-            </div>
-            <div class="char-block flex row jc-space-betw char-param">
-              <span class="label">Пул Блока</span>      <span class="value">0</span>
-            </div>
-            <div class="flex row jc-space-ar">
-              <button title="Изменить" class="edit btn icon">  <i class="fa-solid fa-file-pen"> </i></button>
-              <button title="Удалить"  class="remove btn icon"><i class="fa-solid fa-trash-can"></i></button>
-            </div>
-          </div>
-        </div>
-        <div class="flex row align-i-center no-wrap mrg-1em combat-params-panel">
-          <label class="mrg-1em" for="combat-attack-input">       Пул атаки:</label>     <input id="combat-attack-input"        type="text" class="input-value w-4em" value=1>
-          <label class="mrg-1em" for="combat-attack-diff-input">  Сложность:</label><input id="combat-attack-diff-input"   type="text" class="input-value w-2em" value=6>
-          <label class="mrg-1em" for="combat-attack-dmg-input">   Урон:</label>     <input id="combat-attack-dmg-input"    type="text" class="input-value w-2em" value=1>
-          <label class="mrg-1em" for="combat-defence-input">      Защита цели:</label>    <input id="combat-defence-input"       type="text" class="input-value w-2em" value=0>
-          <label class="mrg-1em" for="combat-soak-input">         Поглощение цели:</label><input id="combat-soak-input"          type="text" class="input-value w-2em" value=0>
-          <label class="mrg-1em" for="combat-defender-action">    Защитник:</label> <select id="combat-defender-action">
-            <option selected="selected" value="none">Не защищается</option>
-            <option value="dodge">Уклоняется</option>
-            <option value="block">Блокирует</option>
-          </select>
-          <label class="mrg-1em" for="combat-defender-pool-input">Пул маневра:</label>    <input id="combat-defender-pool-input" type="text" class="input-value w-4em" value="">
-          <label class="mrg-1em" for="combat-attack-descr-input"> Описание атаки:</label> <input id="combat-attack-descr-input"  type="text" class="input-value min-w-20em" placeholder="Краткое описание атаки для идентификации">
-        </div>
-        <div class="flex row align-i-center combat-btn-panel">
-        </div>
-        <div class="flex row combat-knob-panel switch-panel">
-          <div class="flex row align-i-center combat-tweak-option switch-btn template"><p class="label"></p><div class="switch-container"><label class="switch"><input type="checkbox"><div class="slider"></div></label></div></div>
-        </div>
-        <div class="flex col combat-results">
-          <div class="flex row mrg-1em pdng-1em white-space-nowrap card combat-item first-elem-hightlight anim-rslide template">
-            <div class="item-timestamp"></div>
-            <div class="item-result">
-              <span class="label">Результат</span>
-            </div>
-            <div class="item-attack flex row jc-space-betw">
-              <span class="label">Атака</span>
-            </div>
-            <div class="item-defence flex row jc-space-betw">
-              <span class="label">Уклонение</span>
-            </div>
-            <div class="item-damage flex row jc-space-betw">
-              <span class="label">Урон</span>
-            </div>
-            <div class="item-soak flex row jc-space-betw">
-              <span class="label">Блок</span>
-            </div>
-            <div class="item-descr flex row jc-space-betw">
-              <span class="label">Описание</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="landing-page-content">
-      <div class="flex col align-i-left mrg-1em brd-rad-1em">
-        <h2>Сообщество для любителей настольных, ролевых и видео- игр</h2>
-      </div>
-      <div class="flex row wrap gizmos-panel bg-alt mrg-1em brd-rad-1em">
-        <div class="flex col align-i-center jc-center mrg-1em">
-          <small>Наши инструменты:</small>
-        </div>
-      </div>
-      <div class="flex row wrap jc-space-ar links-panel bg-alt mrg-1em brd-rad-1em">
-        <a target="_blank" href="https://discord.gg/z3z2hxMADr">            <img class="img-link" src="/images/link-discord.png" alt="Discord — discord.gg/z3z2hxMADr"></a>
-        <a target="_blank" href="https://www.youtube.com/catatonicnonsense"><img class="img-link" src="/images/link-youtube.png" alt="Youtube — www.youtube.com/catatonicnonsense"></a>
-        <a target="_blank" href="https://www.twitch.tv/alexkostroun">       <img class="img-link" src="/images/link-twitch.png"  alt="Twitch — www.twitch.tv/alexkostroun"></a>
-        <a target="_blank" href="https://twitter.com/_stingwray">           <img class="img-link" src="/images/link-twitter.png" alt="Twitter — twitter.com/_stingwray"></a>
-        <a target="_blank" href="https://vk.com/kostroungg">                <img class="img-link" src="/images/link-vk.png"      alt="VK — vk.com/alexkostrounstreams"></a>
-      </div>
+    <div class="page-content">
+      <canvas class="field-canvas" height="640" width="640"/>
     </div>
     <div class="template">
       <button class="btn template"></button>
-      <div class="gizmo template">
-        <div class="title"><h3 class="title"></h3></div>
-        <div class="body"></div>
-      </div>
       <div class="flex row align-i-center mrg-01em switch-btn template"><p class="label"></p><div class="switch-container"><label class="switch"><input type="checkbox"><div class="slider"></div></label></div></div>
       <div class="separator template"></div>
       <div class="flex bg-alt mrg-1em notification template"><p class="mrg-1em notification-text"></p></div>
     </div>
     <div class="flex row wrap jc-space-ar footer bg-main">
-      Kostroun.gg © 2022
+      Kostroun.gg © 2023
     </div>
   </body>
 </html>
