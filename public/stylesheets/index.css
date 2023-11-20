@@ -1,0 +1,65 @@
+:root {
+  --crimson-ua: hsla(0, 49%, 39%, 1);
+  --viridian-green: hsla(180, 49%, 39%, 1); 
+  --viridian-gradient: linear-gradient(180deg, var(--bg-main) 20%, var(--viridian-green) 70%, var(--accent-main));
+
+  --accent-main: hsla(180, 12%, 95%, 1);
+  --accent-alt: hsla(180, 5%, 85%, 1);
+  --accent-opaq-light: hsla(180, 12%, 95%, 0.3);
+  --accent-opaq-heavy:hsla(180, 12%, 95%, 0.7);
+
+  --bg-main: hsla(0, 5%, 15%, 1);
+  --bg-alt: hsla(0, 2%, 20%, 1);
+  --bg-opaq-light: hsla(0, 5%, 15%, 0.3);
+  --bg-opaq-heavy: hsla(0, 5%, 15%, 0.7);
+
+  --clear: hsla(0, 0% 100%, 0);
+  --shadow-light: 0 3px 3px hsla(0, 0%, 0%, 0.1);
+  --shadow-heavy:0 6px 9px hsla(0, 0%, 0%, 0.3);
+  --light-light: 0 3px 30px -10px hsla(180, 12%, 85%, 0.3);
+  --light-heavy: 0 3px 30px hsla(180, 12%, 85%, 0.3);
+}
+
+.header {
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 96px;
+  position: fixed;
+  align-items: center;
+  padding: 8px;
+  z-index: 3;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--viridian-green) var(--bg-alt);
+  box-shadow: var(--shadow-light), var(--shadow-heavy);
+}
+.logo {
+  font-weight: 900;
+  font-size: 48px;
+  margin: 8px;
+  color: var(--accent-alt);
+  background: var(--bg-alt);
+  text-shadow: var(--shadow-light), var(--shadow-heavy);
+  transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
+  }
+
+.page-content{
+  position: fixed;
+  top: 96px;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 32px;
+  overflow: auto;
+  scrollbar-width: thin;
+  background: var(--bg-main);
+  scrollbar-color: var(--viridian-green) var(--bg-alt);
+  }
+  .canvas-stroke-style {
+    color: var(--accent-main);
+  }
+.footer {
+  display: none;
+}
