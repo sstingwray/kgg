@@ -25,13 +25,33 @@
       <button class="close-popup-btn"><i class="fa fa-times"></i></button>
     </div>
     <div class="page-content">
-      <canvas class="field-canvas" height="640" width="640"/>
+      <div class="flex row resource-container"></div>
+      <div class="flex row opponent-container"></div>
+      <div class="flex row wrap tile-container"></div>
     </div>
     <div class="template">
       <button class="btn template"></button>
       <div class="flex row align-i-center mrg-01em switch-btn template"><p class="label"></p><div class="switch-container"><label class="switch"><input type="checkbox"><div class="slider"></div></label></div></div>
       <div class="separator template"></div>
       <div class="flex bg-alt mrg-1em notification template"><p class="mrg-1em notification-text"></p></div>
+      <div class="flex jc-center align-i-center resource-silo template"><span class="icon-slot"></span><span class="resource-value"></span></div>
+      <div class="flex jc-center align-i-center tile template">
+        <div class="tile-part first"></div>
+        <div class="tile-part second"></div>
+        <div class="tile-part third"></div>
+      </div>
+      <div class="flex jc-center align-i-center opponent-card template">
+        <div class="flex col">
+          <div class="flex row h-12em">
+            <div class="portait"><img src="images/dp/placeholder-portrait.png" alt=""></div>
+            <div class="flex col">
+              <h3 class="flex"><span class="name mrg-01em"></span><span class="power mrg-01em"><span class="label">Power: </span><span class="value"></span></span></h3>
+              <div class="description mrg-01em"></div>
+            </div>
+          </div>
+          <div class="flex row jc-space-ar wounds"></div>
+        </div>
+      </div>
     </div>
     <div class="flex row wrap jc-space-ar footer bg-main">
       Kostroun.gg © 2023

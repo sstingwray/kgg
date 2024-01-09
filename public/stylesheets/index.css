@@ -46,7 +46,7 @@
   }
 
 .page-content{
-  position: fixed;
+  position: relative;
   top: 96px;
   right: 0;
   bottom: 0;
@@ -57,9 +57,90 @@
   background: var(--bg-main);
   scrollbar-color: var(--viridian-green) var(--bg-alt);
   }
-  .canvas-stroke-style {
-    color: var(--accent-main);
-  }
+
+  .resource-silo {
+    margin: 0em 2em 0em 2em;
+    }
+    .resource-value {
+      font-size: 2em;
+      font-weight: bold;
+    }
+  .opponent-card {
+    padding: 1em;
+    margin: 1em;
+    border-radius: 2px;
+    background: var(--bg-alt);
+    transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
+    }
+    .opponent-card:hover {
+      transform: scale(1.025);
+      box-shadow: var(--shadow-heavy), var(--shadow-light), var(--light-light);
+    }
+    .portait > img {
+      margin: 1em;
+      width: 10em;
+      border: 4px solid var(--accent-opaq-heavy);
+      border-radius: 2px;
+    }
+    .description {
+      max-width: 14em;
+    }
+
+  .tile {
+    height: 204px;
+    width: 176px;
+    filter: drop-shadow(var(--shadow-heavy));
+    z-index: 1;
+    }
+    .tile.town > * {
+      background: gray;
+    }
+    .tile.plain > * {
+      background: green;
+    }
+    .tile.field > * {
+      background: yellowgreen;
+    }
+    .tile.mountain > * {
+      background: darkslategray;
+    }
+    .tile.lake > * {
+      background: lightblue;
+    }
+    .tile.forest > * {
+      background: darkolivegreen;
+    }
+    .tile:hover {
+      z-index: 2;
+      }
+      .tile:hover > * {
+        opacity: 0.6;
+        filter: brightness(120%);
+      }
+    .tile-part {
+      cursor: pointer;
+      opacity: 0.4;
+      position: absolute;
+      height: 96px;
+      width: 96px;
+      background: var(--accent-main);
+      transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
+      z-index: 2;
+      }
+      .tile-part:hover {
+        opacity: 1;
+        filter: brightness(140%);
+        z-index: 3;
+      }
+      .tile-part.first {
+        transform: rotate(15deg) translate(-36px, 36px) skew(15deg, 15deg);
+        }
+      .tile-part.second {
+        transform: rotate(-45deg) translate(36px, -36px) skew(15deg, 15deg);
+        }
+      .tile-part.third {
+        transform: rotate(75deg) translate(36px, -36px) skew(15deg, 15deg);
+        }
 .footer {
   display: none;
 }
