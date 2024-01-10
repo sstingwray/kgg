@@ -272,6 +272,41 @@
             opponentContainer: {},
             resourceContainer: {},
         },
+        gameState: {
+            tiles: [],
+            player: {},
+            opponents: [],
+        };
+    };
+
+    class Player {
+        constructor(name) {
+            this.name = name
+        }
+        
+        printName() {
+            console.log(this.name);
+        }
+    };
+
+    class Opponent {
+        constructor(name) {
+            this.name = name
+        }
+
+        printName() {
+            console.log(this.name);
+        }
+    };
+
+    class Map {
+        constructor(name) {
+            this.name = name
+        }
+        
+        printName() {
+            console.log(this.name);
+        }
     };
 
     app.fabricateButton = (btnClass, labelText, type, toDoFunction, container, hintText = '') => {
@@ -313,6 +348,18 @@
         newSwitch.querySelector('input').checked = checked;
 
         container.appendChild(newSwitch);
+    };
+
+    app.generatePlayer = () => {
+
+    };
+
+    app.generateOpponent = () => {
+
+    };
+
+    app.generateMap = () => {
+
     };
 
     app.fabricateResourceSilo = (resource) => {
