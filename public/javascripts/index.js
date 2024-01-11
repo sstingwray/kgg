@@ -3,31 +3,39 @@
 
     let app = {
         parameters: {
-            animationDelay: 300
+            animationDelay: 300,
+            logging: true,
+            extendedLogging: false,
         },
         data: {
             tileTypes: [
                 {
+                    id: 0,
                     name: `Town`,
                     style: `town`,
                 },
                 {
+                    id: 1,
                     name: `Plain`,
                     style: `plain`,
                 },
                 {
+                    id: 2,
                     name: `Field`,
                     style: `field`,
                 },
                 {
+                    id: 3,
                     name: `Mountain`,
                     style: `mountain`,
                 },
                 {
+                    id: 4,
                     name: `Lake`,
                     style: `lake`,
                 },
                 {
+                    id: 5,
                     name: `Forest`,
                     style: `forest`,
                 },
@@ -46,209 +54,172 @@
             ],
             opponentTypes: [
                 {
+                    id: 0,
                     name: `Ruler`,
                     description: `Dignified and regal, this vampire loves to play by the book and leverage his reputation. Crush him with brute force before he turns the entire city against you.`,
                     wounds: [
                         {
                             level: 1,
-                            req: [
-                                {
-                                    resource: `thugs`,
-                                    baseAmount: 2
-                                }
-                            ]
+                            req: [{ resourceID: 2, baseAmount: 3 }]
                         },
                         {
                             level: 2,
-                            req: [
-                                {
-                                    resource: `thugs`,
-                                    baseAmount: 3
-                                }
-                            ]
+                            req: [{ resourceID: 2, baseAmount: 4 }]
                         },
                         {
                             level: 3,
-                            req: [
-                                {
-                                    resource: `thugs`,
-                                    baseAmount: 4
-                                }
-                            ],
+                            req: [{ resourceID: 2, baseAmount: 5 }]
                         }
                     ],
-                    exhaustResource: `connections`,
+                    exhaustResourceID: 3,
                 },
                 {
+                    id: 1,
                     name: `Fiend`,
                     description: `Fearsome and brutal, this vampire's ambition is war. Uncover his secrets and stick a stake in-between them before he can raise an entire army.`,
                     wounds: [
                         {
                             level: 1,
-                            req: [
-                                {
-                                    resource: `secrets`,
-                                    baseAmount: 2
-                                }
-                            ]
+                            req: [{ resourceID: 1, baseAmount: 5 }]
                         },
                         {
                             level: 2,
-                            req: [
-                                {
-                                    resource: `secrets`,
-                                    baseAmount: 3
-                                }
-                            ]
+                            req: [{ resourceID: 1, baseAmount: 5 }]
                         },
                         {
                             level: 3,
-                            req: [
-                                {
-                                    resource: `secrets`,
-                                    baseAmount: 4
-                                }
-                            ],
+                            req: [{ resourceID: 1, baseAmount: 5 }]
                         }
                     ],
-                    exhaustResource: `thugs`,
+                    exhaustResourceID: 2,
                 },
                 {
+                    id: 2,
                     name: `Merchant`,
                     description: `Cunning and resourceful, this vampire knows how to grease the wheels of humanity (and profit from it). Use the humans against them in an ironic twist of fate or become another business casualty.`,
                     wounds: [
                         {
                             level: 1,
-                            req: [
-                                {
-                                    resource: `connections`,
-                                    baseAmount: 2
-                                }
-                            ]
+                            req: [{ resourceID: 3, baseAmount: 5 }]
                         },
                         {
                             level: 2,
-                            req: [
-                                {
-                                    resource: `connections`,
-                                    baseAmount: 3
-                                }
-                            ]
+                            req: [{ resourceID: 3, baseAmount: 5 }]
                         },
                         {
                             level: 3,
-                            req: [
-                                {
-                                    resource: `connections`,
-                                    baseAmount: 4
-                                }
-                            ],
+                            req: [{ resourceID: 3, baseAmount: 5 }]
                         }
                     ],
-                    exhaustResource: `money`,
+                    exhaustResourceID: 0,
                 },
                 {
+                    id: 3,
                     name: `Witch`,
                     description: `Dark whispers and unknowable misteries are the domain of this vampire. Teach them a lesson in humility, make the shadows devour them least the same fate awaits you.`,
                     wounds: [
                         {
                             level: 1,
-                            req: [
-                                {
-                                    resource: `supernatural`,
-                                    baseAmount: 2
-                                }
-                            ]
+                            req: [{ resourceID: 4, baseAmount: 5 }]
                         },
                         {
                             level: 2,
-                            req: [
-                                {
-                                    resource: `supernatural`,
-                                    baseAmount: 3
-                                }
-                            ]
+                            req: [{ resourceID: 4, baseAmount: 5 }]
                         },
                         {
                             level: 3,
-                            req: [
-                                {
-                                    resource: `supernatural`,
-                                    baseAmount: 4
-                                }
-                            ],
+                            req: [{ resourceID: 4, baseAmount: 5 }]
                         }
                     ],
-                    exhaustResource: `secrets`,
+                    exhaustResourceID: 1,
                 },
                 {
+                    id: 4,
                     name: `Beast`,
                     description: `Untamed and fierce, this vampire is an apex predator. Make them remember what happens with wild beasts when they clash with civilization or become yet another prey in their path.`,
                     wounds: [
                         {
                             level: 1,
-                            req: [
-                                {
-                                    resource: `money`,
-                                    baseAmount: 2
-                                }
-                            ]
+                            req: [{ resourceID: 0, baseAmount: 5 }]
                         },
                         {
                             level: 2,
-                            req: [
-                                {
-                                    resource: `money`,
-                                    baseAmount: 3
-                                }
-                            ]
+                            req: [{ resourceID: 0, baseAmount: 5 }]
                         },
                         {
                             level: 3,
-                            req: [
-                                {
-                                    resource: `money`,
-                                    baseAmount: 4
-                                }
-                            ],
+                            req: [{ resourceID: 0, baseAmount: 5 }]
                         }
                     ],
-                    exhaustResource: `supernatural`,
+                    exhaustResourceID: 4,
                 }
             ],
             resourceTypes: [
                 {
-                    id: `secrets`,
-                    name: `Secrets`,
-                    icon: `<i class="fa-solid fa-magnifying-glass icon"></i>`,
-                    description: ``
-                },
-                {
-                    id: `thugs`,
-                    name: `Thugs`,
-                    icon: `<i class="fa-solid fa-user-secret icon"></i>`,
-                    description: ``
-                },
-                {
-                    id: `money`,
+                    id: 0,
                     name: `Money`,
                     icon: `<i class="fa-solid fa-money-bill-wave icon"></i>`,
                     description: ``
                 },
                 {
-                    id: `connections`,
+                    id: 1,
+                    name: `Secrets`,
+                    icon: `<i class="fa-solid fa-magnifying-glass icon"></i>`,
+                    description: ``
+                },
+                {
+                    id: 2,
+                    name: `Thugs`,
+                    icon: `<i class="fa-solid fa-user-secret icon"></i>`,
+                    description: ``
+                },
+                {
+                    id: 3,
                     name: `Connections`,
                     icon: `<i class="fa-solid fa-handshake icon"></i>`,
                     description: ``
                 },
                 {
-                    id: `supernatural`,
+                    id: 4,
                     name: `Supernatural`,
                     icon: `<i class="fa-solid fa-hand-sparkles icon"></i>`,
                     description: ``
                 }
                 
-            ]
+            ],
+            playerBackgrounds: [
+                {
+                    id: 0,
+                    name: `The Forgotten`,
+                    description: `They might've forgotten you, but you still remember them. It is you who holds the keys. Remind them why they decided to conspire against you, return the fear back into their minds and shriveled hearts. It is time to play with your food.`,
+                    bonusID: 1,
+                },
+                {
+                    id: 1,
+                    name: `The Pious`,
+                    description: `Ever since your disappearance the parish has been broken, in pieces. The faithful deserve better and yearn for salvation only you can bring. By thy grace they shall receive it… and so much more.`,
+                    bonusID: 3,
+                },
+                {
+                    id: 2,
+                    name: `The Anarchist`,
+                    description: `It's been a while since the last shake up of the status quo and you're here to rectify this mistake. Blood shall be spilled, fires shall rise, chains shall be broken. Show the mortals and the undead what true freedom means, and this time make this lesson stick for good.`,
+                    bonusID: 2,
+                },
+                {
+                    id: 3,
+                    name: `The Scholar`,
+                    description: `You've seen the signs long before the knives appeared from the darkness. You knew your trip into the darkness would not be the end. You embraced the opportunity, and now you've returned with gifts that were never meant for this world.`,
+                    bonusID: 4,
+                },
+                {
+                    id: 4,
+                    name: `The Director`,
+                    description: `In their hubris they ignored your pawns and servants. They've mistaken for panic the intricate web of contingencies you've set up in case something happened to you. Now when the stage is set for your return, it's time to bring the inevitable finale.`,
+                    bonusID: 0,
+                },
+                
+            ],
         },
         config: {
             opponentCount: 3,
@@ -276,30 +247,107 @@
             tiles: [],
             player: {},
             opponents: [],
-        };
+        }
     };
 
     class Player {
-        constructor(name) {
-            this.name = name
+
+        constructor(background) {
+            this.background = background;
+            this.resources = [];
+        };
+
+        touchSilo(resourceID, operation, value = 0) {
+            try {
+                let silo = this.resources.filter(x => x.id == resourceID)[0];
+                let oldValue = `${silo.value}`;
+
+                switch (operation) {
+                    case `add`:
+                        silo.value += value
+
+                        console.log(`Silo for ${app.data.resourceTypes.filter(x => x.id == silo.id)[0].name} is increased by ${value}, from ${oldValue} to ${silo.value}`);
+                        console.log(this.resources.filter(x => x.id == resourceID)[0]);
+                        break;
+                    case `substract`:
+                        silo.value -= value
+
+                        console.log(`Silo for ${app.data.resourceTypes.filter(x => x.id == silo.id)[0].name} is decreased by ${value}, from ${oldValue} to ${silo.value}`);
+                        console.log(this.resources.filter(x => x.id == resourceID)[0]);
+                        break;
+                    case `set`:
+                        silo.value -= value
+
+                        console.log(`Silo for ${app.data.resourceTypes.filter(x => x.id == silo.id)[0].name} is set from ${oldValue} to ${silo.value}`);
+                        console.log(this.resources.filter(x => x.id == resourceID)[0]);
+                        break;
+                }
+            } catch {
+                if (!this.resources.filter(x => x.id == resourceID)[0]) {
+                    console.log(`Silo for ${app.data.resourceTypes.filter(x => x.id == resourceID)[0].name} does not exist, setting up...`);
+                    this.resources.push({id: resourceID, value: value});
+
+                    console.log(`Silo for ${app.data.resourceTypes.filter(x => x.id == resourceID)[0].name} is set`);
+                    console.log(this.resources.filter(x => x.id == resourceID)[0]);
+                } else {
+                    console.log(`Erorr touching silo for ${app.data.resourceTypes.filter(x => x.id == resourceID)[0].name} with operation "${operation}" and value of ${value}!`);
+                };
+            };
+        };
+
+        getBackground() {
+            return this.background;
         }
+
+    };
+
+    class Opponent {
+
+        constructor(id, startingTileID) {
+            this.id = id;
+            this.startingTileID = startingTileID;
+        };
+
+        pickName() {
+            let randName = round(Math.random()*(app.data.opponentNames.length - 1), 0);
+            let name = app.data.opponentNames[randName];
+
+            this.name = name;
+            console.log(`Opponent ${this.id} will be called "${this.name}"`);
+        };
+
+        pickType() {
+            let randType = round(Math.random()*(app.data.opponentTypes.length - 1), 0);
+            let type = app.data.opponentTypes[randType];
+        };
+
+        fabricateCharacter() {
+            this.pickName();
+            this.pickType();
+
+        };
+
+        getName() {
+            return this.name;
+        };
+        
+        getType() {
+            return this.type;
+        }
+    };
+
+    class Map {
+        constructor(id, startingTileID) {
+            this.id = id;
+            this.startingTileID = startingTileID;
+        };
         
         printName() {
             console.log(this.name);
         }
     };
 
-    class Opponent {
-        constructor(name) {
-            this.name = name
-        }
-
-        printName() {
-            console.log(this.name);
-        }
-    };
-
-    class Map {
+    class GameMaster {
         constructor(name) {
             this.name = name
         }
@@ -365,7 +413,7 @@
     app.fabricateResourceSilo = (resource) => {
         let newResourceSilo = app.components.resourceSilo.cloneNode(true);
 
-        newResourceSilo.classList.add('generated', resource.id);
+        newResourceSilo.classList.add('generated', `resource-${resource.id}`);
         newResourceSilo.classList.remove ('template');
         
         newResourceSilo.querySelector('.icon-slot').innerHTML = resource.icon;
@@ -403,7 +451,7 @@
         newOpponent.dataset.wounds = 0;
 
         for (let w = 0; w < 3; w++) {
-            let resource = app.data.resourceTypes.filter(x => x.id == type.wounds[w].req[0].resource)[0];
+            let resource = app.data.resourceTypes.filter(x => x.id == type.wounds[w].req[0].resourceID)[0];
             let reqValue = type.wounds[w].req[0].baseAmount;
             app.fabricateButton(
                 [`opponent-${i}`, `wound-${w}`, `compact`, (w <= newOpponent.dataset.wounds ? `color-red` : `disabled`)],
@@ -489,7 +537,7 @@
         for (let i = 0; i < woundButtons.length; i++) {
             let reqResource = app.data.resourceTypes.filter(x => x.icon == woundButtons[i].childNodes[1].outerHTML)[0];
             let reqValue = parseInt(woundButtons[i].querySelector('.resource-value').innerHTML);
-            let siloValue = parseInt(document.querySelector(`.resource-silo.${reqResource.id} > .resource-value`).innerHTML);
+            let siloValue = parseInt(document.querySelector(`.resource-silo.resource-${reqResource.id} > .resource-value`).innerHTML);
 
             if (reqValue <= siloValue) {
                 woundButtons[i].classList.remove('color-red');
@@ -501,7 +549,7 @@
     // Mechanics ==================================================
 
     app.editResourceSilo = (id, operation, amount) => {
-        let silo = document.querySelector(`.resource-silo.${id}`);
+        let silo = document.querySelector(`.resource-silo.resource-${id}`);
 
         switch (operation) {
             case `add`:
@@ -552,6 +600,31 @@
         
         app.containers.tileContainer.style.width = `calc(176px*${app.config.mapWidth} + 176px / 2)`;
         app.containers.tileContainer.style.height = `calc(204px*${app.config.mapHeight} - 204px - 204px/4)`;
+
+        //setting up the player
+
+        console.log('Setting up the player...');
+        let randomBackground = round(Math.random()*(app.data.playerBackgrounds.length - 1), 0);
+        let background = app.data.playerBackgrounds[randomBackground];
+        let player = new Player(background);
+
+
+        console.log(`Background is ${player.getBackground().name} - ${player.getBackground().description}`);
+        
+
+        for (let i = 0; i < app.data.resourceTypes.length; i++) {
+            let resource = app.data.resourceTypes[i];
+            let hasBackgroundBonus = player.getBackground().bonusID == resource.id;
+
+            player.touchSilo(resource.id, 'setup');
+            if (hasBackgroundBonus) {
+                console.log(`Setting up background bonus for ${resource.name}...`);
+                player.touchSilo(resource.id, 'add', 2);
+            };
+        }; 
+
+        //setting up the opponents
+
 
         for (let i = 0; i < app.data.resourceTypes.length; i++) {app.fabricateResourceSilo(app.data.resourceTypes[i])};
         
