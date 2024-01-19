@@ -5,7 +5,7 @@
         parameters: {
             animationDelay: 300,
             logging: true,
-            extendedLogging: false,
+            extendedLogging: true,
         },
         data: {
             tileTypes: [
@@ -59,15 +59,15 @@
                     description: `Dignified and regal, this vampire loves to play by the book and leverage his reputation. Crush him with brute force before he turns the entire city against you.`,
                     wounds: [
                         {
-                            level: 1,
+                            id: 0,
                             req: [{ resourceID: 2, baseAmount: 3 }]
                         },
                         {
-                            level: 2,
+                            id: 1,
                             req: [{ resourceID: 2, baseAmount: 4 }]
                         },
                         {
-                            level: 3,
+                            id: 2,
                             req: [{ resourceID: 2, baseAmount: 5 }]
                         }
                     ],
@@ -79,15 +79,15 @@
                     description: `Fearsome and brutal, this vampire's ambition is war. Uncover his secrets and stick a stake in-between them before he can raise an entire army.`,
                     wounds: [
                         {
-                            level: 1,
+                            id: 0,
                             req: [{ resourceID: 1, baseAmount: 5 }]
                         },
                         {
-                            level: 2,
+                            id: 1,
                             req: [{ resourceID: 1, baseAmount: 5 }]
                         },
                         {
-                            level: 3,
+                            id: 2,
                             req: [{ resourceID: 1, baseAmount: 5 }]
                         }
                     ],
@@ -99,15 +99,15 @@
                     description: `Cunning and resourceful, this vampire knows how to grease the wheels of humanity (and profit from it). Use the humans against them in an ironic twist of fate or become another business casualty.`,
                     wounds: [
                         {
-                            level: 1,
+                            id: 0,
                             req: [{ resourceID: 3, baseAmount: 5 }]
                         },
                         {
-                            level: 2,
+                            id: 1,
                             req: [{ resourceID: 3, baseAmount: 5 }]
                         },
                         {
-                            level: 3,
+                            id: 2,
                             req: [{ resourceID: 3, baseAmount: 5 }]
                         }
                     ],
@@ -119,15 +119,15 @@
                     description: `Dark whispers and unknowable misteries are the domain of this vampire. Teach them a lesson in humility, make the shadows devour them least the same fate awaits you.`,
                     wounds: [
                         {
-                            level: 1,
+                            id: 0,
                             req: [{ resourceID: 4, baseAmount: 5 }]
                         },
                         {
-                            level: 2,
+                            id: 1,
                             req: [{ resourceID: 4, baseAmount: 5 }]
                         },
                         {
-                            level: 3,
+                            id: 2,
                             req: [{ resourceID: 4, baseAmount: 5 }]
                         }
                     ],
@@ -139,15 +139,15 @@
                     description: `Untamed and fierce, this vampire is an apex predator. Make them remember what happens with wild beasts when they clash with civilization or become yet another prey in their path.`,
                     wounds: [
                         {
-                            level: 1,
+                            id: 0,
                             req: [{ resourceID: 0, baseAmount: 5 }]
                         },
                         {
-                            level: 2,
+                            id: 1,
                             req: [{ resourceID: 0, baseAmount: 5 }]
                         },
                         {
-                            level: 3,
+                            id: 2,
                             req: [{ resourceID: 0, baseAmount: 5 }]
                         }
                     ],
@@ -244,7 +244,7 @@
             resourceContainer: {},
         },
         gameState: {
-            tiles: [],
+            map: {},
             player: {},
             opponents: [],
         }
@@ -264,33 +264,34 @@
 
                 switch (operation) {
                     case `add`:
-                        silo.value += value
+                        silo.value += value;
 
-                        console.log(`Silo for ${app.data.resourceTypes.filter(x => x.id == silo.id)[0].name} is increased by ${value}, from ${oldValue} to ${silo.value}`);
-                        console.log(this.resources.filter(x => x.id == resourceID)[0]);
+                        (app.parameters.logging ? console.log(`Silo for ${app.data.resourceTypes.filter(x => x.id == silo.id)[0].name} is increased by ${value}, from ${oldValue} to ${silo.value}`) : null);
+                        (app.parameters.extendedLogging ? console.log(this.resources.filter(x => x.id == resourceID)[0]) : null);
                         break;
                     case `substract`:
-                        silo.value -= value
+                        silo.value -= value;
 
-                        console.log(`Silo for ${app.data.resourceTypes.filter(x => x.id == silo.id)[0].name} is decreased by ${value}, from ${oldValue} to ${silo.value}`);
-                        console.log(this.resources.filter(x => x.id == resourceID)[0]);
+                        (app.parameters.logging ? console.log(`Silo for ${app.data.resourceTypes.filter(x => x.id == silo.id)[0].name} is decreased by ${value}, from ${oldValue} to ${silo.value}`) : null);
+                        (app.parameters.extendedLogging ? console.log(this.resources.filter(x => x.id == resourceID)[0]) : null);
                         break;
                     case `set`:
-                        silo.value -= value
+                        silo.value -= value;
 
-                        console.log(`Silo for ${app.data.resourceTypes.filter(x => x.id == silo.id)[0].name} is set from ${oldValue} to ${silo.value}`);
-                        console.log(this.resources.filter(x => x.id == resourceID)[0]);
+                        (app.parameters.logging ? console.log(`Silo for ${app.data.resourceTypes.filter(x => x.id == silo.id)[0].name} is set from ${oldValue} to ${silo.value}`) : null);
+                        (app.parameters.extendedLogging ? console.log(this.resources.filter(x => x.id == resourceID)[0]) : null);
                         break;
                 }
-            } catch {
+            } catch (error) {
+                (app.parameters.extendedLogging ? console.log(error) : null);
                 if (!this.resources.filter(x => x.id == resourceID)[0]) {
-                    console.log(`Silo for ${app.data.resourceTypes.filter(x => x.id == resourceID)[0].name} does not exist, setting up...`);
+                    (app.parameters.logging ? console.log(`Silo for ${app.data.resourceTypes.filter(x => x.id == resourceID)[0].name} does not exist, setting up...`) : null);
                     this.resources.push({id: resourceID, value: value});
 
-                    console.log(`Silo for ${app.data.resourceTypes.filter(x => x.id == resourceID)[0].name} is set`);
-                    console.log(this.resources.filter(x => x.id == resourceID)[0]);
+                    (app.parameters.logging ? console.log(`Silo for ${app.data.resourceTypes.filter(x => x.id == resourceID)[0].name} is set`) : null);
+                    (app.parameters.extendedLogging ? console.log(this.resources.filter(x => x.id == resourceID)[0]) : null);
                 } else {
-                    console.log(`Erorr touching silo for ${app.data.resourceTypes.filter(x => x.id == resourceID)[0].name} with operation "${operation}" and value of ${value}!`);
+                    (app.parameters.logging ? console.log(`Error touching silo for ${app.data.resourceTypes.filter(x => x.id == resourceID)[0].name} with operation "${operation}" and value of ${value}!`) : null);
                 };
             };
         };
@@ -303,9 +304,18 @@
 
     class Opponent {
 
-        constructor(id, startingTileID) {
+        constructor(id, startingTileID, suggestedTypeID = null) {
             this.id = id;
             this.startingTileID = startingTileID;
+            this.suggestedTypeID = suggestedTypeID;
+            this.pickName();
+            this.pickType();
+            this.wounds = [];
+            
+            for (let i = 0; i < 3; i++) {
+                this.touchWounds(i, `set`);
+                this.touchWounds(i, `set`);
+            };
         };
 
         pickName() {
@@ -313,18 +323,65 @@
             let name = app.data.opponentNames[randName];
 
             this.name = name;
-            console.log(`Opponent ${this.id} will be called "${this.name}"`);
+            (app.parameters.logging ? console.log(`Opponent ${this.getID()} will be called "${this.getName()}"`) : null);
         };
 
         pickType() {
-            let randType = round(Math.random()*(app.data.opponentTypes.length - 1), 0);
-            let type = app.data.opponentTypes[randType];
+            let typeID;
+
+            if (this.suggestedTypeID == null) {
+                typeID = round(Math.random()*(app.data.opponentTypes.length - 1), 0);
+            } else {
+                try {
+                    let type = app.data.opponentTypes.filter(x => x.id == this.suggestedTypeID)[0];
+                    typeID = type.id;
+                } catch {
+                    typeID = 0;
+                    (app.parameters.logging ? console.log(`Suggested type ID of ${this.suggestedTypeID} for ${this.getName()}, ${this.getID()} was not correct, defaulting to 0.`) : null);
+                };
+            }
+
+            this.typeID = typeID;
+            (app.parameters.logging ? console.log(`${this.getName()}, ${this.getID()} will be of type "${this.getType().name}"`) : null);
         };
 
-        fabricateCharacter() {
-            this.pickName();
-            this.pickType();
+        touchWounds(woundID, operation) {
+            try {
+                let wound = this.wounds.filter(x => x.id == woundID)[0];
 
+                switch (operation) {
+                    case `get`:
+                        return wound;
+                        break;
+                    case `set`:
+                        wound.isDealt = false;
+
+                        (app.parameters.logging ? console.log(`Wound ${woundID} for ${this.getName()}, ${this.getID()} is set as not dealt`) : null);
+                        (app.parameters.extendedLogging ? console.log(wound) : null);
+                        break;
+                    case `dealt`:
+                        wound.isDealt = true;
+
+                        (app.parameters.logging ? console.log(`Wound ${woundID} for ${this.getName()}, ${this.getID()} is set as dealt`) : null);
+                        (app.parameters.extendedLogging ? console.log(wound) : null);
+                        break;
+                }
+            } catch (error) {
+                (app.parameters.extendedLogging ? console.log(error) : null);
+                if (!this.wounds.filter(x => x.id == woundID)[0]) {
+                    (app.parameters.logging ? console.log(`Wound ${woundID} for ${this.getName()}, ${this.getID()} does not exist, setting up...`) : null);
+                    this.wounds.push(app.data.opponentTypes.filter(x => x.id == this.getType().id)[0].wounds.filter(x => x.id == woundID)[0]);
+
+                    (app.parameters.logging ? console.log(`Wound ${woundID} for ${this.getName()}, ${this.getID()} is set`) : null);
+                    (app.parameters.extendedLogging ? console.log(this.wounds) : null);
+                } else {
+                    (app.parameters.logging ? console.log(`Error touching wound ${woundID} for ${this.getName()}, ${this.getID()} with operation "${operation}"!`) : null);
+                };
+            };
+        };
+
+        getID() {
+            return this.id;
         };
 
         getName() {
@@ -332,8 +389,8 @@
         };
         
         getType() {
-            return this.type;
-        }
+            return app.data.opponentTypes.filter(x => x.id == this.typeID)[0];
+        };
     };
 
     class Map {
@@ -341,16 +398,6 @@
             this.id = id;
             this.startingTileID = startingTileID;
         };
-        
-        printName() {
-            console.log(this.name);
-        }
-    };
-
-    class GameMaster {
-        constructor(name) {
-            this.name = name
-        }
         
         printName() {
             console.log(this.name);
@@ -603,28 +650,46 @@
 
         //setting up the player
 
-        console.log('Setting up the player...');
+        (app.parameters.logging ? console.log('Setting up the player...') : null);
         let randomBackground = round(Math.random()*(app.data.playerBackgrounds.length - 1), 0);
         let background = app.data.playerBackgrounds[randomBackground];
-        let player = new Player(background);
+        app.gameState.player = new Player(background);
 
-
-        console.log(`Background is ${player.getBackground().name} - ${player.getBackground().description}`);
+        (app.parameters.logging ? console.log(`Background is ${app.gameState.player.getBackground().name} - ${app.gameState.player.getBackground().description}`) : null);
         
-
         for (let i = 0; i < app.data.resourceTypes.length; i++) {
+            // Setting up a silo for a given resource, adding background bonus is applicable
             let resource = app.data.resourceTypes[i];
-            let hasBackgroundBonus = player.getBackground().bonusID == resource.id;
+            let hasBackgroundBonus = app.gameState.player.getBackground().bonusID == resource.id;
 
-            player.touchSilo(resource.id, 'setup');
+            app.gameState.player.touchSilo(resource.id, 'setup');
             if (hasBackgroundBonus) {
-                console.log(`Setting up background bonus for ${resource.name}...`);
-                player.touchSilo(resource.id, 'add', 2);
+                (app.parameters.logging ? console.log(`Setting up background bonus for ${resource.name}...`) : null);
+                app.gameState.player.touchSilo(resource.id, 'add', 2);
             };
         }; 
 
         //setting up the opponents
+        (app.parameters.logging ? console.log(`Setting up ${app.config.opponentCount} opponent[s]...`) : null);
+        let opponentTypeListShuffled = shuffle(app.data.opponentTypes.map(x => x.id));
+        //creating a list of type IDs to pass to the opponent constructor
+        if (app.config.opponentCount < app.data.opponentTypes.length) {
+            opponentTypeListShuffled = opponentTypeListShuffled.slice(0, app.config.opponentCount);
+        } else if (app.config.opponentCount > app.data.opponentTypes.length) {
+            for (let i = 0; i < app.config.opponentCount - app.data.opponentTypes.length; i++) {
+                let rand = round(Math.random()*(app.data.opponentTypes.length - 1), 0);
+                opponentTypeListShuffled.push(app.data.opponentTypes[rand].id);
+            };
+        };
 
+        for (let i = 0; i < opponentTypeListShuffled.length; i++) {
+            app.gameState.opponents.push(new Opponent(i, null, opponentTypeListShuffled[i]));
+
+            (app.parameters.logging ? console.log(`Made an Opponent ${app.gameState.opponents[i].getID()}`) : null);
+        };
+
+        (app.parameters.extendedLogging ? console.log(app.gameState.opponents) : null);
+        
 
         for (let i = 0; i < app.data.resourceTypes.length; i++) {app.fabricateResourceSilo(app.data.resourceTypes[i])};
         
