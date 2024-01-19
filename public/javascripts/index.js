@@ -5,7 +5,7 @@
         parameters: {
             animationDelay: 300,
             logging: true,
-            extendedLogging: true,
+            extendedLogging: false,
         },
         data: {
             tileTypes: [
@@ -80,11 +80,11 @@
                     wounds: [
                         {
                             id: 0,
-                            req: [{ resourceID: 1, baseAmount: 5 }]
+                            req: [{ resourceID: 1, baseAmount: 3 }]
                         },
                         {
                             id: 1,
-                            req: [{ resourceID: 1, baseAmount: 5 }]
+                            req: [{ resourceID: 1, baseAmount: 4 }]
                         },
                         {
                             id: 2,
@@ -100,11 +100,11 @@
                     wounds: [
                         {
                             id: 0,
-                            req: [{ resourceID: 3, baseAmount: 5 }]
+                            req: [{ resourceID: 3, baseAmount: 3 }]
                         },
                         {
                             id: 1,
-                            req: [{ resourceID: 3, baseAmount: 5 }]
+                            req: [{ resourceID: 3, baseAmount: 4 }]
                         },
                         {
                             id: 2,
@@ -120,11 +120,11 @@
                     wounds: [
                         {
                             id: 0,
-                            req: [{ resourceID: 4, baseAmount: 5 }]
+                            req: [{ resourceID: 4, baseAmount: 3 }]
                         },
                         {
                             id: 1,
-                            req: [{ resourceID: 4, baseAmount: 5 }]
+                            req: [{ resourceID: 4, baseAmount: 4 }]
                         },
                         {
                             id: 2,
@@ -140,11 +140,11 @@
                     wounds: [
                         {
                             id: 0,
-                            req: [{ resourceID: 0, baseAmount: 5 }]
+                            req: [{ resourceID: 0, baseAmount: 3 }]
                         },
                         {
                             id: 1,
-                            req: [{ resourceID: 0, baseAmount: 5 }]
+                            req: [{ resourceID: 0, baseAmount: 4 }]
                         },
                         {
                             id: 2,
@@ -223,8 +223,10 @@
         },
         config: {
             opponentCount: 3,
+            woundCount: 3,
             mapWidth: 10,
             mapHeight: 10,
+            startingResources: 17,
         },
         components: {
             spinner: {},
@@ -246,7 +248,7 @@
         gameState: {
             map: {},
             player: {},
-            opponents: [],
+            opponents: []
         }
     };
 
@@ -281,6 +283,8 @@
                         (app.parameters.logging ? console.log(`Silo for ${app.data.resourceTypes.filter(x => x.id == silo.id)[0].name} is set from ${oldValue} to ${silo.value}`) : null);
                         (app.parameters.extendedLogging ? console.log(this.resources.filter(x => x.id == resourceID)[0]) : null);
                         break;
+                    case `get`:
+                        return silo.value;
                 }
             } catch (error) {
                 (app.parameters.extendedLogging ? console.log(error) : null);
@@ -311,11 +315,16 @@
             this.pickName();
             this.pickType();
             this.wounds = [];
+            this.power = 1;
             
             for (let i = 0; i < 3; i++) {
                 this.touchWounds(i, `set`);
                 this.touchWounds(i, `set`);
             };
+
+            this.eliminated = false;
+
+            (app.parameters.logging ? console.log(`Made an Opponent ${this.getName()}, ${this.getID()}`) : null);
         };
 
         pickName() {
@@ -345,6 +354,18 @@
             (app.parameters.logging ? console.log(`${this.getName()}, ${this.getID()} will be of type "${this.getType().name}"`) : null);
         };
 
+        getID() {
+            return this.id;
+        };
+
+        getName() {
+            return this.name;
+        };
+        
+        getType() {
+            return app.data.opponentTypes.filter(x => x.id == this.typeID)[0];
+        };
+        
         touchWounds(woundID, operation) {
             try {
                 let wound = this.wounds.filter(x => x.id == woundID)[0];
@@ -352,11 +373,17 @@
                 switch (operation) {
                     case `get`:
                         return wound;
-                        break;
                     case `set`:
                         wound.isDealt = false;
+                        wound.isOpen = woundID == 0;
 
-                        (app.parameters.logging ? console.log(`Wound ${woundID} for ${this.getName()}, ${this.getID()} is set as not dealt`) : null);
+                        (app.parameters.logging ? console.log(`Wound ${woundID} for ${this.getName()}, ${this.getID()} is set as not dealt and not open`) : null);
+                        (app.parameters.extendedLogging ? console.log(wound) : null);
+                        break;
+                    case 'open':
+                        wound.isOpen = true;
+
+                        (app.parameters.logging ? console.log(`Wound ${woundID} for ${this.getName()}, ${this.getID()} is set as open`) : null);
                         (app.parameters.extendedLogging ? console.log(wound) : null);
                         break;
                     case `dealt`:
@@ -364,6 +391,12 @@
 
                         (app.parameters.logging ? console.log(`Wound ${woundID} for ${this.getName()}, ${this.getID()} is set as dealt`) : null);
                         (app.parameters.extendedLogging ? console.log(wound) : null);
+
+                        if (woundID < app.config.woundCount - 1) {
+                            this.touchWounds(woundID + 1, 'open');
+                        } else {
+                            this.eliminate();
+                        };
                         break;
                 }
             } catch (error) {
@@ -380,16 +413,14 @@
             };
         };
 
-        getID() {
-            return this.id;
+        getPower() {
+            return this.power;
         };
 
-        getName() {
-            return this.name;
-        };
-        
-        getType() {
-            return app.data.opponentTypes.filter(x => x.id == this.typeID)[0];
+        eliminate() {
+            this.eliminated = true;
+
+            (app.parameters.logging ? console.log(`Opponent ${this.getName()}, ${this.getID()} is eliminated`) : null);
         };
     };
 
@@ -404,6 +435,7 @@
         }
     };
 
+    //generic UI-related functions
     app.fabricateButton = (btnClass, labelText, type, toDoFunction, container, hintText = '') => {
         let newBtn = app.components.btnTemplate.cloneNode(true);
 
@@ -443,97 +475,6 @@
         newSwitch.querySelector('input').checked = checked;
 
         container.appendChild(newSwitch);
-    };
-
-    app.generatePlayer = () => {
-
-    };
-
-    app.generateOpponent = () => {
-
-    };
-
-    app.generateMap = () => {
-
-    };
-
-    app.fabricateResourceSilo = (resource) => {
-        let newResourceSilo = app.components.resourceSilo.cloneNode(true);
-
-        newResourceSilo.classList.add('generated', `resource-${resource.id}`);
-        newResourceSilo.classList.remove ('template');
-        
-        newResourceSilo.querySelector('.icon-slot').innerHTML = resource.icon;
-        newResourceSilo.querySelector('.resource-value').innerHTML = 0;
-        newResourceSilo.title = resource.name;
-
-        app.containers.resourceContainer.appendChild(newResourceSilo);
-    }
-
-    app.fabricateTile = (i = 1) => {
-        let newTile = app.components.tile.cloneNode(true);
-        let rand = round(Math.random()*(app.data.tileTypes.length - 1), 0);
-        let typeClass = app.data.tileTypes[rand].style;
-        let tileRow = Math.trunc(i / app.config.mapWidth);
-        
-        newTile.classList.add('generated', typeClass);
-        newTile.classList.remove ('template');
-        newTile.style.transform = `translate(${(tileRow % 2 === 0 ? '88' : '0')}px, -${(51 * tileRow)}px)`;
-
-        app.containers.tileContainer.appendChild(newTile);
-    };
-
-    app.fabricateOpponent = (i = 1, power = 1) => {
-        let newOpponent = app.components.opponentCard.cloneNode(true);
-        let randType = round(Math.random()*(app.data.opponentTypes.length - 1), 0);
-        let randName = round(Math.random()*(app.data.opponentNames.length - 1), 0);
-        let type = app.data.opponentTypes[randType];
-        let name = app.data.opponentNames[randName];
-
-        newOpponent.classList.add('generated');
-        newOpponent.classList.remove ('template');
-        newOpponent.querySelector('.name').innerHTML = name;
-        newOpponent.querySelector('.power > .value').innerHTML = power;
-        newOpponent.querySelector('.description').innerHTML = `${type.name} — ${type.description}`;
-        newOpponent.dataset.wounds = 0;
-
-        for (let w = 0; w < 3; w++) {
-            let resource = app.data.resourceTypes.filter(x => x.id == type.wounds[w].req[0].resourceID)[0];
-            let reqValue = type.wounds[w].req[0].baseAmount;
-            app.fabricateButton(
-                [`opponent-${i}`, `wound-${w}`, `compact`, (w <= newOpponent.dataset.wounds ? `color-red` : `disabled`)],
-                `<span class="resource-value">${reqValue}</span>${resource.icon}`,
-                `function`,
-                () => {
-                    if (!document.querySelector(`.opponent-${i}.wound-${w}`).classList.contains(`disabled`) && document.querySelector(`.opponent-${i}.wound-${w}`).classList.contains(`color-green`)) {
-                        document.querySelector(`.opponent-${i}.wound-${w}`).classList.add('disabled');
-                        document.querySelector(`.opponent-${i}.wound-${w}`).classList.remove('color-green');
-                        newOpponent.dataset.wounds = 1;
-                        app.editResourceSilo(resource.id, 'substract', document.querySelector(`.opponent-${i}.wound-${w} > .resource-value`).innerHTML);
-                        document.querySelector(`.opponent-${i}.wound-${w}`).innerHTML = `<i class="icon fa-solid fa-x"></i>`;
-                        if (w < 2) {
-                            document.querySelector(`.opponent-${i}.wound-${w + 1}`).classList.remove('disabled');
-                            document.querySelector(`.opponent-${i}.wound-${w + 1}`).classList.add('color-red');
-                        };
-                        app.refreshWoundButtons();
-                    }
-                },
-                newOpponent.querySelector('.wounds'),
-                `${reqValue} ${resource.name}`
-            );
-        };
-
-        app.containers.opponentContainer.appendChild(newOpponent);
-
-    };
-
-    app.addSeparator = (container) => {
-        let newSeparator = app.components.separatorTemplate.cloneNode(true);
-
-        newSeparator.classList.add('generated');
-        newSeparator.classList.remove ('template');
-
-        container.prepend(newSeparator);
     };
 
     app.showNotificationToast = (text, type = '') => {
@@ -576,56 +517,238 @@
         app.containers.notificationPanel.prepend(newNotification);
     };
 
-    // UI =========================================================
+    //Player-related functions
+    app.generatePlayer = () => {
+        let promise = new Promise((resolve) => {
+            //setting up the data
+            (app.parameters.logging ? console.log('Setting up the player...') : null);
+            let randomBackground = round(Math.random()*(app.data.playerBackgrounds.length - 1), 0);
+            let background = app.data.playerBackgrounds[randomBackground];
+            app.gameState.player = new Player(background);
 
-    app.refreshWoundButtons = () => {
-        let woundButtons = document.querySelectorAll('.btn.generated[class*=wound]:not(.disabled)');
-
-        for (let i = 0; i < woundButtons.length; i++) {
-            let reqResource = app.data.resourceTypes.filter(x => x.icon == woundButtons[i].childNodes[1].outerHTML)[0];
-            let reqValue = parseInt(woundButtons[i].querySelector('.resource-value').innerHTML);
-            let siloValue = parseInt(document.querySelector(`.resource-silo.resource-${reqResource.id} > .resource-value`).innerHTML);
-
-            if (reqValue <= siloValue) {
-                woundButtons[i].classList.remove('color-red');
-                woundButtons[i].classList.add('color-green');
-            };
-        };
-    };
-
-    // Mechanics ==================================================
-
-    app.editResourceSilo = (id, operation, amount) => {
-        let silo = document.querySelector(`.resource-silo.resource-${id}`);
-
-        switch (operation) {
-            case `add`:
-                silo.querySelector('.resource-value').innerHTML += amount;
-                break;
-            case `substract`:
-                silo.querySelector('.resource-value').innerHTML -= amount;
-                break;
-            case `set`:
-                silo.querySelector('.resource-value').innerHTML = amount;
-                break;
-        };
-
-        app.refreshWoundButtons();
-    };
-
-    app.generateStartParams = (resources, tiles) => {
-        for (let i = 0; i < resources.length; i++) {
-            app.editResourceSilo(resources[i].id, `set`, resources[i].value);
-        };
-        for (let i = 0; tiles.length; i++) {
+            (app.parameters.logging ? console.log(`Background is ${app.gameState.player.getBackground().name} - ${app.gameState.player.getBackground().description}`) : null);
             
-        };
+            for (let i = 0; i < app.data.resourceTypes.length; i++) {
+                // Setting up a silo for a given resource, adding background bonus is applicable
+                let resource = app.data.resourceTypes[i];
+                let hasBackgroundBonus = app.gameState.player.getBackground().bonusID == resource.id;
+
+                app.gameState.player.touchSilo(resource.id, 'setup');
+                if (hasBackgroundBonus) {
+                    (app.parameters.logging ? console.log(`Setting up background bonus for ${resource.name}...`) : null);
+                    app.gameState.player.touchSilo(resource.id, 'add', 2);
+                };
+                app.gameState.player.touchSilo(resource.id, 'add', app.config.startingResources);
+            };
+
+            //setting up the UI
+            for (let i = 0; i < app.data.resourceTypes.length; i++) {app.fabricateResourceSilo(app.data.resourceTypes[i])};
+
+            //resolving the promise
+            resolve();
+        });
+
+        return promise;
     };
 
-    app.eliminateOpponent = () => {
+    app.updatePlayer = () => {
+        let promise = new Promise((resolve) => {
+            //updating the silos
+            (app.parameters.logging ? console.log('Updating player resource silos...') : null);
+            for (let i = 0; i < app.data.resourceTypes.length; i++) {app.updateResourceSilo(app.data.resourceTypes[i])};
+
+            resolve();
+        });
+
+        return promise;
+    };
+
+    app.fabricateResourceSilo = (resource) => {
+        let promise = new Promise((resolve) => {
+            let newResourceSilo = app.components.resourceSilo.cloneNode(true);
+
+            newResourceSilo.classList.add('generated', `resource-${resource.id}`);
+            newResourceSilo.classList.remove ('template');
+            
+            newResourceSilo.querySelector('.icon-slot').innerHTML = resource.icon;
+            newResourceSilo.querySelector('.resource-value').innerHTML = 0;
+            newResourceSilo.title = resource.name;
+
+            app.containers.resourceContainer.appendChild(newResourceSilo);
+            resolve();
+        });
+        
+        return promise;
+    };
+
+    app.updateResourceSilo = (resource) => {
+        let promise = new Promise ((resolve) => {
+            let resourceSilo = document.querySelector(`.resource-silo.generated.resource-${resource.id}`);
+
+            (app.parameters.logging ? console.log(`Updating silo for ${resource.name}...`) : null);
+            resourceSilo.querySelector('.resource-value').innerHTML = app.gameState.player.touchSilo(resource.id, 'get');
+            resolve();
+        });
+        
+        return promise;
+    };
+
+    //Opponent-related functions
+    app.generateOpponents = () => {
+        let promise = new Promise ((resolve) => {
+            //setting up the opponents
+            (app.parameters.logging ? console.log(`Setting up ${app.config.opponentCount} opponent[s]...`) : null);
+            let opponentTypeListShuffled = shuffle(app.data.opponentTypes.map(x => x.id));
+
+            //creating a list of type IDs to pass to the opponent constructor
+            if (app.config.opponentCount < app.data.opponentTypes.length) {
+                opponentTypeListShuffled = opponentTypeListShuffled.slice(0, app.config.opponentCount);
+            } else if (app.config.opponentCount > app.data.opponentTypes.length) {
+                for (let i = 0; i < app.config.opponentCount - app.data.opponentTypes.length; i++) {
+                    let rand = round(Math.random()*(app.data.opponentTypes.length - 1), 0);
+                    opponentTypeListShuffled.push(app.data.opponentTypes[rand].id);
+                };
+            };
+
+            //add new opponents into the list
+            for (let i = 0; i < opponentTypeListShuffled.length; i++) {
+                app.gameState.opponents.push(new Opponent(i, null, opponentTypeListShuffled[i]));
+            };
+
+            (app.parameters.extendedLogging ? console.log(app.gameState.opponents) : null);
+
+            //make cards for opponents
+            (app.parameters.logging ? console.log(`Generating opponent cards for the first time...`) : null)
+            for (let i = 0; i < app.config.opponentCount; i++) {app.fabricateOpponentCard(app.gameState.opponents[i])};
+
+            resolve();
+        });
+
+        return promise;
 
     };
 
+    app.updateOpponents = () => {
+        let promise = new Promise((resolve) => {
+            //updating the cards
+            (app.parameters.logging ? console.log('Updating opponent cards...') : null);
+            for (let i = 0; i < app.config.opponentCount; i++) {app.updateOpponentCard(app.gameState.opponents[i])};
+
+            resolve();
+        });
+
+        return promise;
+    };
+
+    app.fabricateOpponentCard = (opponent) => {
+        let promise = new Promise((resolve) => {
+            (app.parameters.logging ? console.log(`Making a card for Opponent ${opponent.getName()}, ${opponent.getID()}...`) : null);
+            let newOpponentCard = app.components.opponentCard.cloneNode(true);
+
+            newOpponentCard.classList.add('generated', `opponent-${opponent.getID()}`);
+            newOpponentCard.classList.remove ('template');
+            newOpponentCard.querySelector('.name').innerHTML = opponent.getName();
+            newOpponentCard.querySelector('.power > .value').innerHTML = opponent.getPower();
+            newOpponentCard.querySelector('.description').innerHTML = `${opponent.getType().name} — ${opponent.getType().description}`;
+
+            for (let w = 0; w < app.config.woundCount; w++) {
+                let wound = opponent.touchWounds(w, 'get');
+                let resource = app.data.resourceTypes.filter(x => x.id == wound.req[0].resourceID)[0];
+                let reqValue = wound.req[0].baseAmount*opponent.getPower();
+                (app.parameters.logging ? console.log(`Making wound ${w} for Opponent ${opponent.getName()}, ${opponent.getID()}...`) : null);
+                app.fabricateButton(
+                    [`opponent-${opponent.getID()}`, `wound-${w}`, `compact`, (wound.isDealt ? `color-red` : `disabled`)],
+                    `<span class="resource-value">${reqValue}</span>${resource.icon}`,
+                    `function`,
+                    () => {
+                        //if the wound is not dealt and the player has enough resources
+                        (app.parameters.logging ? console.log(`Checking conditions for wound ${w} for Opponent ${opponent.getName()}, ${opponent.getID()}`) : null);
+                        (app.parameters.logging ? console.log(`wound.isOpen = ${wound.isOpen},  wound.isDealt = ${wound.isDealt}, silo = ${app.gameState.player.touchSilo(resource.id, 'get')}, reqValue = ${reqValue}`) : null);
+                        if (wound.isOpen && !wound.isDealt && app.gameState.player.touchSilo(resource.id, 'get') >= reqValue) {
+                            //disable the button and change it to an X
+                            document.querySelector(`.opponent-${opponent.getID()}.wound-${w}`).classList.add('disabled');
+                            document.querySelector(`.opponent-${opponent.getID()}.wound-${w}`).classList.remove('color-green');
+                            document.querySelector(`.opponent-${opponent.getID()}.wound-${w}`).innerHTML = `<i class="icon fa-solid fa-x"></i>`;
+                            (app.parameters.logging ? console.log(`Disabled wound ${w} for Opponent ${opponent.getName()}, ${opponent.getID()}`) : null);
+
+                            //reduce appropriate silo
+                            app.gameState.player.touchSilo(resource.id, 'substract', reqValue);
+                            opponent.touchWounds(w, 'dealt');
+
+                            app.updateOpponentCard(opponent);
+                            app.updateResourceSilo(resource);
+                        };
+                    },
+                    newOpponentCard.querySelector('.wounds'),
+                    `${reqValue} ${resource.name}`
+                );
+            };
+
+            app.containers.opponentContainer.appendChild(newOpponentCard);
+        });
+
+        return promise;
+    };
+
+    app.updateOpponentCard = (opponent) => {
+        let promise = new Promise((resolve) => {
+            (app.parameters.logging ? console.log(`Updating card for ${opponent.getName()}, ${opponent.getID()}...`) : null);
+            let opponentCard = document.querySelector(`.opponent-card.generated.opponent-${opponent.getID()}`)
+            let woundButtons = opponentCard.querySelectorAll(`.btn.generated.opponent-${opponent.getID()}[class*=wound]`);
+        
+            (app.parameters.logging ? console.log(`Updating power on the card for ${opponent.getName()}, ${opponent.getID()}...`) : null);
+            (app.parameters.extendedLogging ? console.log(woundButtons) : null);
+            opponentCard.querySelector('.power > .value').innerHTML = opponent.getPower();
+
+            for (let w = 0; w < app.config.woundCount; w++) {
+                (app.parameters.logging ? console.log(`Updating wound ${w} on the card for ${opponent.getName()}, ${opponent.getID()}...`) : null);
+                let wound = opponent.touchWounds(w, 'get');
+                let resource = app.data.resourceTypes.filter(x => x.id == wound.req[0].resourceID)[0];
+                let reqValue = wound.req[0].baseAmount*opponent.getPower();
+
+                if (w > 0) {
+                    if (reqValue <= app.gameState.player.touchSilo(resource.id, 'get') && !opponent.touchWounds(w, 'get').isDealt && opponent.touchWounds(w - 1, 'get').isDealt) {
+                        woundButtons[w].classList.remove('color-red', 'disabled');
+                        woundButtons[w].classList.add('color-green');
+                    };
+                } else {
+                    if (reqValue <= app.gameState.player.touchSilo(resource.id, 'get') && !opponent.touchWounds(w, 'get').isDealt) {
+                        woundButtons[w].classList.remove('color-red', 'disabled');
+                        woundButtons[w].classList.add('color-green');
+                    };
+                };
+            };
+
+            resolve();
+        });
+
+        return promise;
+    };
+
+    //Map-related functions
+    app.generateMap = () => {
+        let promise = new Promise((resolve) => {
+
+            resolve();
+        });
+
+        return promise;
+    };
+
+    app.fabricateTile = (i = 1) => {
+        let newTile = app.components.tile.cloneNode(true);
+        let rand = round(Math.random()*(app.data.tileTypes.length - 1), 0);
+        let typeClass = app.data.tileTypes[rand].style;
+        let tileRow = Math.trunc(i / app.config.mapWidth);
+        
+        newTile.classList.add('generated', typeClass);
+        newTile.classList.remove ('template');
+        newTile.style.transform = `translate(${(tileRow % 2 === 0 ? '88' : '0')}px, -${(51 * tileRow)}px)`;
+
+        app.containers.tileContainer.appendChild(newTile);
+    };
+
+    
 
     // Init =======================================================
 
@@ -648,58 +771,16 @@
         app.containers.tileContainer.style.width = `calc(176px*${app.config.mapWidth} + 176px / 2)`;
         app.containers.tileContainer.style.height = `calc(204px*${app.config.mapHeight} - 204px - 204px/4)`;
 
-        //setting up the player
-
-        (app.parameters.logging ? console.log('Setting up the player...') : null);
-        let randomBackground = round(Math.random()*(app.data.playerBackgrounds.length - 1), 0);
-        let background = app.data.playerBackgrounds[randomBackground];
-        app.gameState.player = new Player(background);
-
-        (app.parameters.logging ? console.log(`Background is ${app.gameState.player.getBackground().name} - ${app.gameState.player.getBackground().description}`) : null);
-        
-        for (let i = 0; i < app.data.resourceTypes.length; i++) {
-            // Setting up a silo for a given resource, adding background bonus is applicable
-            let resource = app.data.resourceTypes[i];
-            let hasBackgroundBonus = app.gameState.player.getBackground().bonusID == resource.id;
-
-            app.gameState.player.touchSilo(resource.id, 'setup');
-            if (hasBackgroundBonus) {
-                (app.parameters.logging ? console.log(`Setting up background bonus for ${resource.name}...`) : null);
-                app.gameState.player.touchSilo(resource.id, 'add', 2);
-            };
-        }; 
-
-        //setting up the opponents
-        (app.parameters.logging ? console.log(`Setting up ${app.config.opponentCount} opponent[s]...`) : null);
-        let opponentTypeListShuffled = shuffle(app.data.opponentTypes.map(x => x.id));
-        //creating a list of type IDs to pass to the opponent constructor
-        if (app.config.opponentCount < app.data.opponentTypes.length) {
-            opponentTypeListShuffled = opponentTypeListShuffled.slice(0, app.config.opponentCount);
-        } else if (app.config.opponentCount > app.data.opponentTypes.length) {
-            for (let i = 0; i < app.config.opponentCount - app.data.opponentTypes.length; i++) {
-                let rand = round(Math.random()*(app.data.opponentTypes.length - 1), 0);
-                opponentTypeListShuffled.push(app.data.opponentTypes[rand].id);
-            };
-        };
-
-        for (let i = 0; i < opponentTypeListShuffled.length; i++) {
-            app.gameState.opponents.push(new Opponent(i, null, opponentTypeListShuffled[i]));
-
-            (app.parameters.logging ? console.log(`Made an Opponent ${app.gameState.opponents[i].getID()}`) : null);
-        };
-
-        (app.parameters.extendedLogging ? console.log(app.gameState.opponents) : null);
-        
-
-        for (let i = 0; i < app.data.resourceTypes.length; i++) {app.fabricateResourceSilo(app.data.resourceTypes[i])};
-        
-        for (let i = 0; i < app.config.mapWidth*app.config.mapHeight; i++) {app.fabricateTile(i)};
-
-        for (let i = 0; i < app.config.opponentCount; i++) {app.fabricateOpponent(i, 1)};
-
-        app.generateStartParams(app.data.resourceTypes.map(x => ({id: x.id, value: 12})), []);
-
-        delay(500).then(() => {$(app.components.spinner).hide()});
+        app.generatePlayer().then(() => {
+            app.updatePlayer();
+        }).then(() => {
+            app.generateOpponents();
+        }).then(() => {
+            app.updateOpponents();
+        }).then(() => {
+            for (let i = 0; i < app.config.mapWidth*app.config.mapHeight; i++) {app.fabricateTile(i)};
+            delay(500).then(() => {$(app.components.spinner).hide()});
+        });
 
         $('.logo').on('click', () => {
             window.location.href="/";

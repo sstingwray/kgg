@@ -76,7 +76,7 @@
     }
     .opponent-card:hover {
       transform: scale(1.025);
-      box-shadow: var(--shadow-heavy), var(--shadow-light), var(--light-light);
+      box-shadow: var(--shadow-heavy), var(--shadow-light);
     }
     .portait > img {
       margin: 1em;
