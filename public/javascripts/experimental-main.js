@@ -3,6 +3,15 @@
 // Load the game state controller
 const game = createGameState();
 
+// Keyboard clutch override (spacebar)
+window.addEventListener('keydown', (e) => {
+    if (e.code === 'Space') game.setClutchOverride(true);
+  });
+  
+  window.addEventListener('keyup', (e) => {
+    if (e.code === 'Space') game.setClutchOverride(false);
+  });
+
 // Reference all UI panels
 const panels = {
   timeBiome: document.getElementById('panel-top-left'),
@@ -99,15 +108,40 @@ function drawSpinningWheel(ctx, centerX, centerY, radius, rpm) {
   ctx.restore();
 }
 
-// === GEAR SELECTOR RESTORE ===
-const gearKnob = createGearKnob({
-  initial: 1,
-  onChange: (label) => {
-    game.setGear(label);
-    console.log(`Gear changed to: ${label}`);
-  }
-});
-panels.cockpitControls.appendChild(gearKnob.element);
+// === AUTOMATIC CLUTCH TOGGLE ===
+const autoClutchToggle = createToggleButton("A", false, (val) => {
+    game.toggleAutomaticClutch();
+    console.log(`Automatic Clutch: ${val}`);
+  });
+  autoClutchToggle.element.querySelector(".control-button").style.width = '40px';
+  autoClutchToggle.element.querySelector(".control-button").style.height = '40px';
+  autoClutchToggle.element.querySelector(".control-button").style.fontSize = '20px';
+  panels.cockpitControls.appendChild(autoClutchToggle.element);
+  
+  // === GEAR SELECTOR RESTORE ===
+  const gearKnob = createGearKnob({
+    initial: 1,
+    onChange: (label) => {
+      const state = game.getState();
+      const allowShift = state.automaticClutch || !state.clutchEngaged;
+      if (allowShift) {
+        game.setGear(label);
+  
+        console.log(`Gear changed to: ${label}`);
+      }
+    }
+  });
+  
+  panels.cockpitControls.appendChild(gearKnob.element);
+  
+  // Add clutch status to HUD
+  const clutchIndicator = document.createElement('div');
+  clutchIndicator.style.position = 'absolute';
+  clutchIndicator.style.bottom = '10px';
+  clutchIndicator.style.left = '10px';
+  clutchIndicator.style.font = '14px monospace';
+  clutchIndicator.style.color = '#0f0';
+  panels.hud.appendChild(clutchIndicator);
 
 // === REACTOR CONTROLS ===
 const reactorWrapper = document.createElement('div');
@@ -155,6 +189,16 @@ setInterval(() => {
   const delta = 1 / 20; // 20 updates per second
   game.tick(delta);
   const s = game.getState();
+  gearKnob.setDisabled(!s.automaticClutch && s.clutchEngaged);
+
+  // Engine audio pitch update
+  updateEngineLoopPlaybackRate(s.baseRPM);
+
+  // Clutch UI feedback
+  clutchIndicator.textContent = s.clutchEngaged ? 'Clutch: Engaged' : 'Clutch: Disengaged';
+  clutchIndicator.style.color = s.clutchEngaged ? '#0f0' : '#ff0';
+
+  autoClutchToggle.setValue(s.automaticClutch);
 
   // Draw system monitor (Fuel, Energy, Heat)
   monitorCtx.clearRect(0, 0, monitorCanvas.width, monitorCanvas.height);
@@ -167,6 +211,12 @@ setInterval(() => {
   drawMeter(ctx, 20, 30, "Torque", s.torque, 10, "#ff0");
   drawMeter(ctx, 20, 70, "Base RPM", s.baseRPM, 10, "#ccc");
   drawMeter(ctx, 20, 110, "Endpoint RPM", s.endpointRPM, 100, "#fff");
+  if (s.isStalled) {
+    ctx.fillStyle = "#f00";
+    ctx.font = "16px monospace";
+    ctx.fillText("⚠️ STALLED", 20, 190);
+  }
+  
   drawMeter(ctx, 20, 150, "Speed", s.speed, 1000, "#0ff");
   drawSpinningWheel(ctx, 320, 80, 30, s.endpointRPM);
 
