@@ -63,7 +63,7 @@ function drawMiniMeter(ctx, x, y, label, value, max, color) {
   ctx.fillText(`${label}: ${value.toFixed(1)}`, x + width + 10, y + 10);
 }
 
-// === HUD CANVAS (TORQUE, RPM, WHEEL) ===
+// === HUD CANVAS (TORQUE, RPM, WHEEL, SPEED) ===
 const hudCanvas = document.getElementById("hudCanvas");
 const ctx = hudCanvas.getContext("2d");
 const rpmWheel = document.getElementById("rpmWheelImg");
@@ -149,6 +149,7 @@ reactorWrapper.appendChild(reactorRight);
 
 panels.reactorControls.appendChild(reactorWrapper);
 
+// === MAIN LOOP ===
 let lastGearIndex = null;
 setInterval(() => {
   const delta = 1 / 20; // 20 updates per second
@@ -161,11 +162,13 @@ setInterval(() => {
   drawMiniMeter(monitorCtx, 10, 30, "Energy", s.energyOutput, 20, "#0ff");
   drawMiniMeter(monitorCtx, 10, 50, "Heat", s.heat, 100, "#f00");
 
-  // Draw HUD canvas (Torque, RPM, Spinning Wheel)
+  // Draw HUD canvas (Torque, RPMs, Spinning Wheel, Speed)
   ctx.clearRect(0, 0, hudCanvas.width, hudCanvas.height);
   drawMeter(ctx, 20, 30, "Torque", s.torque, 10, "#ff0");
-  drawMeter(ctx, 20, 70, "RPM", s.endpointRPM, 100, "#fff");
-  drawSpinningWheel(ctx, 300, 70, 30, s.endpointRPM);
+  drawMeter(ctx, 20, 70, "Base RPM", s.baseRPM, 10, "#ccc");
+  drawMeter(ctx, 20, 110, "Endpoint RPM", s.endpointRPM, 100, "#fff");
+  drawMeter(ctx, 20, 150, "Speed", s.speed, 1000, "#0ff");
+  drawSpinningWheel(ctx, 320, 80, 30, s.endpointRPM);
 
   // Sync gear knob
   const gearIndexMap = { "Reverse": 0, "Neutral": 1, "1st": 2, "2nd": 3, "3rd": 4 };
