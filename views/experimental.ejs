@@ -6,33 +6,34 @@
   <title>Mech Trucker Prototype</title>
   <link rel="stylesheet" href="/stylesheets/experimental.css" />
 </head>
-<body> 
-  <div id="game-root">
-    <!-- Fullscreen game canvas -->
-    <canvas id="gameCanvas" width="1280" height="720"></canvas>
+<body>
+  <main id="cockpit">
+    <div id="game-root">
+      <canvas id="gameCanvas" width="1280" height="720" aria-label="Game World"></canvas>
 
-    <!-- Overlay UI Panels -->
-    <div id="ui-overlay">
-      <div class="ui-panel" id="panel-top-left"></div>
-      <div class="ui-panel" id="panel-top-center"></div>
-      <div class="ui-panel" id="panel-top-right">
-        <canvas id="systemMonitorCanvas" width="260" height="100"></canvas>
+      <div id="ui-overlay">
+        <section class="ui-panel" id="panel-top-left" role="region" aria-label="System Info"></section>
+        <section class="ui-panel" id="panel-top-center" role="region" aria-label="Holo Deck Controls"></section>
+        <section class="ui-panel" id="panel-top-right" role="region" aria-label="System Monitor">
+          <canvas id="systemMonitorCanvas" width="260" height="100" aria-label="System Monitor Meters"></canvas>
+        </section>
+        <section class="ui-panel" id="panel-mid-left" role="region" aria-label="Terrain Scanner"></section>
+        <section class="ui-panel" id="panel-center-main" role="region" aria-label="Central HUD">
+          <canvas id="hudCanvas" width="400" height="300" aria-label="Main HUD"></canvas>
+          <img id="rpmWheelImg" src="/images/rpm-wheel.svg" alt="RPM Wheel" hidden />
+        </section>
+        <section class="ui-panel" id="panel-mid-right" role="region" aria-label="Reactor Controls"></section>
+        <section class="ui-panel" id="panel-bottom-left" role="region" aria-label="Module Controls"></section>
+        <section class="ui-panel" id="panel-bottom-center" role="region" aria-label="Cargo and Tool Panel"></section>
+        <section class="ui-panel" id="panel-bottom-right" role="region" aria-label="Cockpit Controls"></section>
       </div>
-      <div class="ui-panel" id="panel-mid-left"></div>
-      <div class="ui-panel" id="panel-center-main">
-        <canvas id="hudCanvas" width="400" height="300"></canvas>
-        <img id="rpmWheelImg" src="/images/rpm-wheel.svg" alt="RPM Wheel" hidden />
-      </div>
-      <div class="ui-panel" id="panel-mid-right"></div>
-      <div class="ui-panel" id="panel-bottom-left"></div>
-      <div class="ui-panel" id="panel-bottom-center"></div>
-      <div class="ui-panel" id="panel-bottom-right"></div>
     </div>
-  </div>
+  </main>
 
   <!-- UI Component Scripts -->
-  <script src="/javascripts/experimental-components.js"></script>
-  <script src="/javascripts/experimental-state-controller.js"></script>
-  <script src="/javascripts/experimental-main.js"></script>
+  <script type="module" src="/javascripts/experimental-audio.js"></script>
+  <script type="module" src="/javascripts/experimental-components.js"></script>
+  <script type="module" src="/javascripts/experimental-state-controller.js"></script>
+  <script type="module" src="/javascripts/experimental-main.js"></script>
 </body>
 </html>

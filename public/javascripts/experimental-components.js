@@ -1,338 +1,237 @@
 // experimental-components.js
 
-// === BUTTON ===
-function createButton(label, onClick) {
-  const wrapper = document.createElement('div');
-  wrapper.className = 'control-wrapper';
+// === BASE COMPONENT ===
+class BaseComponent {
+  constructor() {
+    this.wrapper = document.createElement('div');
+    this.wrapper.className = 'control-wrapper';
+  }
 
-  const btn = document.createElement('button');
-  btn.textContent = label;
-  btn.className = 'control-button';
-  btn.addEventListener('click', () => onClick());
-
-  wrapper.appendChild(btn);
-  return {
-    element: wrapper,
-    setLabel: (text) => { btn.textContent = text; },
-    click: () => { onClick(); }
-  };
+  get element() {
+    return this.wrapper;
+  }
 }
 
-// === ENGINE LOOP ===
-const engineContext = new (window.AudioContext || window.webkitAudioContext)();
-let engineSource = null;
-let engineLoop = null;
-let enginePlaybackRateNode = null;
-function startEngineLoop() {
-  try {
-    if (!engineSource) {
-      fetch("/sounds/engine.wav")
-        .then(res => res.arrayBuffer())
-        .then(buffer => engineContext.decodeAudioData(buffer))
-        .then(decoded => {
-          engineSource = engineContext.createBufferSource();
-          engineSource.buffer = decoded;
-          engineSource.loop = true;
+// === TOGGLE BUTTON COMPONENT ===
+class ToggleButtonComponent extends BaseComponent {
+  constructor(label, initial = false, onToggle = () => {}) {
+    super();
+    this.label = label;
+    this.state = initial;
+    this.onToggle = onToggle;
 
-          enginePlaybackRateNode = engineContext.createGain();
-          const playbackRateControl = engineContext.createGain();
+    this.button = document.createElement('button');
+    this.button.className = 'control-button';
+    this.button.textContent = label;
 
-          // custom pitch-style filter using playbackRate
-          engineSource.playbackRate.value = 1.0;
+    this.button.addEventListener('click', () => {
+      this.state = !this.state;
+      this.updateVisual();
+      this.onToggle(this.state);
+    });
 
-          engineSource.connect(engineContext.destination);
-          engineSource.start();
-        });
+    this.wrapper.appendChild(this.button);
+    this.updateVisual();
+  }
+
+  updateVisual() {
+    this.button.classList.toggle('toggled', this.state);
+    this.button.textContent = this.label;
+  }
+
+  setValue(val) {
+    const clamped = Boolean(val);
+    if (this.state !== clamped) {
+      this.state = clamped;
+      this.updateVisual();
+      this.onToggle(this.state);
     }
-  } catch (e) {
-    console.warn("Engine loop failed to play:", e);
+  }
+
+  getValue() {
+    return this.state;
   }
 }
 
-function stopEngineLoop() {
-  if (engineSource) {
-    try {
-      engineSource.stop();
-    } catch (e) {}
-    engineSource.disconnect();
-    engineSource = null;
+// === BUTTON COMPONENT ===
+class ButtonComponent extends BaseComponent {
+  constructor(label, onClick = () => {}) {
+    super();
+    this.button = document.createElement('button');
+    this.button.className = 'control-button';
+    this.button.textContent = label;
+    this.button.addEventListener('click', () => onClick());
+    this.wrapper.appendChild(this.button);
   }
-  engineLoop = null;
-  enginePlaybackRateNode = null;
-}
 
-function updateEngineLoopPlaybackRate(baseRPM) {
-  if (engineSource) {
-    const clamped = Math.max(0.2, Math.min(2.0, baseRPM / 5));
-    engineSource.playbackRate.value = clamped;
+  setLabel(text) {
+    this.button.textContent = text;
   }
-}
 
-// === IGNITION OFF SOUND ===
-function playIgnitionOffSound() {
-  try {
-    const audio = new Audio("/sounds/engine-off.ogg");
-    audio.play();
-  } catch (e) {
-    console.warn("Ignition off sound failed to play:", e);
+  click() {
+    this.button.click();
   }
 }
 
-// === IGNITION SOUND ===
-function playIgnitionSound() {
-  try {
-    const audio = new Audio("/sounds/ignition-toggle.wav");
-    audio.play();
-  } catch (e) {
-    console.warn("Ignition sound failed to play:", e);
-  }
-}
-
-// === TOGGLE BUTTON ===
-function createToggleButton(label, initial = false, onToggle = () => {}) {
-  const wrapper = document.createElement('div');
-  wrapper.className = 'control-wrapper';
-
-  const btn = document.createElement('button');
-  let state = initial;
-
-  const updateVisual = () => {
-    btn.textContent = label;
-    btn.classList.toggle('toggled', state);
-  };
-
-  btn.className = 'control-button';
-  btn.addEventListener('click', () => {
-    state = !state;
-    updateVisual();
-    if (label === "⚡") {
-      if (state) {
-        playIgnitionSound();
-        startEngineLoop();
-      } else {
-        stopEngineLoop();
-        playIgnitionOffSound();
-      }
-    }
-    onToggle(state);
-  });
-
-  updateVisual();
-  wrapper.appendChild(btn);
-
-  return {
-    element: wrapper,
-    setValue: (val) => {
-      const clamped = Boolean(val);
-      if (state !== clamped) {
-        state = clamped;
-        updateVisual();
-        onToggle(state);
-      }
-    },
-    getValue: () => state
-  };
-}
-
-// === SLIDER ===
-function createSlider(label, options = {}) {
-  const {
-    min = 0,
-    max = 100,
-    step = 1,
-    initial = min,
-    discrete = false,
-    onChange = () => {}
-  } = options;
-
-  const wrapper = document.createElement('div');
-  wrapper.className = 'control-wrapper';
-
-  const title = document.createElement('label');
-  title.textContent = label;
-  wrapper.appendChild(title);
-
-  const slider = document.createElement('input');
-  slider.type = 'range';
-  slider.min = min;
-  slider.max = max;
-  slider.step = step;
-  slider.value = initial;
-  slider.className = discrete ? 'slider-discrete' : 'slider-continuous';
-
-  slider.addEventListener('input', () => {
-    onChange(Number(slider.value));
-  });
-
-  wrapper.appendChild(slider);
-
-  return {
-    element: wrapper,
-    setValue: (value) => {
-      const clamped = Math.max(min, Math.min(max, value));
-      if (slider.value !== clamped.toString()) {
-        slider.value = clamped;
-        onChange(clamped);
-      }
-    },
-    getValue: () => Number(slider.value)
-  };
-}
-
-// === GEAR KNOB ===
-function createGearKnob(options = {}) {
-  const {
+// === GEAR KNOB COMPONENT ===
+class GearKnobComponent extends BaseComponent {
+  constructor({
     labels = ["Reverse", "Neutral", "1st", "2nd", "3rd"],
     initial = 1,
     onChange = () => {}
-  } = options;
+  } = {}) {
+    super();
+    this.labels = labels;
+    this.index = initial;
+    this.isDisabled = false;
+    this.onChange = onChange;
 
-  let index = initial;
-  let isDisabled = false;
+    const label = document.createElement('label');
+    label.textContent = "Gear";
+    this.wrapper.appendChild(label);
 
-  const wrapper = document.createElement('div');
-  wrapper.className = 'control-wrapper';
+    this.track = document.createElement('div');
+    this.track.className = 'gear-track';
+    this.knob = document.createElement('div');
+    this.knob.className = 'gear-knob';
+    this.track.appendChild(this.knob);
+    this.wrapper.appendChild(this.track);
 
-  const label = document.createElement('label');
-  label.textContent = "Gear";
-  wrapper.appendChild(label);
+    this.track.addEventListener('click', (e) => {
+      if (this.isDisabled) return;
+      const rect = this.track.getBoundingClientRect();
+      const relX = e.clientX - rect.left;
+      const slotWidth = rect.width / this.labels.length;
+      const newIndex = Math.floor(relX / slotWidth);
+      if (newIndex !== this.index) {
+        this.index = newIndex;
+        this.updatePosition();
+        this.onChange(this.labels[this.index], this.index);
+      }
+    });
 
-  const track = document.createElement('div');
-  track.className = 'gear-track';
-
-  const knob = document.createElement('div');
-  knob.className = 'gear-knob';
-
-  track.appendChild(knob);
-  wrapper.appendChild(track);
-
-  track.addEventListener('click', (e) => {
-    if (isDisabled) return;
-    const rect = track.getBoundingClientRect();
-    const relX = e.clientX - rect.left;
-    const slotWidth = rect.width / labels.length;
-    const newIndex = Math.floor(relX / slotWidth);
-    if (newIndex !== index) {
-      index = newIndex;
-      updatePosition();
-      onChange(labels[index], index);
-    }
-
-    // Move this logic here so it works in both manual and auto clutch modes
-    try {
-      const audio = new Audio("/sounds/gear-shift.wav");
-      audio.play();
-    } catch (e) {
-      console.warn("Gear shift sound failed to play:", e);
-    }
-  });
-  
-
-  function updatePosition() {
-    const percent = (index + 0.5) / labels.length * 100;
-    knob.style.left = `${percent}%`;
-    knob.setAttribute('data-label', labels[index]);
+    this.updatePosition();
   }
 
-  updatePosition();
-
-  return {
-    element: wrapper,
-    setValue: (idx) => {
-      if (idx >= 0 && idx < labels.length) {
-        index = idx;
-        updatePosition();
-      }
-    },
-    getValue: () => ({ label: labels[index], index }),
-    setDisabled: (disabled) => {
-      isDisabled = disabled;
-      if (disabled) {
-        track.classList.add('disabled');
-        knob.style.opacity = 0.4;
-      } else {
-        track.classList.remove('disabled');
-        knob.style.opacity = 1.0;
-      }
-    }
-  };
-}
-
-// === LEVER ===
-function createLever(label, options = {}) {
-  const {
-    min = 0,
-    max = 100,
-    step = 1,
-    initial = min,
-    discrete = false,
-    onChange = () => {}
-  } = options;
-
-  const range = max - min;
-  let currentValue = initial;
-
-  const wrapper = document.createElement('div');
-  wrapper.className = 'control-wrapper';
-
-  const title = document.createElement('label');
-  title.textContent = label;
-  wrapper.appendChild(title);
-
-  const track = document.createElement('div');
-  track.className = 'lever-track';
-
-  const knob = document.createElement('div');
-  knob.className = 'lever-knob';
-  track.appendChild(knob);
-  wrapper.appendChild(track);
-
-  function updatePosition() {
-    const percent = (currentValue - min) / range;
-    knob.style.top = `${(1 - percent) * 100}%`;
+  updatePosition() {
+    const percent = (this.index + 0.5) / this.labels.length * 100;
+    this.knob.style.left = `${percent}%`;
+    this.knob.setAttribute('data-label', this.labels[this.index]);
   }
 
-  let dragging = false;
-
-  knob.addEventListener('mousedown', (e) => {
-    e.preventDefault();
-    dragging = true;
-    document.body.style.userSelect = 'none';
-  });
-
-  document.addEventListener('mouseup', () => {
-    dragging = false;
-    document.body.style.userSelect = '';
-  });
-
-  document.addEventListener('mousemove', (e) => {
-    if (!dragging) return;
-    const rect = track.getBoundingClientRect();
-    const offsetY = e.clientY - rect.top;
-    const percent = Math.min(Math.max(offsetY / rect.height, 0), 1);
-    let newValue = min + (1 - percent) * range;
-
-    if (discrete) newValue = Math.round(newValue / step) * step;
-
-    if (newValue !== currentValue) {
-      currentValue = newValue;
-      updatePosition();
-      onChange(currentValue);
+  setValue(idx) {
+    if (idx >= 0 && idx < this.labels.length) {
+      this.index = idx;
+      this.updatePosition();
     }
-  });
+  }
 
-  updatePosition();
+  getValue() {
+    return { label: this.labels[this.index], index: this.index };
+  }
 
-  return {
-    element: wrapper,
-    setValue: (val) => {
-      const clamped = Math.max(min, Math.min(max, val));
-      if (clamped !== currentValue) {
-        currentValue = clamped;
-        updatePosition();
-        onChange(currentValue);
-      }
-    },
-    getValue: () => currentValue
-  };
+  setDisabled(disabled) {
+    this.isDisabled = disabled;
+    this.track.classList.toggle('disabled', disabled);
+    this.knob.style.opacity = disabled ? 0.4 : 1.0;
+  }
 }
+
+// === SLIDER COMPONENT ===
+class SliderComponent extends BaseComponent {
+  constructor({ min = 0, max = 100, initial = 0, step = 1, onChange = () => {} } = {}) {
+    super();
+    this.min = min;
+    this.max = max;
+    this.step = step;
+    this.value = initial;
+    this.onChange = onChange;
+
+    this.slider = document.createElement('input');
+    this.slider.type = 'range';
+    this.slider.min = min;
+    this.slider.max = max;
+    this.slider.step = step;
+    this.slider.value = initial;
+    this.slider.className = 'control-slider';
+
+    this.slider.addEventListener('input', () => {
+      this.value = parseFloat(this.slider.value);
+      this.onChange(this.value);
+    });
+
+    this.wrapper.appendChild(this.slider);
+  }
+
+  setValue(val) {
+    this.value = Math.max(this.min, Math.min(this.max, val));
+    this.slider.value = this.value;
+  }
+
+  getValue() {
+    return this.value;
+  }
+}
+
+// === LEVER COMPONENT ===
+class LeverComponent extends BaseComponent {
+  constructor({ label = '', onActivate = () => {}, cooldown = 0, min = 0, max = 100, initial = 0, discrete = false, onChange = () => {} } = {}) {
+    super();
+    this.cooldown = cooldown;
+    this.onActivate = onActivate;
+    this.ready = true;
+    this.min = min;
+    this.max = max;
+    this.value = initial;
+    this.discrete = discrete;
+    this.onChange = onChange;
+
+    this.lever = document.createElement('div');
+    this.lever.className = 'lever-track';
+
+    this.knob = document.createElement('div');
+    this.knob.className = 'lever-knob';
+    this.knob.textContent = label;
+    this.lever.appendChild(this.knob);
+
+    this.lever.addEventListener('click', (e) => {
+      const rect = this.lever.getBoundingClientRect();
+      const relY = e.clientY - rect.top;
+      const percent = relY / rect.height;
+      let newValue = (1 - percent) * (this.max - this.min) + this.min;
+      if (this.discrete) newValue = Math.round(newValue);
+      this.value = Math.max(this.min, Math.min(this.max, newValue));
+      this.onChange(this.value);
+      this.updatePosition();
+    });
+
+    this.wrapper.appendChild(this.lever);
+    this.updatePosition();
+  }
+
+  setValue(val) {
+    this.value = Math.max(this.min, Math.min(this.max, val));
+    this.updatePosition();
+  }
+
+  getValue() {
+    return this.value;
+  }
+
+  updatePosition() {
+    const percent = (this.value - this.min) / (this.max - this.min);
+    const top = (1 - percent) * 100;
+    this.knob.style.top = `${top}%`;
+    this.knob.textContent = this.value;
+  }
+}
+
+// === EXPORTS ===
+export {
+  BaseComponent,
+  ButtonComponent,
+  ToggleButtonComponent,
+  GearKnobComponent,
+  SliderComponent,
+  LeverComponent
+};

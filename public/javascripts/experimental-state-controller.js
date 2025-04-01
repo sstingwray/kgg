@@ -1,7 +1,13 @@
 // experimental-state-controller.js
 
-function createGameState() {
-  let state = {
+export function createGameState() {
+  const engineConfig = {
+  peakTorque: 10,
+  energyToTorqueRate: 0.6,
+  fuelEfficiency: 0.02
+};
+
+  const state = {
     fuel: 100,
     energyOutput: 0,
     heat: 0,
@@ -20,116 +26,157 @@ function createGameState() {
     traction: 7,
     emptyWeight: 1200,
     maxLoad: 4000,
-    currentLoad: 1200
+    currentLoad: 1200,
+
+    clutchEngaged: true,
+    clutchOverride: false,
+    automaticClutch: false,
+    gearShiftCooldown: 0,
+
+    torqueHistory: Array(100).fill(0) // for graphing
   };
 
   const gearRatios = {
     "Reverse": 1,
     "Neutral": 0,
     "1st": 1,
-    "2nd": 1.2,
-    "3rd": 1.6
+    "2nd": 1.8,
+    "3rd": 3.2
   };
 
-  let clutchEngaged = true;
-  let clutchOverride = false;
-  let gearShiftCooldown = 0;
-  let automaticClutch = false;
-
-  function update(deltaSeconds = 1) {
-    // Clutch logic
-    if (clutchOverride) {
-      clutchEngaged = false;
+  function updateClutch(delta) {
+    if (state.clutchOverride) {
+      state.clutchEngaged = false;
     } else {
-      clutchEngaged = gearShiftCooldown <= 0;
-      if (gearShiftCooldown > 0) {
-        gearShiftCooldown = Math.max(0, gearShiftCooldown - deltaSeconds);
+      if (state.gearShiftCooldown > 0) {
+        state.gearShiftCooldown = Math.max(0, state.gearShiftCooldown - delta);
+        state.clutchEngaged = false;
+      } else {
+        state.clutchEngaged = true;
       }
     }
+  }
 
-    const ignition = state.ignition;
-    const output = ignition ? state.energyOutput : 0;
-    const effectiveOutput = ignition ? Math.max(0.5, output) : 0;
-
-    // Fuel usage
-    const fuelBurnRate = 0.02 * effectiveOutput;
-    if (ignition) {
-      state.fuel = Math.max(0, state.fuel - fuelBurnRate * deltaSeconds);
+  function updateFuel(delta) {
+    if (state.ignition) {
+      const effectiveOutput = Math.max(0.5, state.energyOutput);
+      const rate = engineConfig.fuelEfficiency;
+      state.fuel = Math.max(0, state.fuel - rate * effectiveOutput * delta);
     }
+  }
 
-    // Heat generation and dissipation
-    const heatGen = effectiveOutput * 0.6;
-    const heatDissipation = effectiveOutput < 5 ? (5 - effectiveOutput) * 0.5 : 0;
-    state.heat = Math.min(100, Math.max(0, state.heat + (heatGen - heatDissipation) * deltaSeconds));
+  function updateHeat(delta) {
+    const output = state.energyOutput;
+    const heatGen = output * 0.6;
+    const heatDiss = output < 5 ? (5 - output) * 0.5 : 0;
+    state.heat = Math.min(100, Math.max(0, state.heat + (heatGen - heatDiss) * delta));
+  }
 
-    // Raw torque calculation
-    let rawTorque = 0;
-    if (effectiveOutput <= 5) {
-      rawTorque = 0.6 * effectiveOutput;
-    } else if (effectiveOutput <= 15) {
-      rawTorque = 3 + ((effectiveOutput - 5) / 10) * 3;
+  function calculateTorque() {
+    const output = state.ignition ? state.energyOutput : 0;
+
+    // Calculate raw torque as a normalized input
+    let normalizedOutput = Math.min(1, Math.max(0, output / 20)); // range 0–1
+    let torqueCurve = 0;
+
+    if (normalizedOutput <= 0.25) {
+      torqueCurve = engineConfig.energyToTorqueRate * normalizedOutput * 4;
+    } else if (normalizedOutput <= 0.75) {
+      torqueCurve = 1; // plateau region
     } else {
-      rawTorque = 6 - ((effectiveOutput - 15) / 5) * 3;
+      torqueCurve = 1 - (normalizedOutput - 0.75) * 4; // taper off
     }
 
-    const selectedGear = clutchEngaged ? state.gear : "Neutral";
-    const gearRatio = gearRatios[selectedGear] || 0;
-    const gearTorqueFactor = 1 / Math.max(gearRatio, 0.5);
+    const gearRatio = gearRatios[state.gear] || 0;
+    const torqueFactor = 1 / Math.max(gearRatio/2, 0.5);
+    const penalty = !state.clutchEngaged || state.gear == "Neutral" ? 0.5 : 0.4;
 
-    const torquePenalty = clutchEngaged ? 0.5 : 1;
-    state.torque = ignition ? Math.max(0, Math.min(10, rawTorque * gearTorqueFactor * torquePenalty)) : 0;
+    const targetTorque = state.ignition
+      ? engineConfig.peakTorque * torqueCurve * torqueFactor * penalty
+      : 0;
 
-    // Base RPM logic
-    if (!clutchEngaged || state.gear == 'Neutral' || state.torque > state.terrainResistance) {
-      const targetRPM = (effectiveOutput / 20) * 10;
-      state.baseRPM += (targetRPM - state.baseRPM) * 0.1;
+    state.torque += (targetTorque - state.torque) * 0.2;
+  }
+
+  function updateRPMs(delta) {
+    const output = state.ignition ? state.energyOutput : 0;
+    const baseRPMTarget = output * 0.5; // directly driven by energy output
+
+    const torqueDelta = state.torque - state.terrainResistance;
+    const canClimb = torqueDelta >= 0;
+
+    if (canClimb) {
+      const boost = torqueDelta / 10; // boost factor from excess torque
+      const rampRate = 2 + boost * 2;
+      state.baseRPM += (baseRPMTarget - state.baseRPM) * rampRate * delta;
     } else {
-      state.baseRPM -= state.baseRPM * 0.05;
+      const lossRate = state.clutchEngaged ? 4 : (state.terrainResistance + state.terrainFriction) * 0.5;
+      state.baseRPM -= lossRate * delta;
     }
-    state.baseRPM = ignition ? Math.max(0.5, state.baseRPM) : 0;
 
-    state.gearRatio = gearRatio;
-    state.endpointRPM = state.baseRPM * gearRatio;
-    state.speed = state.endpointRPM * 10;
+    state.baseRPM = Math.max(0, state.baseRPM);
 
-    state.isStalled = clutchEngaged && (state.torque < state.terrainResistance);
+    const canTransmit = state.clutchEngaged && state.gear !== "Neutral";
+    const targetEndpointRPM = canTransmit ? state.baseRPM * (gearRatios[state.gear] || 0) : 0;
+    if (canTransmit) {
+      state.endpointRPM += (targetEndpointRPM - state.endpointRPM) * 0.1;
+    } else {
+      // Only slight decay if not transmitting
+      state.endpointRPM -= state.endpointRPM * 0.01 * delta;
+    }
+  }
+
+  function updateSpeed() {
+    if (state.torque < state.terrainResistance) {
+      state.endpointRPM -= state.endpointRPM * 0.1;
+      state.speed -= state.speed * 0.05;
+    } else {
+      state.speed = state.endpointRPM * 10;
+    }
+    state.speed = Math.max(0, state.speed);
+  }
+
+  function checkStall() {
+    state.isStalled = state.clutchEngaged && state.torque < state.terrainResistance;
+  }
+
+  function updateHistory() {
+    state.torqueHistory.push(state.torque);
+    if (state.torqueHistory.length > 100) state.torqueHistory.shift();
+  }
+
+  function tick(delta = 1) {
+    updateClutch(delta);
+    updateFuel(delta);
+    updateHeat(delta);
+    calculateTorque();
+    updateRPMs(delta);
+    updateSpeed();
+    checkStall();
+    updateHistory();
   }
 
   return {
-    getState: () => ({ ...state, clutchEngaged, automaticClutch }),
-
+    getState: () => ({ ...state }),
+    tick,
     setEnergyOutput: (val) => {
-      const newVal = Math.max(0, Math.min(20, val));
-      if (state.ignition) {
-        state.energyOutput = newVal;
-      } else {
-        state.energyOutput = 0;
-      }
+      state.energyOutput = state.ignition ? Math.max(0, Math.min(20, val)) : 0;
     },
-
     setGear: (gear) => {
-      const canShift = automaticClutch || clutchEngaged;
-      if (canShift && gear in gearRatios && gear !== state.gear) {
+      if ((state.automaticClutch || !state.clutchEngaged) && gear in gearRatios && gear !== state.gear) {
         state.gear = gear;
-        gearShiftCooldown = 0.5;
+        state.gearShiftCooldown = 0.5;
       }
     },
-
     toggleIgnition: () => {
       state.ignition = !state.ignition;
-      if (!state.ignition) {
-        state.energyOutput = 0;
-      }
+      if (!state.ignition) state.energyOutput = 0;
     },
-
-    setClutchOverride: (isHeld) => {
-      clutchOverride = isHeld;
-    },
-
     toggleAutomaticClutch: () => {
-      automaticClutch = !automaticClutch;
+      state.automaticClutch = !state.automaticClutch;
     },
-
-    tick: update
+    setClutchOverride: (isHeld) => {
+      state.clutchOverride = isHeld;
+    }
   };
 }
