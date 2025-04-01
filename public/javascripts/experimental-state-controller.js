@@ -33,7 +33,7 @@ export function createGameState() {
     automaticClutch: false,
     gearShiftCooldown: 0,
 
-    torqueHistory: Array(100).fill(0) // for graphing
+    speedHistory: Array(100).fill(0) // for graphing
   };
 
   const gearRatios = {
@@ -43,6 +43,9 @@ export function createGameState() {
     "2nd": 1.8,
     "3rd": 3.2
   };
+
+  const mechMass = state.emptyWeight + state.currentLoad;
+  const dragFactor = (state.terrainResistance + state.terrainFriction) / mechMass;
 
   function updateClutch(delta) {
     if (state.clutchOverride) {
@@ -110,7 +113,7 @@ export function createGameState() {
       const rampRate = 2 + boost * 2;
       state.baseRPM += (baseRPMTarget - state.baseRPM) * rampRate * delta;
     } else {
-      const lossRate = state.clutchEngaged ? 4 : (state.terrainResistance + state.terrainFriction) * 0.5;
+      const lossRate = state.clutchEngaged ? Math.max(state.gearRatio/2, 0.5) * 4 : (state.terrainResistance + state.terrainFriction) * 0.5;
       state.baseRPM -= lossRate * delta;
     }
 
@@ -118,6 +121,9 @@ export function createGameState() {
 
     const canTransmit = state.clutchEngaged && state.gear !== "Neutral";
     const targetEndpointRPM = canTransmit ? state.baseRPM * (gearRatios[state.gear] || 0) : 0;
+    state.endpointRPM -= state.endpointRPM * dragFactor * 50 * delta;
+
+
     if (canTransmit) {
       state.endpointRPM += (targetEndpointRPM - state.endpointRPM) * 0.1;
     } else {
@@ -141,8 +147,8 @@ export function createGameState() {
   }
 
   function updateHistory() {
-    state.torqueHistory.push(state.torque);
-    if (state.torqueHistory.length > 100) state.torqueHistory.shift();
+    state.speedHistory.push(state.speed);
+    if (state.speedHistory.length > 100) state.speedHistory.shift();
   }
 
   function tick(delta = 1) {

@@ -61,10 +61,10 @@
   #panel-top-center     { top: 20px; left: 50%; transform: translateX(-50%); width: 400px; height: 140px; }
   #panel-top-right      { top: 20px; right: 20px; width: 340px; height: 220px; }
   #panel-mid-left       { top: 50%; left: 20px; transform: translateY(-50%); width: 300px; height: 200px; }
-  #panel-center-main    { top: 50%; left: 50%; transform: translate(-50%, -50%); width: 400px; height: 300px; justify-content: center; align-items: center; }
+  #panel-center-main    { top: 50%; left: 50%; transform: translate(-50%, -50%); width: 400px; height: 340px; align-items: center; }
   #panel-mid-right      { top: 50%; right: 20px; transform: translateY(-50%); width: 340px; height: 240px; }
   #panel-bottom-left    { bottom: 20px; left: 20px; width: 300px; height: 200px; }
-  #panel-bottom-center  { bottom: 20px; left: 50%; transform: translateX(-50%); width: 500px; height: 220px; }
+  #panel-bottom-center  { bottom: 20px; left: 50%; transform: translateX(-50%); width: 300px; height: 120px; }
   #panel-bottom-right   { bottom: 20px; right: 20px; width: 340px; height: 240px; }
   
   /* Controls */

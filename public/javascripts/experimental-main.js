@@ -250,7 +250,7 @@ import {
     canvas.width = 400;
     canvas.height = 100;
     canvas.style.position = 'absolute';
-    canvas.style.bottom = '10px';
+    canvas.style.bottom = '36px';
     canvas.style.right = '10px';
     canvas.style.border = '1px solid #0f0';
     canvas.style.background = '#000';
@@ -267,7 +267,7 @@ import {
     const step = ctx.canvas.width / values.length;
     values.forEach((val, i) => {
       const x = i * step;
-      const y = ctx.canvas.height - (val / 10) * ctx.canvas.height;
+      const y = ctx.canvas.height - (val / 330) * ctx.canvas.height;
       if (i === 0) ctx.moveTo(x, y);
       else ctx.lineTo(x, y);
     });
@@ -285,7 +285,7 @@ import {
 
     setInterval(() => {
         const state = game.getState();
-        drawTorqueGraph(torqueCtx, state.torqueHistory);
+        drawTorqueGraph(torqueCtx, state.speedHistory);
     }, 100);
 
     startGameLoop();
