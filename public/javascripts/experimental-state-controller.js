@@ -1,5 +1,7 @@
 // experimental-state-controller.js
 
+import { generateTerrainMap } from './experimental-terragen.js';
+
 export function createGameState() {
   const engineConfig = {
   peakTorque: 10,
@@ -23,7 +25,7 @@ export function createGameState() {
     terrainResistance: 2,
     terrainFriction: 3,
 
-    traction: 7,
+    traction: 4,
     emptyWeight: 1200,
     maxLoad: 4000,
     currentLoad: 1200,
@@ -33,7 +35,9 @@ export function createGameState() {
     automaticClutch: false,
     gearShiftCooldown: 0,
 
-    speedHistory: Array(100).fill(0) // for graphing
+    speedHistory: Array(100).fill(0), // for graphing
+
+    mechX: 0,
   };
 
   const gearRatios = {
@@ -46,6 +50,13 @@ export function createGameState() {
 
   const mechMass = state.emptyWeight + state.currentLoad;
   const dragFactor = (state.terrainResistance + state.terrainFriction) / mechMass;
+
+  const terrain = generateTerrainMap({ segmentLength: 100, segmentCount: 200, seed: 42 });
+
+  let currentSegmentIndex = 0;
+  state.terrainMap = terrain;
+  state.currentSegment = terrain[0];
+
 
   function updateClutch(delta) {
     if (state.clutchOverride) {
@@ -69,14 +80,14 @@ export function createGameState() {
   }
 
   function updateHeat(delta) {
-    const output = state.energyOutput;
-    const heatGen = output * 0.6;
+    const output = state.ignition && !state.energyOutputCutoff ? state.energyOutput : 0;
+    const heatGen = output * 0.2;
     const heatDiss = output < 5 ? (5 - output) * 0.5 : 0;
     state.heat = Math.min(100, Math.max(0, state.heat + (heatGen - heatDiss) * delta));
   }
 
   function calculateTorque() {
-    const output = state.ignition ? state.energyOutput : 0;
+    const output = (state.ignition && !state.energyOutputCutoff) ? state.energyOutput : 0;
 
     // Calculate raw torque as a normalized input
     let normalizedOutput = Math.min(1, Math.max(0, output / 20)); // range 0–1
@@ -133,14 +144,18 @@ export function createGameState() {
   }
 
   function updateSpeed() {
+    const frictionResistance = Math.max(0, state.terrainFriction - state.traction);
+  
     if (state.torque < state.terrainResistance) {
       state.endpointRPM -= state.endpointRPM * 0.1;
-      state.speed -= state.speed * 0.05;
+      state.speed -= state.speed * (0.05 + frictionResistance * 0.01);
     } else {
       state.speed = state.endpointRPM * 10;
     }
+  
     state.speed = Math.max(0, state.speed);
   }
+  
 
   function checkStall() {
     state.isStalled = state.clutchEngaged && state.torque < state.terrainResistance;
@@ -151,7 +166,29 @@ export function createGameState() {
     if (state.speedHistory.length > 100) state.speedHistory.shift();
   }
 
+  function updateTerrainFromPosition(x) {
+    const segment = state.terrainMap.find((seg, i) => {
+      const next = state.terrainMap[i + 1];
+      return next ? x >= seg.x && x < next.x : true;
+    });
+  
+    if (segment) {
+      state.terrainResistance = segment.resistance;
+      state.terrainFriction = segment.friction;
+      state.currentSegment = segment;
+    }
+  }
+
   function tick(delta = 1) {
+    if (state.energyOutputCutoff) {
+      state.energyOutputRestoreDelay -= delta;
+      if (state.energyOutputRestoreDelay <= 0) {
+        state.energyOutputCutoff = false;
+      }
+    }
+
+    state.mechX += state.speed * delta;
+    
     updateClutch(delta);
     updateFuel(delta);
     updateHeat(delta);
@@ -160,18 +197,21 @@ export function createGameState() {
     updateSpeed();
     checkStall();
     updateHistory();
+    updateTerrainFromPosition(state.mechX);
   }
 
   return {
     getState: () => ({ ...state }),
     tick,
     setEnergyOutput: (val) => {
-      state.energyOutput = state.ignition ? Math.max(0, Math.min(20, val)) : 0;
+      state.energyOutput = Math.max(0, Math.min(20, val));
     },
     setGear: (gear) => {
       if ((state.automaticClutch || !state.clutchEngaged) && gear in gearRatios && gear !== state.gear) {
         state.gear = gear;
         state.gearShiftCooldown = 0.5;
+        state.energyOutputCutoff = true;
+        state.energyOutputRestoreDelay = 0.5;
       }
     },
     toggleIgnition: () => {

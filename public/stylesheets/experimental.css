@@ -1,194 +1,287 @@
-/* experimental.css */
+/* Clean and consistent experimental.css */
 
 :root {
-    --primary-color: #0f0;
-    --background-color: #0d0d0d;
-    --panel-bg: rgba(16, 32, 16, 0.85);
-    --font: monospace;
-    --button-bg: #111;
-    --text-color: #0f0;
-    --hover-bg: #0f0;
-    --hover-text: #000;
-  }
-  
-  body {
-    margin: 0;
-    background: var(--background-color);
-    color: var(--text-color);
-    font-family: var(--font);
-    overflow: hidden;
-  }
-  
-  #game-root {
-    position: relative;
-    width: 100vw;
-    height: 100vh;
-  }
-  
-  #gameCanvas {
-    width: 100%;
-    height: 100%;
-    background-color: #000;
-    display: block;
-    z-index: 0;
-  }
-  
-  #ui-overlay {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-  }
-  
-  .ui-panel {
-    position: absolute;
-    background: var(--panel-bg);
-    border: 2px solid var(--primary-color);
-    border-radius: 8px;
-    padding: 12px;
-    color: var(--text-color);
-    font-family: var(--font);
-    pointer-events: auto;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-  
-  /* Panel layout remains unchanged */
-  #panel-top-left       { top: 20px; left: 20px; width: 300px; height: 160px; }
-  #panel-top-center     { top: 20px; left: 50%; transform: translateX(-50%); width: 400px; height: 140px; }
-  #panel-top-right      { top: 20px; right: 20px; width: 340px; height: 220px; }
-  #panel-mid-left       { top: 50%; left: 20px; transform: translateY(-50%); width: 300px; height: 200px; }
-  #panel-center-main    { top: 50%; left: 50%; transform: translate(-50%, -50%); width: 400px; height: 340px; align-items: center; }
-  #panel-mid-right      { top: 50%; right: 20px; transform: translateY(-50%); width: 340px; height: 240px; }
-  #panel-bottom-left    { bottom: 20px; left: 20px; width: 300px; height: 200px; }
-  #panel-bottom-center  { bottom: 20px; left: 50%; transform: translateX(-50%); width: 300px; height: 120px; }
-  #panel-bottom-right   { bottom: 20px; right: 20px; width: 340px; height: 240px; }
-  
-  /* Controls */
-  .control-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-  }
-  
-  .control-button {
-    background-color: var(--button-bg);
-    border: 2px solid var(--primary-color);
-    color: var(--text-color);
-    padding: 10px;
-    font-size: 24px;
-    font-family: var(--font);
-    cursor: pointer;
-    border-radius: 8px;
-    text-align: center;
-    transition: background-color 0.2s ease;
-    width: 100%;
-  }
-  
-  .control-button:hover {
-    background-color: var(--hover-bg);
-    color: var(--hover-text);
-  }
-  
-  .control-button.toggled {
-    background-color: var(--hover-bg);
-    color: var(--hover-text);
-  }
-  
-  /* Lever */
-  .lever-track {
-    position: relative;
-    width: 60px;
-    height: 180px;
-    background: #222;
-    border: 2px solid var(--primary-color);
-    border-radius: 6px;
-    cursor: pointer;
-  }
-  
-  .lever-knob {
-    position: absolute;
-    left: 0;
-    width: 100%;
-    height: 28px;
-    background: var(--primary-color);
-    border-radius: 20px;
-    transform: translateY(-50%);
-    transition: top 0.1s ease;
-    text-align: center;
-    font-size: 12px;
-    line-height: 28px;
-    color: var(--hover-text);
-    font-weight: bold;
-    box-shadow:
-      inset 0 1px 2px rgba(0, 0, 0, 0.6),
-      0 2px 4px rgba(0, 255, 0, 0.3),
-      0 0 8px rgba(0, 255, 0, 0.2);
-  }
-  
-  /* Reactor */
-  .reactor-cluster {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 12px;
-    width: 100%;
-  }
-  
-  .reactor-side-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    flex-shrink: 0;
-  }
-  
-  .reactor-output-lever {
-    flex-grow: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  .monitor-line {
-    margin-bottom: 6px;
-    font-size: 14px;
-  }
-  
-  canvas {
-    image-rendering: pixelated;
-  }
-  
-  .gear-track {
-    position: relative;
-    width: 100%;
-    height: 40px;
-    background: #222;
-    border: 2px solid var(--primary-color);
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  
-  .gear-knob {
-    position: absolute;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: 60px;
-    height: 36px;
-    background-color: var(--primary-color);
-    border-radius: 6px;
-    text-align: center;
-    line-height: 36px;
-    font-size: 14px;
-    color: var(--hover-text);
-    font-weight: bold;
-    box-shadow:
-      inset 0 1px 2px rgba(0, 0, 0, 0.6),
-      0 2px 4px rgba(0, 255, 0, 0.3),
-      0 0 8px rgba(0, 255, 0, 0.2);
-  }  
+  --primary-color: #0f0;
+  --background-color: rgb(40, 36, 36);
+  --panel-bg: linear-gradient(hsl(0, 0%, 66%), #111);
+  --monitor-bg: rgba(63, 177, 177, 0.459);
+  --monitor-border: rgba(212, 228, 228, 0.815);
+  --cockpit-panel-bg: linear-gradient(to bottom, #111, #1a1a1a);
+  --window-bg: radial-gradient(ellipse at center, #0f0f0f 0%, #000000 100%);
+  --font: monospace;
+  --button-bg: #111;
+  --text-color: #0f0;
+  --hover-bg: #0f0;
+  --hover-text: #000;
+}
+
+/* === General Layout === */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: var(--font);
+  color: var(--text-color);
+}
+
+#game-root {
+  width: 1024px;
+  height: 768px;
+  position: relative;
+  background-color: var(--background-color);
+  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+}
+
+#ui-overlay {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+.panel-group {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: calc(12*4px);
+  padding: 0 10px;
+  pointer-events: none;
+  height: fit-content;
+}
+
+#top-panels, #bottom-panels {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: calc(12*8px);
+}
+
+#top-panels {
+  top: 12px;
+}
+#bottom-panels {
+  position: absolute;
+  bottom: 12px;
+  height: calc(12*22px);
+  gap: 0;
+}
+
+/* === UI Panels === */
+.ui-panel {
+  pointer-events: auto;
+  background: var(--panel-bg);
+  border: 5px solid transparent;
+  border-radius: 8px;
+  box-shadow:
+    0 0 0 2px #888,
+    inset 0 0 4px #222,
+    0 1px 10px rgba(0, 255, 0, 0.15);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+#panel-top-left,
+#panel-top-center,
+#panel-top-right,
+#panel-mid-left {
+  background: var(--monitor-bg);
+  border: 5px solid transparent;
+  border-radius: 8px;
+  box-shadow:
+    0 0 0 2px #888,
+    inset 0 0 4px #222,
+    0 1px 10px rgba(0, 255, 0, 0.15);
+  width: 300px;
+}
+
+#panel-mid-left {
+  position: absolute;
+  top: calc(12*22px);
+  left: 12px;
+  transform: translateY(-50%);
+  height: 180px;
+  width: calc(12*8px);
+}
+
+#panel-mid-right {
+  position: absolute;
+  padding: 12px;
+  bottom: calc(12*10px);
+  right: 12px;
+  transform: translateY(-50%);
+  width: fit-content;
+  height: fit-content;
+  background: var(--cockpit-panel-bg);
+  box-shadow: inset 0 0 8px rgba(0, 255, 0, 0.15);
+}
+.reactor-cluster {
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  gap: 4px;
+  padding-bottom: 12px;
+}
+.reactor-side-buttons {
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  gap: 4px;
+}
+
+#panel-bottom-left,
+#panel-bottom-center,
+#panel-bottom-right {
+  background: var(--cockpit-panel-bg);
+  box-shadow: inset 0 0 8px rgba(0, 255, 0, 0.15);
+}
+
+#panel-bottom-right {
+  display: flex;
+  flex-flow: column;
+  align-items: flex-end;
+  gap: 12px;
+  width: fit-content;
+  background: var(--cockpit-panel-bg);
+  box-shadow: inset 0 0 8px rgba(0, 255, 0, 0.15);
+}
+
+#panel-center-main {
+  position: absolute;
+  top: 40%;
+  left: 52%;
+  transform: translate(-50%, -50%);
+  width: calc(12*54px);
+  height: calc(12*23px);
+  background: var(--window-bg);
+  border: 6px solid #333;
+  border-radius: 6px;
+  box-shadow: inset 0 0 12px rgba(0, 255, 0, 0.05);
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+canvas {
+  image-rendering: pixelated;
+  display: block;
+  max-width: 100%;
+}
+
+#terrainScannerCanvas {
+  max-width: fit-content !important;
+}
+
+/* === COMPONENTS === */
+.control-button {
+  background-color: var(--button-bg);
+  border: 2px solid var(--primary-color);
+  color: var(--text-color);
+  padding: 8px;
+  width: 48px;
+  height: 48px;
+  font-size: 18px;
+  font-family: var(--font);
+  cursor: pointer;
+  border-radius: 6px;
+  text-align: center;
+  transition: background-color 0.2s ease;
+}
+
+.control-button:hover {
+  background-color: var(--hover-bg);
+  color: var(--hover-text);
+}
+
+.control-button.toggled {
+  background-color: var(--hover-bg);
+  color: var(--hover-text);
+}
+
+.monitor-line {
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--text-color);
+}
+
+.lever-track {
+  position: relative;
+  width: calc(12*2px - 8px);
+  height: calc(12*12px);
+  background: #1a1a1a;
+  border: 4px solid rgb(52, 50, 50);
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;
+}
+
+.lever-knob {
+  position: absolute;
+  left: -12px;
+  width: calc(12*2px);
+  height: calc(12*2px);
+  background: var(--primary-color);
+  border: 8px solid rgb(52, 50, 50);
+  border-radius: calc(12*2px);
+  transform: translateY(-50%);
+  transition: top 0.1s ease;
+  text-align: center;
+  font-size: 12px;
+  line-height: 28px;
+  color: var(--hover-text);
+  font-weight: bold;
+  box-shadow: rgb(38, 57, 77) 0px 20px 30px -10px;
+  transition: top 0.15s ease-out;
+}
+
+.gear-stick-layout {
+  display: flex;
+  flex-flow: row;
+  align-items: stretch;
+  gap: calc(12*2px);
+}
+
+.gear-stick-label-column {
+  display: flex;
+  flex-flow: column;
+  justify-content: space-around;
+}
+
+.gear-stick-track {
+  position: relative;
+  width: calc(12*4px - 8px);
+  height: calc(12*10px);
+  background: #1a1a1a;
+  border: 4px solid rgb(52, 50, 50);
+  border-radius: 8px;
+  cursor: pointer;
+  padding: 12px 0;
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;
+}
+
+.gear-stick-knob {
+  position: absolute;
+  left: -16px;
+  width: calc(12*6px);
+  height: calc(12*3px);
+  background: linear-gradient(to bottom, rgb(40, 36, 36), rgb(52, 50, 50));
+  border-radius: 12px;
+  text-align: center;
+  line-height: 32px;
+  font-weight: bold;
+  color: var(--hover-text);
+  box-shadow: rgb(38, 57, 77) 0px 20px 30px -10px;
+  transform: translateY(-50%);
+  transition: top 0.15s ease;
+}

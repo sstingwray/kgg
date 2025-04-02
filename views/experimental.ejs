@@ -5,27 +5,37 @@
   <meta charset="UTF-8" />
   <title>Mech Trucker Prototype</title>
   <link rel="stylesheet" href="/stylesheets/experimental.css" />
+  <link rel="stylesheet" href="/stylesheets/fontawesome.css">
+  <link rel="stylesheet" href="/stylesheets/brands.css">
+  <link rel="stylesheet" href="/stylesheets/solid.css">
 </head>
 <body>
   <main id="cockpit">
     <div id="game-root">
+      <div id="cockpit-background"></div>
       <canvas id="gameCanvas" width="1280" height="720" aria-label="Game World"></canvas>
 
       <div id="ui-overlay">
-        <section class="ui-panel" id="panel-top-left" role="region" aria-label="System Info"></section>
-        <section class="ui-panel" id="panel-top-center" role="region" aria-label="Holo Deck Controls"></section>
-        <section class="ui-panel" id="panel-top-right" role="region" aria-label="System Monitor">
-          <canvas id="systemMonitorCanvas" width="260" height="100" aria-label="System Monitor Meters"></canvas>
-        </section>
+        <div id="top-panels" class="panel-group">
+          <section class="ui-panel" id="panel-top-left" role="region" aria-label="System Info"></section>
+          <section class="ui-panel" id="panel-top-center" role="region" aria-label="Holo Deck Controls"></section>
+          <section class="ui-panel" id="panel-top-right" role="region" aria-label="System Monitor">
+            <canvas id="systemMonitorCanvas" width="260" height="100" aria-label="System Monitor Meters"></canvas>
+          </section>
+        </div>
+
         <section class="ui-panel" id="panel-mid-left" role="region" aria-label="Terrain Scanner"></section>
         <section class="ui-panel" id="panel-center-main" role="region" aria-label="Central HUD">
           <canvas id="hudCanvas" width="400" height="300" aria-label="Main HUD"></canvas>
           <img id="rpmWheelImg" src="/images/rpm-wheel.svg" alt="RPM Wheel" hidden />
         </section>
         <section class="ui-panel" id="panel-mid-right" role="region" aria-label="Reactor Controls"></section>
-        <section class="ui-panel" id="panel-bottom-left" role="region" aria-label="Module Controls"></section>
-        <section class="ui-panel" id="panel-bottom-center" role="region" aria-label="Cargo and Tool Panel"></section>
-        <section class="ui-panel" id="panel-bottom-right" role="region" aria-label="Cockpit Controls"></section>
+
+        <div id="bottom-panels" class="panel-group">
+          <section class="ui-panel" id="panel-bottom-left" role="region" aria-label="Module Controls"></section>
+          <section class="ui-panel" id="panel-bottom-center" role="region" aria-label="Cargo and Tool Panel"></section>
+          <section class="ui-panel" id="panel-bottom-right" role="region" aria-label="Cockpit Controls"></section>
+        </div>
       </div>
     </div>
   </main>
@@ -33,6 +43,7 @@
   <!-- UI Component Scripts -->
   <script type="module" src="/javascripts/experimental-audio.js"></script>
   <script type="module" src="/javascripts/experimental-components.js"></script>
+  <script type="module" src="/javascripts/experimental-terragen.js"></script>
   <script type="module" src="/javascripts/experimental-state-controller.js"></script>
   <script type="module" src="/javascripts/experimental-main.js"></script>
 </body>
