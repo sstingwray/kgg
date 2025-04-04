@@ -1,12 +1,13 @@
 // experimental-main.js (Modular Rewrite)
 
 import {
+  playGearShiftSound,
+  playIgnitionSound,
+  playIgnitionOffSound,
   startEngineLoop,
   stopEngineLoop,
   updateEngineLoopPlaybackRate,
-  playIgnitionSound,
-  playIgnitionOffSound,
-  playGearShiftSound
+  playVentingSound
 } from './experimental-audio.js';
 
 import { createGameState } from './experimental-state-controller.js';
@@ -25,7 +26,7 @@ const panels = {
   timeBiome: document.getElementById('panel-top-left'),
   terrainScanner: document.getElementById('panel-top-center'),
   systemMonitor: document.getElementById('panel-top-right'),
-  holodeck: document.getElementById('panel-top-center'),
+  holodeck: document.getElementById('panel-mid-left'),
   cockpitControls: document.getElementById('panel-bottom-right'),
   reactorControls: document.getElementById('panel-mid-right'),
   modules: document.getElementById('panel-bottom-left'),
@@ -38,8 +39,18 @@ const panels = {
   let lastIgnition = false;
 
 function setupKeyboardInput() {
+  const STEP = 1;
   const isPopupVisible = () => document.body.classList.contains('disabled-input');
     window.addEventListener('keydown', e => {
+    if (e.code === 'KeyW') {
+      const s = game.getState();
+      const newVal = Math.min(20, s.energyOutput + STEP);
+      game.setEnergyOutput(newVal);
+    } else if (e.code === 'KeyS') {
+      const s = game.getState();
+      const newVal = Math.max(0, s.energyOutput - STEP);
+      game.setEnergyOutput(newVal);
+    }
     if (isPopupVisible()) return;
     if (e.code === 'Space') game.setClutchOverride(true);
   });
@@ -68,8 +79,7 @@ function setupModules() {
     if (document.body.classList.contains('disabled-input')) return;
     if (ventButton.element.disabled) return;
     game.activateVenting();
-    const audio = new Audio('/sounds/venting.wav');
-    audio.play();
+    playVentingSound();
     ventButton.element.disabled = true;
     ventButton.element.classList.add('cooldown');
     ventButton.element.style.setProperty('--cooldown-duration', '5s');
@@ -131,16 +141,6 @@ function drawMeter(ctx, x, y, label, value, max, color = "#0f0") {
   ctx.fillStyle = "#0f0";
   ctx.font = "12px monospace";
   ctx.fillText(`${label}: ${value.toFixed(1)}`, x, y - 4);
-}
-
-function drawSpinningWheel(ctx, centerX, centerY, radius, rpm) {
-  const speed = rpm / 100 * Math.PI * 2;
-  wheelAngle += speed;
-  ctx.save();
-  ctx.translate(centerX, centerY);
-  ctx.rotate(wheelAngle);
-  ctx.drawImage(rpmWheel, -radius, -radius, radius * 2, radius * 2);
-  ctx.restore();
 }
 
 let autoClutchToggle, gearStick, outputLever;
@@ -217,6 +217,27 @@ function startGameLoop() {
     game.tick(delta);
     const s = game.getState();
 
+    // === Event-driven Audio/UI Handling ===
+    s.events.forEach(event => {
+      switch (event.type) {
+        case "GEAR_SHIFT":
+          playGearShiftSound();
+          break;
+        case "IGNITION_ON":
+          playIgnitionSound();
+          startEngineLoop();
+          break;
+        case "IGNITION_OFF":
+          playIgnitionOffSound();
+          stopEngineLoop();
+          break;
+        case "VENTING_ACTIVATED":
+          playVentingSound();
+          break;
+        // MISSION_COMPLETE handled by popup
+      }
+    });
+
     // --- Audio Events ---
       if (s.ignition !== lastIgnition) {
           if (s.ignition) {
@@ -261,7 +282,6 @@ function startGameLoop() {
       ctx.font = "16px monospace";
       ctx.fillText("⚠️ STALLED", 20, 190);
     }
-    drawSpinningWheel(ctx, 320, 80, 30, s.endpointRPM);
     drawTerrainMap(s.terrainMap, s.mechX);
     drawMechPictogram();
 
@@ -281,36 +301,6 @@ function startGameLoop() {
       document.body.classList.add('disabled-input');
     }
   }, 50);
-}
-
-function setupTorqueGraph() {
-  const canvas = document.createElement('canvas');
-  canvas.id = 'torqueGraphCanvas';
-  canvas.width = 400;
-  canvas.height = 100;
-  canvas.style.position = 'absolute';
-  canvas.style.bottom = '36px';
-  canvas.style.right = '10px';
-  canvas.style.border = '1px solid #0f0';
-  canvas.style.background = '#000';
-  canvas.style.zIndex = 5;
-  panels.hud.appendChild(canvas);
-
-  return canvas.getContext('2d');
-}
-
-  function drawTorqueGraph(ctx, values) {
-  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-  ctx.strokeStyle = '#0f0';
-  ctx.beginPath();
-  const step = ctx.canvas.width / values.length;
-  values.forEach((val, i) => {
-    const x = i * step;
-    const y = ctx.canvas.height - (val / 330) * ctx.canvas.height;
-    if (i === 0) ctx.moveTo(x, y);
-    else ctx.lineTo(x, y);
-  });
-  ctx.stroke();
 }
 
 let terrainCanvas, terrainCtx;
@@ -448,6 +438,8 @@ function drawMechPictogram() {
 }
 
 function initializeUI() {
+  console.log(`Started the init...`);
+  
   setupKeyboardInput();
   renderStaticPanels();
   setupModules();
@@ -457,15 +449,7 @@ function initializeUI() {
   setupHolodeck();
   setupReactorControls();
   setupCockpitControls();
-  const torqueCtx = setupTorqueGraph();
-
-  setInterval(() => {
-      const state = game.getState();
-      drawTorqueGraph(torqueCtx, state.speedHistory);
-  }, 100);
-
   startGameLoop();
 }
 
 initializeUI();
-

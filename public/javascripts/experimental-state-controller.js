@@ -2,22 +2,41 @@
 
 import { generateTerrainMap } from './experimental-terragen.js';
 
+function normalizedParabola(norm, peak, width, scale = 1) {
+  return Math.max(0, scale * (1 - Math.pow((norm - peak) / width, 2)));
+}
+
+// === Configurable Constants ===
+const MAX_ENERGY_OUTPUT = 20; // maximum energy the mech can output
+const MAX_HEAT = 100; // maximum heat capacity before limits hit
+const FUEL_OUTPUT_FLOOR = 0.5; // minimum energyOutput for idle fuel burn
+const HEAT_GEN_RATE = 0.2; // heat produced per unit of energy output
+const HEAT_DISS_RATE = 0.5; // cooling factor when output is low
+const HEAT_DISS_THRESHOLD = 5; // threshold below which passive cooling happens
+const TORQUE_RAMP_RATE = 0.2; // how fast torque value responds to changes
+const ENDPOINT_RPM_TO_SPEED = 10; // scale from RPM to speed
+const RPM_DECAY_RATE = 0.01; // passive endpointRPM decay rate
+const STALL_DECAY_RATE = 0.1; // how quickly endpointRPM falls when stalled
+const SPEED_DECAY_BASE = 0.05; // baseline speed decay without torque
+
 export function createGameState() {
   const engineConfig = {
   peakTorque: 10,
+  maxRPM: 10,
   energyToTorqueRate: 0.6,
   fuelEfficiency: 0.02
 };
 
   const state = {
+    events: [],
     fuel: 100,
     energyOutput: 0,
     heat: 0,
     torque: 0,
+    inertia: 0,
     baseRPM: 0,
     endpointRPM: 0,
     gear: "Neutral",
-    gearRatio: 0,
     ignition: false,
     speed: 0,
     isStalled: false,
@@ -35,8 +54,6 @@ export function createGameState() {
     automaticClutch: false,
     gearShiftCooldown: 0,
 
-    speedHistory: Array(100).fill(0), // for graphing
-
     mechX: 0,
   };
 
@@ -44,46 +61,36 @@ export function createGameState() {
     "Reverse": {
       ratio: 1,
       torqueFunction: (_, energyOutput) => {
-        const norm = Math.min(1, energyOutput / 20);
-        const peak = 0.05;
-        const width = 0.1;
-        return Math.max(0, 2 - Math.pow((norm - peak) / width, 2));
+        const norm = Math.min(1, energyOutput / MAX_ENERGY_OUTPUT);
+        return normalizedParabola(norm, 0.15, 0.3, 1.2);
       }
     },
     "Neutral": {
       ratio: 0,
       torqueFunction: (_, energyOutput) => {
-        const norm = Math.min(1, energyOutput / 20);
-        const peak = 0.05;
-        const width = 0.1;
-        return Math.max(0, 2 - Math.pow((norm - peak) / width, 2));
+        const norm = Math.min(1, energyOutput / MAX_ENERGY_OUTPUT);
+        return normalizedParabola(norm, 0.15, 0.3, 1.2);
       }
     },
     "1st": {
       ratio: 1,
       torqueFunction: (_, energyOutput) => {
-        const norm = Math.min(1, energyOutput / 20);
-        const peak = 0.15;
-        const width = 0.3;
-        return Math.max(0, 2 - Math.pow((norm - peak) / width, 2));
+        const norm = Math.min(1, energyOutput / MAX_ENERGY_OUTPUT);
+        return normalizedParabola(norm, 0.15, 0.3, 1.2);
       }
     },
     "2nd": {
       ratio: 1.8,
       torqueFunction: (_, energyOutput) => {
-        const norm = Math.min(1, energyOutput / 20);
-        const peak = 0.5;
-        const width = 0.4;
-        return Math.max(0, 1.2 * (1 - Math.pow((norm - peak) / width, 2)));
+        const norm = Math.min(1, energyOutput / MAX_ENERGY_OUTPUT);
+        return normalizedParabola(norm, 0.5, 0.4, 0.6);
       }
     },
     "3rd": {
       ratio: 3.2,
       torqueFunction: (_, energyOutput) => {
-        const norm = Math.min(1, energyOutput / 20);
-        const peak = 0.8;
-        const width = 0.25;
-        return Math.max(0, 0.8 * (1 - Math.pow((norm - peak) / width, 2)));
+        const norm = Math.min(1, energyOutput / MAX_ENERGY_OUTPUT);
+        return normalizedParabola(norm, 0.8, 0.6, 0.3);
       }
     }
   };
@@ -118,7 +125,7 @@ export function createGameState() {
 
   function updateFuel(delta) {
     if (state.ignition) {
-      const effectiveOutput = Math.max(0.5, state.energyOutput);
+      const effectiveOutput = Math.max(FUEL_OUTPUT_FLOOR, state.energyOutput);
       const rate = engineConfig.fuelEfficiency;
       state.fuel = Math.max(0, state.fuel - rate * effectiveOutput * delta);
     }
@@ -126,16 +133,16 @@ export function createGameState() {
 
   function updateHeat(delta) {
     const output = state.ignition && !state.energyOutputCutoff ? state.energyOutput : 0;
-    const heatGen = output * 0.2;
-    const heatDiss = output < 5 ? (5 - output) * 0.5 : 0;
-    state.heat = Math.min(100, Math.max(0, state.heat + (heatGen - heatDiss) * delta));
+    const heatGen = output * HEAT_GEN_RATE;
+    const heatDiss = output < HEAT_DISS_THRESHOLD ? (HEAT_DISS_THRESHOLD - output) * HEAT_DISS_RATE : 0;
+    state.heat = Math.min(MAX_HEAT, Math.max(0, state.heat + (heatGen - heatDiss) * delta));
   }
 
   function calculateTorque() {
     const output = (state.ignition && !state.energyOutputCutoff) ? state.energyOutput : 0;
 
     // Calculate raw torque as a normalized input
-    let normalizedOutput = Math.min(1, Math.max(0, output / 20)); // range 0–1
+    let normalizedOutput = Math.min(1, Math.max(0, output / MAX_ENERGY_OUTPUT)); // range 0–1
     let torqueCurve = 0;
 
     if (normalizedOutput <= 0.25) {
@@ -148,21 +155,20 @@ export function createGameState() {
 
     const gear = gearRatios[state.gear] || { ratio: 0, torqueFunction: () => 0 };
     const torqueFactor = gear.torqueFunction(torqueCurve, output);
-    const penalty = !state.clutchEngaged || state.gear === "Neutral" ? 0.5 : 0.4;
+    const frictionZoneBoost = !state.clutchEngaged || state.gear === "Neutral" ? 1.5 : 1;
 
     const targetTorque = state.ignition
-      ? engineConfig.peakTorque * torqueCurve * torqueFactor * penalty
+      ? Math.min(engineConfig.peakTorque * torqueCurve * torqueFactor * frictionZoneBoost, engineConfig.peakTorque)
       : 0;
 
-    state.torque += (targetTorque - state.torque) * 0.2;
+    state.torque += (targetTorque - state.torque) * TORQUE_RAMP_RATE;
   }
 
   function updateRPMs(delta) {
-    const output = state.ignition ? state.energyOutput : 0;
-    const baseRPMTarget = output * 0.5; // directly driven by energy output
+    const baseRPMTarget = (engineConfig.peakTorque * state.torque) / engineConfig.maxRPM;
     const canTransmit = state.clutchEngaged && state.gear !== "Neutral";
 
-    const torqueDelta =  canTransmit ? state.torque - state.terrainResistance : 0;
+    const torqueDelta =  canTransmit ? state.torque - (state.terrainResistance + state.inertia) : 0;
     const canClimb = torqueDelta >= 0;
 
     if (canClimb) {
@@ -170,7 +176,8 @@ export function createGameState() {
       const rampRate = 2 + boost * 2;
       state.baseRPM += (baseRPMTarget - state.baseRPM) * rampRate * delta;
     } else {
-      const lossRate = state.clutchEngaged ? Math.max(state.gearRatio/2, 0.5) * 4 : (state.terrainResistance + state.terrainFriction) * 0.5;
+      const gearRatio = gearRatios[state.gear]?.ratio || 0;
+      const lossRate = state.clutchEngaged ? Math.max(gearRatio / 2, 0.5) * 4 : (state.terrainResistance + state.terrainFriction) * 0.5;
       state.baseRPM -= lossRate * delta;
     }
 
@@ -184,30 +191,26 @@ export function createGameState() {
       state.endpointRPM += (targetEndpointRPM - state.endpointRPM) * 0.1;
     } else {
       // Only slight decay if not transmitting
-      state.endpointRPM -= state.endpointRPM * 0.01 * delta;
+      state.endpointRPM -= state.endpointRPM * RPM_DECAY_RATE * delta;
     }
   }
 
   function updateSpeed() {
     const frictionResistance = Math.max(0, state.terrainFriction - state.traction);
+    state.inertia = 2 * (1 - Math.exp(-state.speed / 25));
   
-    if (state.torque < state.terrainResistance) {
-      state.endpointRPM -= state.endpointRPM * 0.1;
-      state.speed -= state.speed * (0.05 + frictionResistance * 0.01);
+    if (state.torque < (state.terrainResistance + state.inertia)) {
+      state.endpointRPM -= state.endpointRPM * STALL_DECAY_RATE;
+      state.speed -= state.speed * (SPEED_DECAY_BASE + frictionResistance * 0.01);
     } else {
-      state.speed = state.endpointRPM * 10;
+      state.speed = state.endpointRPM * ENDPOINT_RPM_TO_SPEED;
     }
   
     state.speed = Math.max(0, state.speed);
   }
 
   function checkStall() {
-    state.isStalled = state.clutchEngaged && state.torque < state.terrainResistance;
-  }
-
-  function updateHistory() {
-    state.speedHistory.push(state.speed);
-    if (state.speedHistory.length > 100) state.speedHistory.shift();
+    state.isStalled = state.clutchEngaged && state.torque < (state.terrainResistance + state.inertia);
   }
 
   function updateTerrainFromPosition(x) {
@@ -234,9 +237,10 @@ export function createGameState() {
 
   function activateVenting() {
     state.heat = Math.max(0, state.heat - 20);
+    state.events.push({ type: "VENTING_ACTIVATED", timestamp: state.timeElapsed });
   }
 
-  function tick(delta = 1) {
+  function checkMissionComplete() {
     const lastSegment = state.terrainMap[state.terrainMap.length - 1];
     if (state.mechX >= lastSegment.x && !state.missionComplete) {
       state.missionComplete = true;
@@ -252,20 +256,23 @@ export function createGameState() {
         Max Speed: ${maxReachedSpeed}m/s
         Avg Fuel Consumption: ${avgFuelRate}/s`;
       state.missionCompleteMessage = state.missionSummary;
+      state.events.push({ type: "MISSION_COMPLETE", timestamp: state.timeElapsed });
       shutdownMech();
-      return;
+      return true;
     }
+    return false;
+  }
+
+  function updateEnergyOutputCutoff(delta) {
     if (state.energyOutputCutoff) {
       state.energyOutputRestoreDelay -= delta;
       if (state.energyOutputRestoreDelay <= 0) {
         state.energyOutputCutoff = false;
       }
     }
+  }
 
-    state.mechX += state.speed * delta;
-    state.timeElapsed += delta;
-    if (state.speed > state.maxSpeed) state.maxSpeed = state.speed;
-    
+  function updateGameState(delta) {
     updateClutch(delta);
     updateFuel(delta);
     updateHeat(delta);
@@ -273,19 +280,37 @@ export function createGameState() {
     updateRPMs(delta);
     updateSpeed();
     checkStall();
-    updateHistory();
     updateTerrainFromPosition(state.mechX);
   }
 
+  function tick(delta = 1) {
+    if (checkMissionComplete()) return;
+
+    updateEnergyOutputCutoff(delta);
+    state.mechX += state.speed * delta;
+    state.timeElapsed += delta;
+    if (state.speed > state.maxSpeed) state.maxSpeed = state.speed;
+
+    updateGameState(delta);
+  }
+
   return {
-    getState: () => ({ ...state }),
+    getState: () => {
+      if (state.events.length) {
+        console.log("[Game Events]", JSON.stringify(state.events, null, 2));
+      }
+      const snapshot = { ...state, events: [...state.events] };
+      state.events.length = 0;
+      return snapshot;
+    },
     tick,
     setEnergyOutput: (val) => {
-      state.energyOutput = Math.max(0, Math.min(20, val));
+      state.energyOutput = Math.max(0, Math.min(MAX_ENERGY_OUTPUT, val));
     },
     setGear: (gear) => {
       if ((state.automaticClutch || !state.clutchEngaged) && gear in gearRatios && gear !== state.gear) {
         state.gear = gear;
+        state.events.push({ type: "GEAR_SHIFT", value: gear, timestamp: state.timeElapsed });
         state.gearShiftCooldown = 0.5;
         state.energyOutputCutoff = true;
         state.energyOutputRestoreDelay = 0.5;
@@ -293,6 +318,7 @@ export function createGameState() {
     },
     toggleIgnition: () => {
       state.ignition = !state.ignition;
+      state.events.push({ type: state.ignition ? "IGNITION_ON" : "IGNITION_OFF", timestamp: state.timeElapsed });
       if (!state.ignition) state.energyOutput = 0;
     },
     toggleAutomaticClutch: () => {

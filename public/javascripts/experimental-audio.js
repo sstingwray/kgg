@@ -72,3 +72,12 @@ export function playGearShiftSound() {
     console.warn("Gear shift sound failed to play:", e);
   }
 }
+
+export function playVentingSound() {
+  try {
+    const audio = new Audio("/sounds/venting.wav");
+    audio.play();
+  } catch (e) {
+    console.warn("Venting sound failed to play:", e);
+  }
+}
