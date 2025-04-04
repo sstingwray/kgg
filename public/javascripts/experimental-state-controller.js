@@ -41,21 +41,66 @@ export function createGameState() {
   };
 
   const gearRatios = {
-    "Reverse": 1,
-    "Neutral": 0,
-    "1st": 1,
-    "2nd": 1.8,
-    "3rd": 3.2
+    "Reverse": {
+      ratio: 1,
+      torqueFunction: (_, energyOutput) => {
+        const norm = Math.min(1, energyOutput / 20);
+        const peak = 0.05;
+        const width = 0.1;
+        return Math.max(0, 2 - Math.pow((norm - peak) / width, 2));
+      }
+    },
+    "Neutral": {
+      ratio: 0,
+      torqueFunction: (_, energyOutput) => {
+        const norm = Math.min(1, energyOutput / 20);
+        const peak = 0.05;
+        const width = 0.1;
+        return Math.max(0, 2 - Math.pow((norm - peak) / width, 2));
+      }
+    },
+    "1st": {
+      ratio: 1,
+      torqueFunction: (_, energyOutput) => {
+        const norm = Math.min(1, energyOutput / 20);
+        const peak = 0.15;
+        const width = 0.3;
+        return Math.max(0, 2 - Math.pow((norm - peak) / width, 2));
+      }
+    },
+    "2nd": {
+      ratio: 1.8,
+      torqueFunction: (_, energyOutput) => {
+        const norm = Math.min(1, energyOutput / 20);
+        const peak = 0.5;
+        const width = 0.4;
+        return Math.max(0, 1.2 * (1 - Math.pow((norm - peak) / width, 2)));
+      }
+    },
+    "3rd": {
+      ratio: 3.2,
+      torqueFunction: (_, energyOutput) => {
+        const norm = Math.min(1, energyOutput / 20);
+        const peak = 0.8;
+        const width = 0.25;
+        return Math.max(0, 0.8 * (1 - Math.pow((norm - peak) / width, 2)));
+      }
+    }
   };
 
   const mechMass = state.emptyWeight + state.currentLoad;
   const dragFactor = (state.terrainResistance + state.terrainFriction) / mechMass;
 
-  const terrain = generateTerrainMap({ segmentLength: 100, segmentCount: 200, seed: 42 });
+  const terrain = generateTerrainMap({ segmentLength: 100, segmentCount: 20, seed: 69 });
 
   let currentSegmentIndex = 0;
   state.terrainMap = terrain;
   state.currentSegment = terrain[0];
+  state.missionComplete = false;
+  state.missionSummary = null;
+  state.timeElapsed = 0;
+  state.maxSpeed = 0;
+  state.fuelStart = state.fuel;
 
 
   function updateClutch(delta) {
@@ -101,9 +146,9 @@ export function createGameState() {
       torqueCurve = 1 - (normalizedOutput - 0.75) * 4; // taper off
     }
 
-    const gearRatio = gearRatios[state.gear] || 0;
-    const torqueFactor = 1 / Math.max(gearRatio/2, 0.5);
-    const penalty = !state.clutchEngaged || state.gear == "Neutral" ? 0.5 : 0.4;
+    const gear = gearRatios[state.gear] || { ratio: 0, torqueFunction: () => 0 };
+    const torqueFactor = gear.torqueFunction(torqueCurve, output);
+    const penalty = !state.clutchEngaged || state.gear === "Neutral" ? 0.5 : 0.4;
 
     const targetTorque = state.ignition
       ? engineConfig.peakTorque * torqueCurve * torqueFactor * penalty
@@ -115,8 +160,9 @@ export function createGameState() {
   function updateRPMs(delta) {
     const output = state.ignition ? state.energyOutput : 0;
     const baseRPMTarget = output * 0.5; // directly driven by energy output
+    const canTransmit = state.clutchEngaged && state.gear !== "Neutral";
 
-    const torqueDelta = state.torque - state.terrainResistance;
+    const torqueDelta =  canTransmit ? state.torque - state.terrainResistance : 0;
     const canClimb = torqueDelta >= 0;
 
     if (canClimb) {
@@ -130,8 +176,7 @@ export function createGameState() {
 
     state.baseRPM = Math.max(0, state.baseRPM);
 
-    const canTransmit = state.clutchEngaged && state.gear !== "Neutral";
-    const targetEndpointRPM = canTransmit ? state.baseRPM * (gearRatios[state.gear] || 0) : 0;
+    const targetEndpointRPM = canTransmit ? state.baseRPM * (gearRatios[state.gear]?.ratio || 0) : 0;
     state.endpointRPM -= state.endpointRPM * dragFactor * 50 * delta;
 
 
@@ -155,7 +200,6 @@ export function createGameState() {
   
     state.speed = Math.max(0, state.speed);
   }
-  
 
   function checkStall() {
     state.isStalled = state.clutchEngaged && state.torque < state.terrainResistance;
@@ -167,19 +211,50 @@ export function createGameState() {
   }
 
   function updateTerrainFromPosition(x) {
-    const segment = state.terrainMap.find((seg, i) => {
-      const next = state.terrainMap[i + 1];
-      return next ? x >= seg.x && x < next.x : true;
-    });
-  
-    if (segment) {
-      state.terrainResistance = segment.resistance;
-      state.terrainFriction = segment.friction;
-      state.currentSegment = segment;
+    const current = state.terrainMap[currentSegmentIndex];
+    const next = state.terrainMap[currentSegmentIndex + 1];
+
+    if (next && x >= next.x) {
+      currentSegmentIndex++;
+    } else if (currentSegmentIndex > 0 && x < current.x) {
+      currentSegmentIndex--;
     }
+
+    const segment = state.terrainMap[currentSegmentIndex];
+    state.terrainResistance = segment.resistance;
+    state.terrainFriction = segment.friction;
+    state.currentSegment = segment;
+  }
+
+  function shutdownMech() {
+    state.gear ='Neutral';
+    state.ignition = false;
+    state.energyOutput = 0;
+  }
+
+  function activateVenting() {
+    state.heat = Math.max(0, state.heat - 20);
   }
 
   function tick(delta = 1) {
+    const lastSegment = state.terrainMap[state.terrainMap.length - 1];
+    if (state.mechX >= lastSegment.x && !state.missionComplete) {
+      state.missionComplete = true;
+      const totalDistance = state.mechX.toFixed(1);
+      const travelTime = state.timeElapsed.toFixed(1);
+      const maxReachedSpeed = state.maxSpeed.toFixed(1);
+      const fuelUsed = state.fuelStart - state.fuel;
+      const avgFuelRate = fuelUsed > 0 ? (fuelUsed / state.timeElapsed).toFixed(3) : '0.000';
+
+      state.missionSummary = `Mission Complete!
+        Total Distance: ${totalDistance}m
+        Time: ${travelTime}s
+        Max Speed: ${maxReachedSpeed}m/s
+        Avg Fuel Consumption: ${avgFuelRate}/s`;
+      state.missionCompleteMessage = state.missionSummary;
+      shutdownMech();
+      return;
+    }
     if (state.energyOutputCutoff) {
       state.energyOutputRestoreDelay -= delta;
       if (state.energyOutputRestoreDelay <= 0) {
@@ -188,6 +263,8 @@ export function createGameState() {
     }
 
     state.mechX += state.speed * delta;
+    state.timeElapsed += delta;
+    if (state.speed > state.maxSpeed) state.maxSpeed = state.speed;
     
     updateClutch(delta);
     updateFuel(delta);
@@ -223,6 +300,7 @@ export function createGameState() {
     },
     setClutchOverride: (isHeld) => {
       state.clutchOverride = isHeld;
-    }
+    },
+    activateVenting
   };
 }

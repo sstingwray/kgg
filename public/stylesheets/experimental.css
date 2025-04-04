@@ -29,6 +29,12 @@ html, body {
   color: var(--text-color);
 }
 
+body.disabled-input #game-root > *:not(#mission-complete-popup) {
+  opacity: 0.2;
+  pointer-events: none;
+  filter: grayscale(100%);
+}
+
 #game-root {
   width: 1024px;
   height: 768px;
@@ -73,6 +79,63 @@ html, body {
   bottom: 12px;
   height: calc(12*22px);
   gap: 0;
+}
+
+.popup {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--cockpit-panel-bg);
+  border: 2px solid var(--primary-color);
+  box-shadow: 0 0 12px rgba(0, 255, 0, 0.5);
+  padding: 24px;
+  z-index: 1000;
+  color: var(--text-color);
+  font-family: var(--font);
+  border-radius: 12px;
+  text-align: center;
+  width: 400px;
+  pointer-events: auto;
+}
+
+.popup-content h2 {
+  margin-top: 0;
+  color: var(--primary-color);
+  text-shadow: 0 0 4px #0f0;
+}
+
+.popup-content pre {
+  text-align: left;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--primary-color);
+  font-size: 14px;
+  white-space: pre-line;
+  margin-bottom: 12px;
+}
+
+.popup-content button {
+  background-color: var(--button-bg);
+  border: 2px solid var(--primary-color);
+  color: var(--text-color);
+  padding: 8px 16px;
+  margin: 4px;
+  font-size: 16px;
+  font-family: var(--font);
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+}
+
+.popup-content button:hover {
+  background-color: var(--hover-bg);
+  color: var(--hover-text);
+}
+
+.hidden {
+  display: none;
 }
 
 /* === UI Panels === */
@@ -284,4 +347,28 @@ canvas {
   box-shadow: rgb(38, 57, 77) 0px 20px 30px -10px;
   transform: translateY(-50%);
   transition: top 0.15s ease;
+}
+
+.cooldown > .control-button {
+  background-color: var(--button-bg);
+  border: 2px solid var(--primary-color);
+  color: var(--text-color);
+  opacity: 0.2;
+  filter: grayscale(100%);
+}
+
+.cooldown::after {
+  content: "";
+  position: absolute;
+  margin-left: 4px;
+  height: 46px;
+  width: 4px;
+  background: rgba(255, 0, 0, 0.6);
+  animation: cooldownFill 5s linear forwards;
+  pointer-events: none;
+}
+
+@keyframes cooldownFill {
+  from { height: 48px; }
+  to { height: 0; }
 }

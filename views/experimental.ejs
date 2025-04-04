@@ -18,13 +18,19 @@
       <div id="ui-overlay">
         <div id="top-panels" class="panel-group">
           <section class="ui-panel" id="panel-top-left" role="region" aria-label="System Info"></section>
-          <section class="ui-panel" id="panel-top-center" role="region" aria-label="Holo Deck Controls"></section>
+          <section class="ui-panel" id="panel-top-center" role="region" aria-label="Terrain Scanner">
+            <div>Scanner Mode: <em>Terrain</em></div>
+            <canvas id="terrainScannerCanvas" width="300" height="60" aria-label="Terrain View"></canvas>
+          </section>
           <section class="ui-panel" id="panel-top-right" role="region" aria-label="System Monitor">
             <canvas id="systemMonitorCanvas" width="260" height="100" aria-label="System Monitor Meters"></canvas>
           </section>
         </div>
 
-        <section class="ui-panel" id="panel-mid-left" role="region" aria-label="Terrain Scanner"></section>
+        <section class="ui-panel" id="panel-mid-left" role="region" aria-label="Holo Deck">
+          <div>Holo-Deck Mode: <em>Mech</em></div>
+          <canvas id="holodeckCanvas" width="108"  aria-label="Mech Pictogram"></canvas>
+        </section>
         <section class="ui-panel" id="panel-center-main" role="region" aria-label="Central HUD">
           <canvas id="hudCanvas" width="400" height="300" aria-label="Main HUD"></canvas>
           <img id="rpmWheelImg" src="/images/rpm-wheel.svg" alt="RPM Wheel" hidden />
@@ -38,7 +44,15 @@
         </div>
       </div>
     </div>
-  </main>
+    <div id="mission-complete-popup" class="popup hidden" role="dialog" aria-label="Mission Summary">
+    <div class="popup-content">
+      <h2>Mission Complete</h2>
+      <pre id="mission-summary-text">Loading summary...</pre>
+      <button onclick="document.getElementById('mission-complete-popup').classList.add('hidden')">Close</button>
+      <button onclick="window.location.reload()">Start New Mission</button>
+    </div>
+  </div>
+</main>
 
   <!-- UI Component Scripts -->
   <script type="module" src="/javascripts/experimental-audio.js"></script>

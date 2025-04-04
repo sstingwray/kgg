@@ -38,10 +38,13 @@ const panels = {
   let lastIgnition = false;
 
 function setupKeyboardInput() {
-  window.addEventListener('keydown', e => {
+  const isPopupVisible = () => document.body.classList.contains('disabled-input');
+    window.addEventListener('keydown', e => {
+    if (isPopupVisible()) return;
     if (e.code === 'Space') game.setClutchOverride(true);
   });
-  window.addEventListener('keyup', e => {
+    window.addEventListener('keyup', e => {
+    if (isPopupVisible()) return;
     if (e.code === 'Space') game.setClutchOverride(false);
   });
 }
@@ -52,14 +55,30 @@ function renderStaticPanels() {
     <div>Biome: Jungle</div>
     <div>Coords: X:231, Y:588, Z:3</div>
   `;
-  panels.terrainScanner.innerHTML = `<div>Scanner Mode: <em>Terrain</em></div><canvas id="terrainScannerCanvas" width="300" height="80"></canvas>`;
-  panels.modules.innerHTML = `<div>Module Activation - Placeholder</div>`;
   panels.cargoAndTools.innerHTML = `
     <div>Cargo Interface - Placeholder</div>
     <div>Arm Tools - Placeholder</div>
     <div>External Hatch - Placeholder</div>
     <button onclick="console.log('Ejection triggered')">Eject</button>
   `;
+}
+
+function setupModules() {
+  const ventButton = new ButtonComponent(`<i class="fa-solid fa-wind"></i>`, () => {
+    if (document.body.classList.contains('disabled-input')) return;
+    if (ventButton.element.disabled) return;
+    game.activateVenting();
+    const audio = new Audio('/sounds/venting.wav');
+    audio.play();
+    ventButton.element.disabled = true;
+    ventButton.element.classList.add('cooldown');
+    ventButton.element.style.setProperty('--cooldown-duration', '5s');
+    setTimeout(() => {
+      ventButton.element.disabled = false;
+      ventButton.element.classList.remove('cooldown');
+    }, 5000);
+  });
+    panels.modules.appendChild(ventButton.element);
 }
 
 let monitorCanvas, monitorCtx;
@@ -126,7 +145,10 @@ function drawSpinningWheel(ctx, centerX, centerY, radius, rpm) {
 
 let autoClutchToggle, gearStick, outputLever;
 function setupCockpitControls() {
-  autoClutchToggle = new ToggleButtonComponent("A", false, () => game.toggleAutomaticClutch());
+  autoClutchToggle = new ToggleButtonComponent("A", false, () => {
+    if (document.body.classList.contains('disabled-input')) return;
+    game.toggleAutomaticClutch();
+  });
   panels.cockpitControls.appendChild(autoClutchToggle.element);
 
   gearStick = new GearStickComponent({
@@ -153,11 +175,13 @@ function setupReactorControls() {
   reactorLeft.className = 'reactor-side-buttons';
 
   const ignitionToggle = new ToggleButtonComponent(`<i class="fa-solid fa-bolt"></i>`, false, (val) => {
+    if (document.body.classList.contains('disabled-input')) return;
     val ? playIgnitionSound() : playIgnitionOffSound();
     game.toggleIgnition();
   });
 
-  const overdriveToggle = new ToggleButtonComponent(`<i class="fa-solid fa-fire-flame-curved"></i>`, false, () => {});
+  const overdriveToggle = new ToggleButtonComponent(`<i class="fa-solid fa-fire-flame-curved"></i>`, false, () => {
+    if (document.body.classList.contains('disabled-input')) return;});
   [ignitionToggle, overdriveToggle].forEach(btn => {
     btn.element.style.marginBottom = '12px';
     reactorLeft.appendChild(btn.element);
@@ -186,6 +210,8 @@ function setupReactorControls() {
 let lastGearIndex = null;
 
 function startGameLoop() {
+  const popup = document.getElementById("mission-complete-popup");
+  const popupText = document.getElementById("mission-summary-text");
   setInterval(() => {
     const delta = 1 / 20;
     game.tick(delta);
@@ -229,6 +255,7 @@ function startGameLoop() {
     drawMeter(ctx, 20, 30, "Torque", s.torque, 10, "#ff0");
     drawMeter(ctx, 20, 70, "Base RPM", s.baseRPM, 10, "#ccc");
     drawMeter(ctx, 20, 110, "Endpoint RPM", s.endpointRPM, 100, "#fff");
+    drawMeter(ctx, 20, 150, "Speed", s.speed, 1000, "#0ff");
         if (s.isStalled) {
       ctx.fillStyle = "#f00";
       ctx.font = "16px monospace";
@@ -247,6 +274,12 @@ function startGameLoop() {
     }
 
     outputLever.setValue(s.energyOutput);
+
+    if (s.missionComplete && popup.classList.contains('hidden')) {
+      popupText.textContent = s.missionCompleteMessage;
+      popup.classList.remove('hidden');
+      document.body.classList.add('disabled-input');
+    }
   }, 50);
 }
 
@@ -300,13 +333,13 @@ function drawTerrainMap(terrainMap, mechX) {
   const centerX = 200;
 
   terrainCtx.clearRect(0, 0, width, height);
-  terrainCtx.strokeStyle = '#0f0';
-  terrainCtx.beginPath();
+  terrainCtx.lineWidth = 2;
 
   for (let i = 0; i < terrainMap.length - 1; i++) {
     const seg = terrainMap[i];
     const next = terrainMap[i + 1];
     const relX = seg.x - mechX;
+    const relNextX = next.x - mechX;
     if (relX >= -530 && relX <= 530) {
       const screenX = (relX / scale) * width + width / 2;
       const screenY = height / 2 - seg.z * 2;
@@ -316,15 +349,41 @@ function drawTerrainMap(terrainMap, mechX) {
         terrainCtx.lineTo(screenX, screenY);
       }
 
-      // === Draw text labels ===
-      terrainCtx.font = "9px monospace";
-      terrainCtx.fillStyle = "#0f0";
-      terrainCtx.fillText(`R:${seg.resistance.toFixed(1)}`, screenX - 15, screenY - 18);
-      terrainCtx.fillText(`F:${seg.friction.toFixed(1)}`, screenX - 15, screenY - 8);
+      // === Draw colored terrain difficulty ===
+      terrainCtx.strokeStyle = seg.resistanceColor || '#0f0';
+      terrainCtx.lineTo(screenX, screenY);
     }
   }
 
-  terrainCtx.stroke();
+  // Draw each segment as a colored slope with start/end notches
+  for (let i = 0; i < terrainMap.length - 1; i++) {
+    const seg = terrainMap[i];
+    const next = terrainMap[i + 1];
+    const relX = seg.x - mechX;
+    const relNextX = next.x - mechX;
+
+    if (relX >= -530 && relX <= 530) {
+      const sx = (relX / scale) * width + width / 2;
+      const sy = height / 2 - seg.z * 2;
+      const ex = (relNextX / scale) * width + width / 2;
+      const ey = height / 2 - next.z * 2;
+
+      terrainCtx.beginPath();
+      terrainCtx.moveTo(sx, sy);
+      terrainCtx.lineTo(ex, ey);
+      terrainCtx.strokeStyle = seg.resistanceColor || '#0f0';
+      terrainCtx.stroke();
+
+      // Notches
+      terrainCtx.beginPath();
+      terrainCtx.strokeStyle = '#0ff';
+      terrainCtx.moveTo(sx, sy - 2);
+      terrainCtx.lineTo(sx, sy + 2);
+      terrainCtx.moveTo(ex, ey - 2);
+      terrainCtx.lineTo(ex, ey + 2);
+      terrainCtx.stroke();
+    }
+  }
 
   // Draw mech position
   terrainCtx.fillStyle = '#ff0';
@@ -341,23 +400,57 @@ function drawMechPictogram() {
   const h = holodeckCanvas.height;
   ctx.clearRect(0, 0, w, h);
 
+  // Glow background
+  const gradient = ctx.createRadialGradient(w / 2, h / 2, 10, w / 2, h / 2, 100);
+  gradient.addColorStop(0, 'rgba(0, 255, 255, 0.1)');
+  gradient.addColorStop(1, 'rgba(0, 255, 255, 0)');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, w, h);
+
   ctx.strokeStyle = "#0ff";
   ctx.lineWidth = 2;
+
+  // Torso
   ctx.beginPath();
-  ctx.moveTo(w / 2 - 20, h / 2);
-  ctx.lineTo(w / 2 - 10, h / 2 - 30);
-  ctx.lineTo(w / 2 + 10, h / 2 - 30);
-  ctx.lineTo(w / 2 + 20, h / 2);
-  ctx.moveTo(w / 2 - 15, h / 2);
-  ctx.lineTo(w / 2 - 10, h / 2 + 30);
-  ctx.moveTo(w / 2 + 15, h / 2);
-  ctx.lineTo(w / 2 + 10, h / 2 + 30);
+  ctx.moveTo(w / 2 - 20, h / 2 - 30);
+  ctx.lineTo(w / 2 - 15, h / 2 - 60);
+  ctx.lineTo(w / 2 + 15, h / 2 - 60);
+  ctx.lineTo(w / 2 + 20, h / 2 - 30);
+  ctx.closePath();
+  ctx.stroke();
+
+  // Head/Cockpit
+  ctx.beginPath();
+  ctx.rect(w / 2 - 8, h / 2 - 70, 16, 10);
+  ctx.stroke();
+
+  // Arms
+  ctx.beginPath();
+  ctx.moveTo(w / 2 - 20, h / 2 - 30);
+  ctx.lineTo(w / 2 - 35, h / 2);
+  ctx.lineTo(w / 2 - 30, h / 2 + 30);
+
+  ctx.moveTo(w / 2 + 20, h / 2 - 30);
+  ctx.lineTo(w / 2 + 35, h / 2);
+  ctx.lineTo(w / 2 + 30, h / 2 + 30);
+  ctx.stroke();
+
+  // Legs
+  ctx.beginPath();
+  ctx.moveTo(w / 2 - 10, h / 2);
+  ctx.lineTo(w / 2 - 15, h / 2 + 40);
+  ctx.lineTo(w / 2 - 10, h / 2 + 50);
+
+  ctx.moveTo(w / 2 + 10, h / 2);
+  ctx.lineTo(w / 2 + 15, h / 2 + 40);
+  ctx.lineTo(w / 2 + 10, h / 2 + 50);
   ctx.stroke();
 }
 
 function initializeUI() {
   setupKeyboardInput();
   renderStaticPanels();
+  setupModules();
   setupSystemMonitor();
   setupTerrainScanner();
   setupHUD();
@@ -375,3 +468,4 @@ function initializeUI() {
 }
 
 initializeUI();
+
