@@ -237,6 +237,7 @@ export function createGameState() {
 
   function activateVenting() {
     state.heat = Math.max(0, state.heat - 20);
+    state.fuel = Math.max(0, state.fuel - 5);
     state.events.push({ type: "VENTING_ACTIVATED", timestamp: state.timeElapsed });
   }
 
