@@ -372,3 +372,8 @@ canvas {
   from { height: 48px; }
   to { height: 0; }
 }
+
+.shakeable {
+  transition: transform 0.5s ease-out;
+  will-change: transform;
+}

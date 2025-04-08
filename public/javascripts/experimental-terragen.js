@@ -11,9 +11,9 @@ export function generateTerrainMap({ segmentCount = 100, seed = 0 } = {}) {
     // Dynamic segment length between 30 and 300
     const segmentLength = Math.floor(rand() * 270) + 30;
 
-    // Friction and resistance as integers 1–5
-    const friction = Math.floor(rand() * 5) + 1;
-    const resistance = Math.floor(rand() * 5) + 1;
+    // Friction and resistance as integers 1–6
+    const friction = Math.floor(rand() * 6) + 1;
+    const resistance = Math.floor(rand() * 6) + 1;
 
     // Resistance-based color coding
     let resistanceColor = "green";
