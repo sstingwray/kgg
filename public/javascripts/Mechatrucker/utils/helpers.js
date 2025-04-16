@@ -53,6 +53,8 @@ export function preloadAssets(callback) {
   const assetSources = {
     monitorL: 'images/Mechatrucker/monitor-l.svg',
     monitorR: 'images/Mechatrucker/monitor-r.svg',
+    centralPanel: 'images/Mechatrucker/Central-Terminal.svg',
+    ignitionIco: 'images/Mechatrucker/bolt-solid.svg',
   };
 
   const assetNames = Object.keys(assetSources);
@@ -89,14 +91,12 @@ export function connectMonitorWithConnector(engine, monitorBody, canvasAnchor, c
   const midY = (canvasAnchor.y + monitorBody.position.y) / 2;
   
   // Create the connector rectangle.
-  // The rectangle's height is set to the distance between the two points,
-  // and it is rotated by the angle to align with the connection vector.
+  // The rectangle's height is set to the distance between the two points
   const connector = Matter.Bodies.rectangle(midX, midY, connectorWidth, distance, {
-    //angle: angle,
     // If the connector should move (rather than being static), leave isStatic false.
     isStatic: false,
     render: {
-      fillStyle: getRGBA('davy-gray', 1),
+      fillStyle: getRGBA('jet', 0.5),
       order: 1
     }
   });
@@ -125,7 +125,7 @@ export function connectMonitorWithConnector(engine, monitorBody, canvasAnchor, c
     bodyA: connector,
     pointA: localBottom,
     bodyB: monitorBody,
-    pointB: { x: 0, y: 0 },
+    pointB: { x: 0, y: -24 },
     stiffness: 1,
     damping: 0.1,
     render: {

@@ -38,7 +38,7 @@ export function initRenderer(engine, container, dimensions) {
     options: {
       width: width,
       height: height,
-      background: '#222',
+      background: 'transparent',
       wireframes: false,
       hasBounds: true
     }

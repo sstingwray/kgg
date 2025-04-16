@@ -17,6 +17,7 @@ export default class GearShiftLever extends Interactable {
    * @param {number} [options.handleRadius=15] - Radius of the round handle.
    */
   constructor(options = {}) {
+    // Call the base Interactable constructor.
     super(options);
     // Where the lever channel sits inside the parent container.
     this.x = options.x || 0;
@@ -65,10 +66,6 @@ export default class GearShiftLever extends Interactable {
    */
 
   onMouseDown(event) {
-    if (this.clutchEngaged) {
-      console.log("Clutch is engaged; gear lever cannot be moved.");
-      return;
-    }
     // Get the canvas's position on the page.
     const rect = event.target.getBoundingClientRect();
     // Convert the global mouse coordinates to canvas-local coordinates.
@@ -81,6 +78,10 @@ export default class GearShiftLever extends Interactable {
     const dy = mouseY - this.handleY;
     const distance = Math.sqrt(dx * dx + dy * dy);
     if (distance <= this.handleRadius) {
+      if (this.clutchEngaged) {
+        console.log("Clutch is engaged; gear lever cannot be moved.");
+        return;
+      }
       this.isDragging = true;
       this.state = 'pressed';
       // Store the starting mouse Y for tracking movement.

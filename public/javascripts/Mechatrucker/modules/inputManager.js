@@ -18,15 +18,21 @@ export function setupInput(engine, render, physicsElements) {
             case 'KeyA':
                 if (event.repeat) return;
                 // Turn left, etc.
-
+                console.log(physicsElements.leftMonitor.position);
                 Matter.Body.applyForce(
                     physicsElements.leftMonitor, 
-                    physicsElements.leftMonitor.position,
+                    {
+                        x: physicsElements.leftMonitor.position.x + Math.random()*10,
+                        y: physicsElements.leftMonitor.position.y + Math.random()*10
+                    },
                     { x: -defaultShakeForce + Math.random()*0.1, y: Math.random()*1 }
                 );
                 Matter.Body.applyForce(
                     physicsElements.rightMonitor, 
-                    physicsElements.rightMonitor.position,
+                    {
+                        x: physicsElements.rightMonitor.position.x + Math.random()*10,
+                        y: physicsElements.rightMonitor.position.y + Math.random()*10
+                    },
                     { x: -defaultShakeForce + Math.random()*0.1, y: Math.random()*1 }
                 );
 
@@ -37,12 +43,18 @@ export function setupInput(engine, render, physicsElements) {
                 
                 Matter.Body.applyForce(
                     physicsElements.leftMonitor, 
-                    physicsElements.leftMonitor.position,
+                    {
+                        x: physicsElements.leftMonitor.position.x + Math.random()*10,
+                        y: physicsElements.leftMonitor.position.y + Math.random()*10
+                    },
                     { x: defaultShakeForce + Math.random()*0.1, y: Math.random()*1 }
                 );
                 Matter.Body.applyForce(
                     physicsElements.rightMonitor, 
-                    physicsElements.rightMonitor.position,
+                    {
+                        x: physicsElements.rightMonitor.position.x + Math.random()*10,
+                        y: physicsElements.rightMonitor.position.y + Math.random()*10
+                    },
                     { x: defaultShakeForce + Math.random()*0.1, y: Math.random()*1 }
                 );
 
@@ -60,7 +72,7 @@ export function setupInput(engine, render, physicsElements) {
     document.addEventListener('keyup', event => {
         console.log(`"${event.key}" let go, code = ${event.code}`);
         switch (event.code) {
-            case 'KeyA':
+            /*case 'KeyA':
                 if (event.repeat) return;
                 // Turn left, etc.
 
@@ -92,7 +104,7 @@ export function setupInput(engine, render, physicsElements) {
                 );
 
                 emitter.emit('turningRight', false);
-                break;
+                break;*/
             case 'Space':
                 // Engage clutch
                 emitter.emit('clutchStateChange', true);
@@ -109,12 +121,11 @@ export function setupInput(engine, render, physicsElements) {
         };
     };
 
-    //gearShiftLever events
+    canvas.addEventListener('mousedown', (event) => sceneElements.gearShiftLever.onMouseDown(event));
+    canvas.addEventListener('mousemove', (event) => sceneElements.gearShiftLever.onMouseMove(event));
+    canvas.addEventListener('mouseup', (event) => sceneElements.gearShiftLever.onMouseUp(event));
 
-    //canvas.addEventListener('mousedown', (event) => sceneElements.gearShiftLever.onMouseDown(event));
-    //canvas.addEventListener('mousemove', (event) => sceneElements.gearShiftLever.onMouseMove(event));
-    //canvas.addEventListener('mouseup', (event) => sceneElements.gearShiftLever.onMouseUp(event));
-
+    canvas.addEventListener('mousedown', (event) => sceneElements.ignitionBtn.onMouseDown(event));
     
     console.log(`Input Handler initialized.`);
   }
