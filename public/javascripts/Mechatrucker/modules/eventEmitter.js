@@ -18,8 +18,7 @@ class EventEmitter {
     }
   
     emit(eventName, data) {
-        console.log(`${eventName} emitted, payload:`);
-        console.log(data);
+        console.log(`[EVENT] ${eventName}:`, data);
         if (!this.events[eventName]) return;
         this.events[eventName].forEach(callback => callback(data));
     }

@@ -1,9 +1,9 @@
 // js/main.js
 
-import emitter from './modules/eventEmitter.js';
 import { setupInput } from './modules/inputManager.js';
 import { initScene, drawControls, renderScene } from './modules/sceneManager.js';
 import { preloadAssets } from './utils/helpers.js';
+import { setupGameState } from './modules/gameManager.js';
 
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -20,6 +20,10 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       
       setupInput(engine, render, physicsElements);
+
+      setupGameState();
+
+      //console.log(Matter.Composite.allBodies(engine.world));
     });
 
   

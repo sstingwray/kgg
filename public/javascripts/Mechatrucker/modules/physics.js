@@ -14,7 +14,7 @@ export function initPhysics(engine, assets, dimensions) {
   const cableSegmentCount = 76;
   const cableSegmentRadius = 0.05;
   const cableWidth = 4;
-  const cableColor = getRGBA('night', 1);
+  const cableColor = getRGBA('raisin-black', 1);
 
   const paramsMonitorLeft = {
     placement:    { x: 24 + MONITOR_LEFT_SIZE.width,            y: -96 + MONITOR_LEFT_SIZE.height / 2 },
@@ -259,6 +259,25 @@ export function initPhysics(engine, assets, dimensions) {
     centralPanel,
     floor, roof, leftWall, rightWall
   ]);
+
+  function engineShake(value) {
+    const force = value;
+  
+    Matter.Composite.allBodies(engine.world).forEach(body => {
+      if (body.string) {
+        Matter.Body.applyForce(
+          body, 
+          {
+              x: body.position.x + Math.random()*10,
+              y: body.position.y + Math.random()*10
+          },
+          { x: -force + Math.random()*0.1, y: Math.random()*1 }
+      )};
+    })
+  }
+
+  //bind to events
+  emitter.subscribe('ignitionToggle', engineShake.bind(this))
 
   console.log(`Physics initialized.`);
   

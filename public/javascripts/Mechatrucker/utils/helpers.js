@@ -63,6 +63,7 @@ export function preloadAssets(callback) {
   assetNames.forEach(name => {
     const img = new Image();
     img.src = assetSources[name];
+    
     img.onload = () => {
       assets[name] = img;
       loadedCount++;

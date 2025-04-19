@@ -1,10 +1,9 @@
+import emitter from '../modules/eventEmitter.js';
+import { getGameState } from '../modules/gameManager.js';
 
-
-export function toggle(id) {
-    switch (id) {
-        case 'ignition':
-            return (() => {
-                console.log(`Ignition is clicked`);
-            });
-    }    
+export function toggleIgnition() {
+    const state = getGameState();
+    const newIgnitionStatus = state.mech.status.flags.ignition ? false : true;
+    
+    emitter.emit('ignitionToggle', newIgnitionStatus);
 } 

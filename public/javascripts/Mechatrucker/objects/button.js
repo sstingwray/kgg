@@ -1,22 +1,26 @@
+import emitter from '../modules/eventEmitter.js';
 import Interactable from './interactable.js';
 import { getRGBA } from '../utils/helpers.js';
 
 export default class Button extends Interactable {
-  constructor(options = {}) {
-    console.log(options);
-    
+  constructor(options = {}) {    
     // Call the base Interactable constructor.
     super(options);
+    
     // Set button-specific properties.
     this.x = options.x || 0;
     this.y = options.y || 0;
     this.radius = options.radius || 18;
     this.svg = options.svg;
+    this.eventToListen = options.eventType;
     this.callback = options.onClick || (() => console.log('Button clicked'));
     this.isPressed = false;
+    this.isActive = false;
     
     // Set a render order if desired.
     this.render.order = options.renderOrder || 100;
+
+    emitter.subscribe(this.eventToListen, this.reactToState.bind(this))
   }
 
   /**
@@ -26,10 +30,6 @@ export default class Button extends Interactable {
    * @return {boolean} True if the point is inside the button bounds.
    */
   isPointInside(px, py) {
-    console.log('px', px, 'py', py);
-    console.log('x', this.x, 'y', this.y);
-    
-    
     return (px >= this.x - this.radius && px <= this.x + this.radius &&
             py >= this.y - this.radius && py <= this.y + this.radius);
   }
@@ -43,22 +43,20 @@ export default class Button extends Interactable {
     // Convert the global mouse coordinates to canvas-local coordinates.
     const mouseX = event.clientX - rect.left;
     const mouseY = event.clientY - rect.top;
-    console.log(this.isPointInside(mouseX, mouseY));
-    
-    
+
     if (this.isPointInside(mouseX, mouseY)) {
-      this.callback();
       this.isPressed = true;
+      setTimeout(() => {
+        this.isPressed = false;
+      }, 500);
+      this.callback();
     }
   }
 
-  /**
-   * Handles mouse up events for the button.
-   * @param {Object} event - The mouse event.
-   */
-  onMouseUp(event) {
-    // Only trigger click if the button was pressed and the mouse is still within its bounds.
-    this.isPressed = false;
+  reactToState(event) {
+    setTimeout(() => {
+      this.isActive = event;
+    }, 200);
   }
 
   /**
@@ -67,27 +65,28 @@ export default class Button extends Interactable {
    */
   render(context) {
     context.save();
-    const svgImg = this.svg;    
-
-    // Draw the circle.
+    const svgImg = this.svg; 
+  
+    // Circle
     context.beginPath();
     context.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-    context.fillStyle = '#FFB6C1';  // Light pink fill.
+    context.fillStyle = this.isPressed ? getRGBA('auburn', 0.5) : getRGBA('auburn', 1);  // Light pink fill.
     context.fill();
-    context.lineWidth = 2;
-    context.strokeStyle = '#DDA0DD'; // Light purple stroke.
-    context.stroke();
 
-    // Determine the size for the SVG asset.
-    // Here, we'll make the SVG cover 80% of the circle's diameter.
-    const desiredSize = (this.radius * 2) * 0.8;
+    // Icon
+    context.drawImage(svgImg, this.x - (this.radius / 2), this.y - (this.radius / 2), this.radius, this.radius);
+    
+    // On-light
+    if (this.isActive) {
+      context.shadowColor = getRGBA('dark-cyan', 1);
+      context.shadowBlur = 4;           
+      context.shadowOffsetX = 0;            
+      context.shadowOffsetY = 0;
+      context.lineWidth = 2;
+      context.strokeStyle = getRGBA('dark-cyan', 1);
+      context.stroke();
+    };
 
-    // Calculate top-left coordinates to center the SVG within the circle.
-    const imgX = this.x - (desiredSize / 2);
-    const imgY = this.y - (desiredSize / 2);
-
-    // Draw the inline SVG image inside the circle.
-    context.drawImage(svgImg, imgX, imgY, desiredSize, desiredSize);
 
     context.restore();
   }

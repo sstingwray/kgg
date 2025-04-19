@@ -1,13 +1,9 @@
-// js/modules/sceneManager.js
-
-import { toggle } from '../objects/controls.js';
+import { toggleIgnition } from '../objects/controls.js';
 import GearShiftLever from '../objects/gearShiftLever.js';
 import Button from '../objects/button.js';
 import { initEngine, runEngine } from './engine.js';
 import { initRenderer } from './renderer.js';
 import { initPhysics } from './physics.js';
-
-const Matter = window.Matter;
 
 const sceneElements = {};
 
@@ -45,7 +41,8 @@ export function initScene(renderer, assets) {
     x: sceneElements.controlPanel.width - 12*19,
     y: sceneElements.controlPanel.y + 12*12,
     radius: 18, svg: assets.ignitionIco,
-    onClick: toggle('ignition')
+    eventType: 'ignitionToggle',
+    onClick: toggleIgnition
   };
 
   sceneElements.gearShiftLever = new GearShiftLever(leverOptions);

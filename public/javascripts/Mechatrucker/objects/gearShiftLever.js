@@ -43,6 +43,7 @@ export default class GearShiftLever extends Interactable {
     this.currentGearIndex = 1;
     this.handleY = this.gearPositions[this.currentGearIndex];
     this.handleRadius = options.handleRadius || 15;
+    this.handleOffsetX = 0;
     
     // Flags
     this.isDragging = false;
@@ -51,12 +52,11 @@ export default class GearShiftLever extends Interactable {
     // before the lever can be moved.
     this.clutchEngaged = true;
 
-    emitter.subscribe('clutchStateChange', this.handleClutchChange.bind(this))
+    emitter.subscribe('clutchToggle', this.handleClutchChange.bind(this))
   }
 
   handleClutchChange(newState) {
     this.clutchEngaged = newState;
-    console.log("Clutch state updated in GearShiftLever:", this.clutchEngaged);
   }
   
   /**
@@ -83,7 +83,7 @@ export default class GearShiftLever extends Interactable {
         return;
       }
       this.isDragging = true;
-      this.state = 'pressed';
+      this.handleOffsetX = -5;
       // Store the starting mouse Y for tracking movement.
       this._startY = event.clientY;
     }
@@ -114,7 +114,6 @@ export default class GearShiftLever extends Interactable {
   onMouseUp(event) {
     if (!this.isDragging) return;
     this.isDragging = false;
-    this.state = 'idle';
     
     // Find the nearest gear position.
     let closestIndex = 0;
@@ -129,7 +128,8 @@ export default class GearShiftLever extends Interactable {
     // Snap to the closest position.
     this.currentGearIndex = closestIndex;
     this.handleY = this.gearPositions[closestIndex];
-    console.log("Gear shifted to:", this.gearNames[this.currentGearIndex]);
+    this.handleOffsetX = 0;
+    emitter.emit('gearShift', this.gearNames[this.currentGearIndex]);
   }
   
   /**
@@ -154,9 +154,14 @@ export default class GearShiftLever extends Interactable {
         context.beginPath();
         context.arc(centerX, this.gearPositions[i], 8, 0, 2 * Math.PI);
         context.fillStyle = getRGBA('jet', 1);
+        context.shadowColor = 'transparent';
+        context.shadowBlur = 20;           
+        context.shadowOffsetX = 0;            
+        context.shadowOffsetY = 0;
         context.fill();
         if (this.currentGearIndex == i) {
             context.fillStyle = getRGBA('dark-cyan', 1);
+            context.shadowColor = getRGBA('dark-cyan', 1);
             context.font = " bold 14px sans-serif";
         } else {
             context.fillStyle = getRGBA('dark-cyan', 0.5);
@@ -166,9 +171,11 @@ export default class GearShiftLever extends Interactable {
     }
     
     // Draw the lever handle.
-    context.fillStyle = this.isDragging ? getRGBA('gold', 1) : getRGBA('gold', 0.8);
+    const handleX = centerX + this.handleOffsetX;
+    context.fillStyle = getRGBA('gold', 1);
+    context.shadowColor = 'transparent';
     context.beginPath();
-    context.arc(centerX, this.handleY, this.handleRadius, 0, 2 * Math.PI);
+    context.arc(handleX, this.handleY, this.handleRadius, 0, 2 * Math.PI);
     context.fill();
     
     
@@ -176,20 +183,20 @@ export default class GearShiftLever extends Interactable {
     // Draw the main pad of the cat paw (acting as the gear shift handle)
     // Define toe pad positions relative to the handle center
     const toePads = [
-    { x: centerX - 10,  y: this.handleY - 2,    r: 2.5  },
-    { x: centerX - 4,   y: this.handleY - 9,   r: 3     },
-    { x: centerX + 4,   y: this.handleY - 9,   r: 3     },
-    { x: centerX + 10,  y: this.handleY - 2,    r: 2.5  },
-    { x: centerX - 4,   y: this.handleY + 6,    r: 5    },
-    { x: centerX,       y: this.handleY + 4,    r: 6    },
-    { x: centerX + 4,   y: this.handleY + 6,    r: 5    },
+    { x: handleX - 10,  y: this.handleY - 2,    r: 2.5  },
+    { x: handleX - 4,   y: this.handleY - 9,   r: 3     },
+    { x: handleX + 4,   y: this.handleY - 9,   r: 3     },
+    { x: handleX + 10,  y: this.handleY - 2,    r: 2.5  },
+    { x: handleX - 4,   y: this.handleY + 6,    r: 5    },
+    { x: handleX,       y: this.handleY + 4,    r: 6    },
+    { x: handleX + 4,   y: this.handleY + 6,    r: 5    },
     ];
 
     // Draw each toe pad along with a small white detail
     toePads.forEach(pad => {
     context.beginPath();
     context.arc(pad.x, pad.y, pad.r, 0, Math.PI * 2);
-    context.fillStyle = this.isDragging ? getRGBA('raisin-black', 1) : getRGBA('jet', 1);
+    context.fillStyle = getRGBA('raisin-black', 1);
     context.fill();
     });
 

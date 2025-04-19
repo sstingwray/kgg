@@ -2,6 +2,7 @@
 
 import emitter from './eventEmitter.js';
 import { getSceneElements } from './sceneManager.js';
+import { getGameState } from './gameManager.js';
 
 export function setupInput(engine, render, physicsElements) {
     const canvas = document.getElementById('game-container').children[0];
@@ -10,15 +11,20 @@ export function setupInput(engine, render, physicsElements) {
     
     // Example: Handle keyboard input for cockpit controls
     document.addEventListener('keydown', event => {
-        console.log(`"${event.key}" pressed down, code = ${event.code}`);
+        //console.log(`"${event.key}" pressed down, code = ${event.code}`);
         switch (event.code) {
+            case 'KeyQ':
+                console.log('Game State:', getGameState());
+                break;
             case 'KeyW':
-                // Increase reactor output or perform specific control action
+                emitter.emit('outputChange', true);
+                break;
+            case 'KeyS':
+                emitter.emit('outputChange', false);
                 break;
             case 'KeyA':
                 if (event.repeat) return;
                 // Turn left, etc.
-                console.log(physicsElements.leftMonitor.position);
                 Matter.Body.applyForce(
                     physicsElements.leftMonitor, 
                     {
@@ -63,14 +69,14 @@ export function setupInput(engine, render, physicsElements) {
             case 'Space':
                 if (event.repeat) return;
                 // Disengage clutch
-                emitter.emit('clutchStateChange', false);
+                emitter.emit('clutchToggle', false);
                 break;
             // Add other key mappings...
         }
     });
 
     document.addEventListener('keyup', event => {
-        console.log(`"${event.key}" let go, code = ${event.code}`);
+        //console.log(`"${event.key}" let go, code = ${event.code}`);
         switch (event.code) {
             /*case 'KeyA':
                 if (event.repeat) return;
@@ -107,19 +113,10 @@ export function setupInput(engine, render, physicsElements) {
                 break;*/
             case 'Space':
                 // Engage clutch
-                emitter.emit('clutchStateChange', true);
+                emitter.emit('clutchToggle', true);
                 break;
         }
     });
-
-    // Convert mouse events to canvas-relative coordinates.
-    const getCanvasCoordinates = (event) => {
-        const rect = canvas.getBoundingClientRect();
-        return {
-            x: event.clientX - rect.left,
-            y: event.clientY - rect.top,
-        };
-    };
 
     canvas.addEventListener('mousedown', (event) => sceneElements.gearShiftLever.onMouseDown(event));
     canvas.addEventListener('mousemove', (event) => sceneElements.gearShiftLever.onMouseMove(event));

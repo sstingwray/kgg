@@ -1,8 +1,9 @@
 // js/modules/engine.js
 
 import emitter from './eventEmitter.js';
+import { updateGameState } from './gameManager.js';
 
-const { Engine, Runner } = window.Matter;
+const { Engine, Runner, Events } = window.Matter;
 
 export function initEngine() {
 // Create a new Matter.js engine with default options.
@@ -24,5 +25,10 @@ return engine;
 export function runEngine(engine) {
   const runner = Runner.create();
   Runner.run(runner, engine);
+
+  Events.on (engine, 'beforeUpdate', (event) => {
+    updateGameState(event.delta);
+  })
+
   return runner;
 }
