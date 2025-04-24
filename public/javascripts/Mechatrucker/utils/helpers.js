@@ -51,10 +51,11 @@ export function preloadAssets(callback) {
   const assets = {};
   let loadedCount = 0;
   const assetSources = {
-    monitorL: 'images/Mechatrucker/monitor-l.svg',
-    monitorR: 'images/Mechatrucker/monitor-r.svg',
+    bg:           'images/Mechatrucker/bg.png',     
+    monitorL:     'images/Mechatrucker/monitor-l.svg',
+    monitorR:     'images/Mechatrucker/monitor-r.svg',
     centralPanel: 'images/Mechatrucker/Central-Terminal.svg',
-    ignitionIco: 'images/Mechatrucker/bolt-solid.svg',
+    ignitionIco:  'images/Mechatrucker/bolt-solid.svg',
   };
 
   const assetNames = Object.keys(assetSources);
@@ -79,63 +80,4 @@ export function preloadAssets(callback) {
       }
     };
   });
-}
-
-export function connectMonitorWithConnector(engine, monitorBody, canvasAnchor, connectorWidth = 10) {
-  // Calculate the vector from the canvas anchor to the monitor.
-  const dx = monitorBody.position.x - canvasAnchor.x;
-  const dy = monitorBody.position.y - canvasAnchor.y;
-  const distance = Math.sqrt(dx * dx + dy * dy);
-  
-  // Find the midpoint between the canvas anchor and the monitor.
-  const midX = (canvasAnchor.x + monitorBody.position.x) / 2;
-  const midY = (canvasAnchor.y + monitorBody.position.y) / 2;
-  
-  // Create the connector rectangle.
-  // The rectangle's height is set to the distance between the two points
-  const connector = Matter.Bodies.rectangle(midX, midY, connectorWidth, distance, {
-    // If the connector should move (rather than being static), leave isStatic false.
-    isStatic: false,
-    render: {
-      fillStyle: getRGBA('jet', 0.5),
-      order: 1
-    }
-  });
-  
-  // Define the attachment points in the connector's local coordinates.
-  // In a rectangle, the top edge (relative to its center) is at y = -height/2,
-  // and the bottom edge is at y = height/2.
-  const localTop = { x: 0, y: -distance / 2 };
-  const localBottom = { x: 0, y: distance / 2 };
-  
-  // Create a pin constraint connecting the top of the connector to the canvas anchor.
-  const constraintAnchor = Matter.Constraint.create({
-    bodyA: connector,
-    pointA: localTop,
-    pointB: canvasAnchor,  // Fixed point in world coordinates.
-    stiffness: 1,
-    damping: 0.1,
-    render: {
-      visible: false
-    }
-  });
-  
-  // Create another pin constraint connecting the bottom of the connector to the monitor.
-  // Here, we attach to the monitor's center (or adjust pointB if a different point is desired).
-  const constraintMonitor = Matter.Constraint.create({
-    bodyA: connector,
-    pointA: localBottom,
-    bodyB: monitorBody,
-    pointB: { x: 0, y: -24 },
-    stiffness: 1,
-    damping: 0.1,
-    render: {
-      visible: false
-    }
-  });
-  
-  // Add the connector and its constraints to the world.
-  Matter.World.add(engine.world, [connector, constraintAnchor, constraintMonitor]);
-  
-  return connector;
 }

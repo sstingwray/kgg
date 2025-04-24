@@ -70,7 +70,7 @@ export default class Button extends Interactable {
     // Circle
     context.beginPath();
     context.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-    context.fillStyle = this.isPressed ? getRGBA('auburn', 0.5) : getRGBA('auburn', 1);  // Light pink fill.
+    context.fillStyle = this.isPressed ? getRGBA('auburn', 0.5) : getRGBA('auburn', 1);
     context.fill();
 
     // Icon

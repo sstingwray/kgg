@@ -1,7 +1,7 @@
 // js/modules/physics.js
 
 import emitter from './eventEmitter.js';
-import { connectMonitorWithConnector, getRGBA } from '../utils/helpers.js';
+import { getRGBA } from '../utils/helpers.js';
 
 export function initPhysics(engine, assets, dimensions) {
   const { width, height } = dimensions;
@@ -9,7 +9,7 @@ export function initPhysics(engine, assets, dimensions) {
   const BACKGROUND_CATEGORY = 0x0004;
   const MONITOR_LEFT_SIZE =   { width: 12*18, height: 12*32 };
   const MONITOR_RIGHT_SIZE =  { width: 12*18, height: 12*32 };
-  const MONITOR_ARM_WIDTH = 8;
+  const MONITOR_ARM_WIDTH = 16;
 
   const cableSegmentCount = 76;
   const cableSegmentRadius = 0.05;
@@ -37,8 +37,8 @@ export function initPhysics(engine, assets, dimensions) {
   }
 
   const paramsCentralPanel = {
-    placement:    { x: width / 2,                               y: height - 12*25 / 2 },
-    size:         { width: width,                               height: 12*25 }
+    placement:    { x: width / 2,                               y: height - (12*28 + 2) / 2 },
+    size:         { width: width,                               height: 12*28 + 2 }
   }
 
   const leftMonitor = Matter.Bodies.rectangle(
@@ -261,23 +261,23 @@ export function initPhysics(engine, assets, dimensions) {
   ]);
 
   function engineShake(value) {
-    const force = value;
+    const force = value * 0.005;
   
     Matter.Composite.allBodies(engine.world).forEach(body => {
       if (body.string) {
         Matter.Body.applyForce(
           body, 
           {
-              x: body.position.x + Math.random()*10,
-              y: body.position.y + Math.random()*10
+              x: body.position.x + 10 - Math.random()*20,
+              y: body.position.y + 10 - Math.random()*20
           },
-          { x: -force + Math.random()*0.1, y: Math.random()*1 }
+          { x: force - force * Math.random()*2, y: force*2 }
       )};
     })
   }
 
   //bind to events
-  emitter.subscribe('ignitionToggle', engineShake.bind(this))
+  emitter.subscribe('engineWorking', engineShake.bind(this))
 
   console.log(`Physics initialized.`);
   
@@ -287,4 +287,63 @@ export function initPhysics(engine, assets, dimensions) {
     leftMonitor, rightMonitor,
     centralPanel
   };
+}
+
+export function connectMonitorWithConnector(engine, monitorBody, canvasAnchor, connectorWidth = 10) {
+  // Calculate the vector from the canvas anchor to the monitor.
+  const dx = monitorBody.position.x - canvasAnchor.x;
+  const dy = monitorBody.position.y - canvasAnchor.y;
+  const distance = Math.sqrt(dx * dx + dy * dy);
+  
+  // Find the midpoint between the canvas anchor and the monitor.
+  const midX = (canvasAnchor.x + monitorBody.position.x) / 2;
+  const midY = (canvasAnchor.y + monitorBody.position.y) / 2;
+  
+  // Create the connector rectangle.
+  // The rectangle's height is set to the distance between the two points
+  const connector = Matter.Bodies.rectangle(midX, midY, connectorWidth, distance, {
+    // If the connector should move (rather than being static), leave isStatic false.
+    isStatic: false,
+    render: {
+      fillStyle: getRGBA('jet', 0.5),
+      order: 1
+    }
+  });
+  
+  // Define the attachment points in the connector's local coordinates.
+  // In a rectangle, the top edge (relative to its center) is at y = -height/2,
+  // and the bottom edge is at y = height/2.
+  const localTop = { x: 0, y: -distance / 2 };
+  const localBottom = { x: 0, y: distance / 2 };
+  
+  // Create a pin constraint connecting the top of the connector to the canvas anchor.
+  const constraintAnchor = Matter.Constraint.create({
+    bodyA: connector,
+    pointA: localTop,
+    pointB: canvasAnchor,  // Fixed point in world coordinates.
+    stiffness: 1,
+    damping: 0.1,
+    render: {
+      visible: false
+    }
+  });
+  
+  // Create another pin constraint connecting the bottom of the connector to the monitor.
+  // Here, we attach to the monitor's center (or adjust pointB if a different point is desired).
+  const constraintMonitor = Matter.Constraint.create({
+    bodyA: connector,
+    pointA: localBottom,
+    bodyB: monitorBody,
+    pointB: { x: 0, y: -24 },
+    stiffness: 1,
+    damping: 0.1,
+    render: {
+      visible: false
+    }
+  });
+  
+  // Add the connector and its constraints to the world.
+  Matter.World.add(engine.world, [connector, constraintAnchor, constraintMonitor]);
+  
+  return connector;
 }

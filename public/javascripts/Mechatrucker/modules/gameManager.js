@@ -39,8 +39,8 @@ const STALL_RECOVERY_TIME = 0.1; // time needed to recover from stall
 const SPEED_INERTIA_SCALE = 25;  // how speed influences inertia
 const RPM_DECAY_WHEN_STALLED = 0.01; // endpointRPM drag multiplier
 const GEAR_SHIFT_COOLDOWN = 0.5; // time after shift before energy returns
-const TORQUE_RAMP_RATE = 0.2;
-const RPM_RAMP_RATE = 0.2;
+const TORQUE_RAMP_RATE = 0.05;
+const RPM_RAMP_RATE = 0.015;
 
 
 const state = {
@@ -68,8 +68,8 @@ const state = {
                     ratio: 1,
                     torqueFn: createAsymmetricTorque ({
                         peak: 3,
-                        center: 3,
-                        rate: 0.2,
+                        center: 4,
+                        rate: 2,
                         ascendFactor: 0.5,   // half the curvature on the ascending side
                         descendFactor: 2,    // double the curvature on the descending side
                         minValue: 1,
@@ -80,8 +80,8 @@ const state = {
                     ratio: 0,
                     torqueFn: createAsymmetricTorque ({
                         peak: 6,
-                        center: 3,
-                        rate: 0.2,
+                        center: 4,
+                        rate: 2,
                         ascendFactor: 0.5,   // half the curvature on the ascending side
                         descendFactor: 2,    // double the curvature on the descending side
                         minValue: 1,
@@ -92,8 +92,8 @@ const state = {
                     ratio: 1,
                     torqueFn: createAsymmetricTorque ({
                         peak: 6,
-                        center: 3,
-                        rate: 0.2,
+                        center: 4,
+                        rate: 2,
                         ascendFactor: 0.5,   // half the curvature on the ascending side
                         descendFactor: 2,    // double the curvature on the descending side
                         minValue: 1,
@@ -104,8 +104,8 @@ const state = {
                     ratio: 2,
                     torqueFn: createAsymmetricTorque ({
                         peak: 4,
-                        center: 3,
-                        rate: 0.2,
+                        center: 4,
+                        rate: 2,
                         ascendFactor: 0.3,   // half the curvature on the ascending side
                         descendFactor: 2,    // double the curvature on the descending side
                         minValue: 1,
@@ -116,8 +116,8 @@ const state = {
                     ratio: 3,
                     torqueFn: createAsymmetricTorque ({
                         peak: 2,
-                        center: 3,
-                        rate: 0.2,
+                        center: 4,
+                        rate: 2,
                         ascendFactor: 0.1,   // half the curvature on the ascending side
                         descendFactor: 2,    // double the curvature on the descending side
                         minValue: 1,
@@ -155,7 +155,7 @@ export function setupGameState() {
 
     //settin up listeners
     emitter.subscribe('ignitionToggle', updateIgnition.bind(this));
-    emitter.subscribe('clutchStateChange', updateClutch.bind(this));
+    emitter.subscribe('clutchToggle', updateClutch.bind(this));
     emitter.subscribe('gearShift', updateGear.bind(this));
     emitter.subscribe('outputChange', updateEnergyOutput.bind(this));
 
@@ -243,25 +243,23 @@ function updateBaseRPM () {
     const targetBasedRPM = energyBasedRPM;
 
     const canTransmit = !state.mech.status.flags.clutch && state.mech.status.gear !== "Neutral";
-    const canClimb = canTransmit;
 
     const baseRPM = state.mech.status.baseRPM;
 
-    if (canClimb) {
-        //If the Mech can climb, ramp up the base RPM up to the max
+    if (canTransmit) {
+        //acceleration or endine braking
         if (targetBasedRPM > baseRPM) { state.mech.status.baseRPM += targetRampRate }
-        else { state.mech.status.baseRPM = targetBasedRPM };
+        else if (baseRPM > targetBasedRPM) { state.mech.status.baseRPM -= targetRampRate*2 };
     } else {
-        //If cannot, decrease RPM
-        if (baseRPM > 0) { state.mech.status.baseRPM -= RPM_RAMP_RATE }
+        //clutch off or neutral
+        if (baseRPM > 0) { state.mech.status.baseRPM -= targetRampRate }
         else { state.mech.status.baseRPM = 0 };
     }
 
-    console.log('baseRPM:', state.mech.status.baseRPM, {
+    /*console.log('baseRPM:', state.mech.status.baseRPM, {
         maxEnergyOutput, energyOutput, maxRPM, energyBasedRPM,
-        canTransmit, canClimb,
-        targetRampRate, targetBasedRPM
-    });
+        canTransmit, targetRampRate, targetBasedRPM
+    });*/
 }
 
 function updateTorque () {
@@ -273,9 +271,9 @@ function updateTorque () {
     if (targetTorque > torque) { state.mech.status.torque += TORQUE_RAMP_RATE }
     else { state.mech.status.torque = targetTorque };
 
-    console.log('torque:', state.mech.status.torque, {
+    /*console.log('torque:', state.mech.status.torque, {
         gear, baseRPM, targetTorque,
-    });
+    });*/
 }
 
 function updateClutch (flag) {
@@ -290,5 +288,9 @@ export function updateGameState() {
     if (state.mech.status.flags.ignition) {
         updateBaseRPM();
         updateTorque();
+        //Used to shake the bodies based on the current base PRM
+        emitter.emit('engineWorking', state.mech.status.baseRPM);
     };
+
+
 }

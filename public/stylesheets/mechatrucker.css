@@ -34,9 +34,10 @@ html, body {
     align-items: center;
 }
 
-#game-container {
+#game-container > canvas {
     background-color: var(--eerie-black);
     width: 1024px;
     height: 1024px;
     box-shadow: var(--light-2);
+    /*background: url('../images/Mechatrucker/bg.png') no-repeat center center;*/
 }

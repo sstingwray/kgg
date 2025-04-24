@@ -50,13 +50,13 @@ export default class GearShiftLever extends Interactable {
     this.isHovered = false;
     // By default, assume the clutch is engaged; you must disengage it (via space bar later)
     // before the lever can be moved.
-    this.clutchEngaged = true;
+    this.clutch = false;
 
     emitter.subscribe('clutchToggle', this.handleClutchChange.bind(this))
   }
 
   handleClutchChange(newState) {
-    this.clutchEngaged = newState;
+    this.clutch = newState;
   }
   
   /**
@@ -78,7 +78,7 @@ export default class GearShiftLever extends Interactable {
     const dy = mouseY - this.handleY;
     const distance = Math.sqrt(dx * dx + dy * dy);
     if (distance <= this.handleRadius) {
-      if (this.clutchEngaged) {
+      if (!this.clutch) {
         console.log("Clutch is engaged; gear lever cannot be moved.");
         return;
       }
@@ -184,8 +184,8 @@ export default class GearShiftLever extends Interactable {
     // Define toe pad positions relative to the handle center
     const toePads = [
     { x: handleX - 10,  y: this.handleY - 2,    r: 2.5  },
-    { x: handleX - 4,   y: this.handleY - 9,   r: 3     },
-    { x: handleX + 4,   y: this.handleY - 9,   r: 3     },
+    { x: handleX - 4,   y: this.handleY - 9,    r: 3     },
+    { x: handleX + 4,   y: this.handleY - 9,    r: 3     },
     { x: handleX + 10,  y: this.handleY - 2,    r: 2.5  },
     { x: handleX - 4,   y: this.handleY + 6,    r: 5    },
     { x: handleX,       y: this.handleY + 4,    r: 6    },

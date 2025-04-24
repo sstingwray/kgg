@@ -69,7 +69,7 @@ export function setupInput(engine, render, physicsElements) {
             case 'Space':
                 if (event.repeat) return;
                 // Disengage clutch
-                emitter.emit('clutchToggle', false);
+                emitter.emit('clutchToggle', true);
                 break;
             // Add other key mappings...
         }
@@ -113,7 +113,7 @@ export function setupInput(engine, render, physicsElements) {
                 break;*/
             case 'Space':
                 // Engage clutch
-                emitter.emit('clutchToggle', true);
+                emitter.emit('clutchToggle', false);
                 break;
         }
     });

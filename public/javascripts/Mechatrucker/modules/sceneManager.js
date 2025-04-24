@@ -1,9 +1,8 @@
-import { toggleIgnition } from '../objects/controls.js';
+import ControlPanel from '../objects/controlPanel.js';
 import GearShiftLever from '../objects/gearShiftLever.js';
 import Button from '../objects/button.js';
-import { initEngine, runEngine } from './engine.js';
-import { initRenderer } from './renderer.js';
-import { initPhysics } from './physics.js';
+import { toggleIgnition } from '../objects/controls.js';
+import { getRGBA } from '../utils/helpers.js';
 
 const sceneElements = {};
 
@@ -11,68 +10,56 @@ export function getSceneElements() {
     return sceneElements;
 }
 
-export function initScene(renderer, assets) {
-  const canvas = renderer.canvas;
+export function setupUI(render, assets) {
+  const canvas = render.canvas;
+  const ctx = render.context;
   const width = canvas.width;
   const height = canvas.height;
+  console.log(canvas);
+  
+  ctx.drawImage(assets.bg, 0, 0, width, height);
 
-  // Define the central control panel at the bottom (for interactables).
-  sceneElements.controlPanel = {
+  Matter.Events.on(render, 'beforeRender', () => {
+    ctx.clearRect(0, 0, width, height);
+    ctx.drawImage(assets.bg, 0, 0, width, height);
+    ctx.fillStyle = getRGBA('auburn', 0);
+    ctx.fill();
+  });
+
+  const controlPanelOptions = {
     x: 0,
-    y: height - 12*20, // 150 px high control panel
+    y: height - 12*20,
     width: width,
     height: 12*22,
   };
-
-  // --- Create the Gear Shift Lever ---
-  // Position it inside the control panel. For example, offset it 50px from the left,
-  // and 20px from the top of the control panel.
   const leverOptions = {
-    x: sceneElements.controlPanel.width - 12*14,
-    y: sceneElements.controlPanel.y,
+    x: controlPanelOptions.width - 12*14,
+    y: controlPanelOptions.y + 48,
     width: 108,
-    // The vertical channel can be defined relative to the control panel:
-    channelTop: sceneElements.controlPanel.y,
-    channelBottom: sceneElements.controlPanel.y + 12*15,
+    channelTop: controlPanelOptions.y + 48,
+    channelBottom: controlPanelOptions.y + 12*15,
     handleRadius: 20,
   };
-
   const ignitionOptions = {
-    x: sceneElements.controlPanel.width - 12*19,
-    y: sceneElements.controlPanel.y + 12*12,
+    x: controlPanelOptions.width - 12*19,
+    y: controlPanelOptions.y + 12*12,
     radius: 18, svg: assets.ignitionIco,
     eventType: 'ignitionToggle',
     onClick: toggleIgnition
   };
 
+  sceneElements.controlPanel = new ControlPanel(controlPanelOptions);
   sceneElements.gearShiftLever = new GearShiftLever(leverOptions);
-  
   sceneElements.ignitionBtn = new Button(ignitionOptions);
 
-  console.log(`Scene initialized:`, sceneElements);
+  console.log(`Interactive UI is set:`, sceneElements);
 }
 
-export function drawControls(renderer) {
+export function renderUI(renderer, physicsElements) {
   const ctx = renderer.context;
 
+  //interactables
   sceneElements.gearShiftLever.render(ctx);
   sceneElements.ignitionBtn.render(ctx);
-}
-
-export function renderScene(container, assets, dimensions) {
-  // 1. Initialize engine.
-  const engine = initEngine();
-  runEngine(engine);
-  console.log('Engine:', engine);
-  
-  // 2. Initialize renderer using the container element.
-  const render = initRenderer(engine, container, dimensions);
-  console.log('Renderer:', render);
-
-  // 3. Initialize physics simulation elements.
-  
-  const physicsElements = initPhysics(engine, assets, dimensions);
-  console.log('Physics:', physicsElements);
-
-  return { engine, render, physicsElements };
+  sceneElements.controlPanel.render(ctx, physicsElements);
 }

@@ -1,7 +1,8 @@
 // js/main.js
 
 import { setupInput } from './modules/inputManager.js';
-import { initScene, drawControls, renderScene } from './modules/sceneManager.js';
+import { setupUI, renderUI } from './modules/sceneManager.js';
+import { renderScene } from './modules/renderer.js';
 import { preloadAssets } from './utils/helpers.js';
 import { setupGameState } from './modules/gameManager.js';
 
@@ -14,9 +15,9 @@ document.addEventListener('DOMContentLoaded', () => {
   preloadAssets((assets) => {
       console.log('Assets preloaded:', assets);
       const { engine, render, physicsElements } = renderScene(container, assets, dimensions);
-      initScene(render, assets);
+      setupUI(render, assets);
       Matter.Events.on(render, 'afterRender', function() {
-        drawControls(render);
+        renderUI(render, physicsElements);
       });
       
       setupInput(engine, render, physicsElements);
