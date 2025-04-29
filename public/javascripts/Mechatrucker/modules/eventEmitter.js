@@ -1,8 +1,10 @@
 // js/eventEmitter.js
+const LOGGING = true;
 
 class EventEmitter {
     constructor() {
         this.events = {};
+        this.lastPayload = {};
     }
   
     subscribe(eventName, fn) {
@@ -18,7 +20,9 @@ class EventEmitter {
     }
   
     emit(eventName, data) {
-        console.log(`[EVENT] ${eventName}:`, data);
+        if (this.lastPayload[eventName] !== undefined && this.lastPayload[eventName] === data) { return }
+        LOGGING ? console.log(`[EVENT] ${eventName}:`, data) : null;
+        this.lastPayload[eventName] = data;
         if (!this.events[eventName]) return;
         this.events[eventName].forEach(callback => callback(data));
     }

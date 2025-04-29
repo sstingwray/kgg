@@ -2,204 +2,176 @@
 
 import emitter from '../modules/eventEmitter.js';
 import Interactable from './interactable.js';
-import { getRGBA } from '../utils/helpers.js'
+import { getRGBA } from '../utils/helpers.js';
 
+const Vector = Matter.Vector;
+
+/**
+ * GearShiftLever rides on a moving panelBody and allows selecting gears when clutch is disengaged.
+ */
 export default class GearShiftLever extends Interactable {
-    
   /**
-   * Creates a new GearShiftLever.
-   * @param {Object} options - Configuration options.
-   * @param {number} options.x - X coordinate for the lever channel container.
-   * @param {number} options.y - Y coordinate for the lever channel container.
-   * @param {number} options.width - Width of the container.
-   * @param {number} options.channelTop - Y position (relative to the container) for top of channel.
-   * @param {number} options.channelBottom - Y position for bottom of the channel.
-   * @param {number} [options.handleRadius=15] - Radius of the round handle.
+   * @param {Object} options
+   * @param {Matter.Body} options.panelBody    - Matter body for the control panel
+   * @param {number} options.x                - local x offset on panel
+   * @param {number} options.y                - local y offset on panel
+   * @param {number} options.channelLen       - total length of the shift channel
+   * @param {number} options.handleRadius     - radius of the draggable handle
    */
-  constructor(options = {}) {
-    // Call the base Interactable constructor.
-    super(options);
-    // Where the lever channel sits inside the parent container.
-    this.x = options.x || 0;
-    this.y = options.y || 0;
-    this.width = options.width || 100;
-    
-    // Define the vertical boundaries for the channel relative to this.y.
-    this.channelTop = options.channelTop || (this.y + 20);
-    this.channelBottom = options.channelBottom || (this.y + 220);
-    
-    // Define the gear positions: Reverse, Neutral, 1st, 2nd, 3rd.
-    this.gearCount = 5;
-    this.gearNames = ['Reverse', 'Neutral', '1st', '2nd', '3rd'];
-    this.gearPositions = [];
-    for (let i = 0; i < this.gearCount; i++) {
-      // Evenly distribute positions between channelTop and channelBottom.
-      let pos = this.channelTop + i * ((this.channelBottom - this.channelTop) / (this.gearCount - 1));
-      this.gearPositions.push(pos);
-      
-    }
-    
-    // Start with the lever in Neutral (index 1).
-    this.currentGearIndex = 1;
-    this.handleY = this.gearPositions[this.currentGearIndex];
-    this.handleRadius = options.handleRadius || 15;
-    this.handleOffsetX = 0;
-    
-    // Flags
-    this.isDragging = false;
-    this.isHovered = false;
-    // By default, assume the clutch is engaged; you must disengage it (via space bar later)
-    // before the lever can be moved.
+  constructor({ panelBody, x = 0, y = 0, channelLen = 120, handleRadius = 15 } = {}) {
+    super();
+    this.panelBody    = panelBody;
+    this.localOffset  = Vector.create(x, y);
+    this.channelLen   = channelLen;
+    this.handleRadius = handleRadius;
+
+    // Gear definitions
+    this.gearNames   = ['Reverse', 'Neutral', '1st', '2nd', '3rd'];
+    this.gearCount   = this.gearNames.length;
+    this.currentGear = 1; // start at Neutral
+    this.isDragging  = false;
+
+    // clutch flag from outside
     this.clutch = false;
-
-    emitter.subscribe('clutchToggle', this.handleClutchChange.bind(this))
+    emitter.subscribe('clutchToggle', this.handleClutchChange.bind(this));
   }
 
-  handleClutchChange(newState) {
-    this.clutch = newState;
+  handleClutchChange(state) {
+    this.clutch = state;
   }
-  
+
   /**
-   * Checks for mouse down on the handle.
-   * The lever can only be grabbed if the clutch is disengaged.
-   * @param {MouseEvent} event 
+   * Convert a panel-local vector (x,y) into world coords
    */
+  toWorld(local) {
+    // rotate local vector by panel angle, then translate
+    const rotated = Vector.rotate(local, this.panelBody.angle);
+    return Vector.add(rotated, this.panelBody.position);
+  }
+
+  /**
+   * Compute local Y offset along channel for a given gear index
+   */
+  localOffsetForIndex(index) {
+    const half = this.channelLen / 2;
+    const frac = index / (this.gearCount - 1);
+    return frac * this.channelLen - half;
+  }
+
+  /**
+   * Compute handle position in world coords based on currentGear
+   */
+  getHandlePos() {
+    const dy = this.localOffsetForIndex(this.currentGear);
+    const localPos = Vector.create(this.localOffset.x, this.localOffset.y + dy);
+    return this.toWorld(localPos);
+  }
 
   onMouseDown(event) {
-    // Get the canvas's position on the page.
-    const rect = event.target.getBoundingClientRect();
-    // Convert the global mouse coordinates to canvas-local coordinates.
-    const mouseX = event.clientX - rect.left;
-    const mouseY = event.clientY - rect.top;
-    // Calculate the center X of the lever channel.
-    const centerX = this.x + this.width / 2;
-    // Determine if the click occurred within the handle's circular area.
-    const dx = mouseX - centerX;
-    const dy = mouseY - this.handleY;
-    const distance = Math.sqrt(dx * dx + dy * dy);
-    if (distance <= this.handleRadius) {
+    const pos = this.getHandlePos(); 
+    const dx = event.offsetX - pos.x;
+    const dy = event.offsetY - pos.y;    
+    if (dx*dx + dy*dy <= this.handleRadius**2) {
       if (!this.clutch) {
-        console.log("Clutch is engaged; gear lever cannot be moved.");
+        console.log('Clutch engaged; lever locked.');
         return;
       }
       this.isDragging = true;
-      this.handleOffsetX = -5;
-      // Store the starting mouse Y for tracking movement.
-      this._startY = event.clientY;
     }
   }
-  
-  /**
-   * Updates the handle's vertical position as it is being dragged.
-   * @param {MouseEvent} event 
-   */
+
   onMouseMove(event) {
     if (!this.isDragging) return;
-    // Calculate movement delta.
-    let deltaY = event.clientY - this._startY;
-    // Update handleY and then reset _startY.
-    let newY = this.handleY + deltaY;
-    
-    // Clamp newY to the channel boundaries.
-    newY = Math.max(this.channelTop, Math.min(newY, this.channelBottom));
-    
-    this.handleY = newY;
-    this._startY = event.clientY;
+    // map screen coords to panel-local coords
+    const P = this.panelBody.position;
+    const rel = Vector.create(event.offsetX - P.x, event.offsetY - P.y);
+    const local = Vector.rotate(rel, -this.panelBody.angle);
+    // extract local Y relative to lever channel
+    const localY = local.y - this.localOffset.y;
+    const frac = Math.min(1, Math.max(0, (localY + this.channelLen/2) / this.channelLen));
+    const idx  = Math.round(frac * (this.gearCount - 1));
+    if (idx !== this.currentGear) {
+      this.currentGear = idx;
+      emitter.emit('gearShift', this.gearNames[idx]);
+    }
   }
-  
-  /**
-   * When the mouse is released, snap the handle to the nearest gear position.
-   * @param {MouseEvent} event 
-   */
-  onMouseUp(event) {
-    if (!this.isDragging) return;
+
+  onMouseUp() {
     this.isDragging = false;
-    
-    // Find the nearest gear position.
-    let closestIndex = 0;
-    let minDist = Math.abs(this.handleY - this.gearPositions[0]);
-    for (let i = 1; i < this.gearPositions.length; i++) {
-      let d = Math.abs(this.handleY - this.gearPositions[i]);
-      if (d < minDist) {
-        minDist = d;
-        closestIndex = i;
-      }
-    }
-    // Snap to the closest position.
-    this.currentGearIndex = closestIndex;
-    this.handleY = this.gearPositions[closestIndex];
-    this.handleOffsetX = 0;
-    emitter.emit('gearShift', this.gearNames[this.currentGearIndex]);
   }
-  
-  /**
-   * Renders the gear shift lever on the given canvas context.
-   * @param {CanvasRenderingContext2D} context 
-   */
-  render(context) {
-    context.save();
 
-    // Draw the lever channel as a vertical line in the center.
-    const centerX = this.x + this.width / 2;
-    context.strokeStyle = getRGBA('jet', 1);
-    context.lineWidth = 8;
-    context.beginPath();
-    context.moveTo(centerX, this.channelTop);
-    context.lineTo(centerX, this.channelBottom);
-    context.stroke();
-    
-    // Draw markers and labels for each gear position.
-    
-    for (let i = 0; i < this.gearPositions.length; i++) {
-        context.beginPath();
-        context.arc(centerX, this.gearPositions[i], 8, 0, 2 * Math.PI);
-        context.fillStyle = getRGBA('jet', 1);
-        context.shadowColor = 'transparent';
-        context.shadowBlur = 20;           
-        context.shadowOffsetX = 0;            
-        context.shadowOffsetY = 0;
-        context.fill();
-        if (this.currentGearIndex == i) {
-            context.fillStyle = getRGBA('dark-cyan', 1);
-            context.shadowColor = getRGBA('dark-cyan', 1);
-            context.font = " bold 14px sans-serif";
-        } else {
-            context.fillStyle = getRGBA('dark-cyan', 0.5);
-            context.font = "12px sans-serif";
-        };
-        context.fillText(this.gearNames[i], centerX + 24, this.gearPositions[i] + 4);
+  render(ctx) {
+    // compute channel endpoints
+    const half = this.channelLen / 2;
+    const topLocal    = Vector.create(this.localOffset.x, this.localOffset.y - half);
+    const bottomLocal = Vector.create(this.localOffset.x, this.localOffset.y + half);
+    const top    = this.toWorld(topLocal);
+    const bottom = this.toWorld(bottomLocal);
+
+    ctx.save();
+    // draw channel line
+    ctx.strokeStyle = getRGBA('jet', 1);
+    ctx.lineWidth   = 6;
+    ctx.beginPath();
+    ctx.moveTo(top.x, top.y);
+    ctx.lineTo(bottom.x, bottom.y);
+    ctx.stroke();
+
+    // draw gear markers and labels
+    for (let i = 0; i < this.gearCount; i++) {
+      const dy    = this.localOffsetForIndex(i);
+      const mark  = this.toWorld(Vector.create(this.localOffset.x, this.localOffset.y + dy));
+      // marker circle
+      ctx.beginPath();
+      ctx.shadowColor = (i === this.currentGear
+        ? getRGBA('dark-cyan', 1)
+        : getRGBA('dark-cyan', 0));
+      ctx.shadowBlur = (i === this.currentGear ? 20 : 0);
+      ctx.shadowOffsetX = 0;            
+      ctx.shadowOffsetY = 0;
+      ctx.arc(mark.x, mark.y, 8, 0, 2*Math.PI);
+      ctx.fillStyle   = getRGBA('jet', 1);
+      ctx.fill();
+      // label
+      ctx.fillStyle   = (i === this.currentGear
+                          ? getRGBA('dark-cyan', 1)
+                          : getRGBA('dark-cyan', 0.5));
+      ctx.font        = i === this.currentGear ? 'bold 14px sans-serif' : '12px sans-serif';
+      ctx.textAlign   = 'left'; 
+      ctx.textBaseline= 'middle';
+      ctx.fillText(this.gearNames[i], mark.x + 24, mark.y);
     }
-    
-    // Draw the lever handle.
-    const handleX = centerX + this.handleOffsetX;
-    context.fillStyle = getRGBA('gold', 1);
-    context.shadowColor = 'transparent';
-    context.beginPath();
-    context.arc(handleX, this.handleY, this.handleRadius, 0, 2 * Math.PI);
-    context.fill();
-    
-    
 
+    // draw handle
+    const handle = this.getHandlePos();
+    ctx.beginPath();
+    ctx.arc(handle.x, handle.y, this.handleRadius, 0, 2*Math.PI);
+    ctx.fillStyle   = getRGBA('gold', 1);
+    ctx.fill();
+    ctx.lineWidth   = 2;
+    ctx.strokeStyle = getRGBA('raisin-black', 1);
+
+    ctx.stroke();
     // Draw the main pad of the cat paw (acting as the gear shift handle)
     // Define toe pad positions relative to the handle center
     const toePads = [
-    { x: handleX - 10,  y: this.handleY - 2,    r: 2.5  },
-    { x: handleX - 4,   y: this.handleY - 9,    r: 3     },
-    { x: handleX + 4,   y: this.handleY - 9,    r: 3     },
-    { x: handleX + 10,  y: this.handleY - 2,    r: 2.5  },
-    { x: handleX - 4,   y: this.handleY + 6,    r: 5    },
-    { x: handleX,       y: this.handleY + 4,    r: 6    },
-    { x: handleX + 4,   y: this.handleY + 6,    r: 5    },
-    ];
+      { x: handle.x - 10,  y: handle.y - 2,    r: 2.5  },
+      { x: handle.x - 4,   y: handle.y - 9,    r: 3     },
+      { x: handle.x + 4,   y: handle.y - 9,    r: 3     },
+      { x: handle.x + 10,  y: handle.y - 2,    r: 2.5  },
+      { x: handle.x - 4,   y: handle.y + 6,    r: 5    },
+      { x: handle.x,       y: handle.y + 4,    r: 6    },
+      { x: handle.x + 4,   y: handle.y + 6,    r: 5    },
+      ];
+  
+      // Draw each toe pad along with a small white detail
+      toePads.forEach(pad => {
+        ctx.beginPath();
+        ctx.arc(pad.x, pad.y, pad.r, 0, Math.PI * 2);
+        ctx.fillStyle = getRGBA('raisin-black', 1);
+        ctx.fill();
+      });
 
-    // Draw each toe pad along with a small white detail
-    toePads.forEach(pad => {
-    context.beginPath();
-    context.arc(pad.x, pad.y, pad.r, 0, Math.PI * 2);
-    context.fillStyle = getRGBA('raisin-black', 1);
-    context.fill();
-    });
-
-    context.restore();
+    ctx.restore();
   }
 }

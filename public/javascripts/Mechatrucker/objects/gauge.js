@@ -87,6 +87,7 @@ export default class Gauge extends Interactable {
       ctx.fillStyle = getRGBA('white', 0.5);
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
+      ctx.font = `${labelRadius * 0.3}px sans-serif`;
       ctx.fillText(labelValue.toString(), lx, ly);
     }
 
@@ -104,7 +105,7 @@ export default class Gauge extends Interactable {
     ctx.stroke();
 
     // ---- Draw center hub ----
-    ctx.fillStyle = '#222';
+    ctx.fillStyle = getRGBA('jet', 1);
     ctx.beginPath();
     ctx.arc(0, 3, radius * 0.2, 0, 2*Math.PI);
     ctx.fill();
@@ -114,8 +115,8 @@ export default class Gauge extends Interactable {
     ctx.textAlign = 'center';
     // label underneath
     if (this.label) {
-      ctx.font = `${radius * 0.2}px sans-serif`;
-      ctx.fillText(this.label, 0, radius * 0.5);
+      ctx.font = `${radius * 0.3}px sans-serif`;
+      ctx.fillText(this.label, 0, radius * 0.6);
     }
 
     ctx.restore();

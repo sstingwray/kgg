@@ -5,6 +5,7 @@ import { initEngine, runEngine } from './engine.js';
 import { initPhysics } from './physics.js';
 
 const Matter = window.Matter;
+const LOGGING = false;
 
 export function initRenderer(engine, container, dimensions) {
   const { width, height } = dimensions;
@@ -22,7 +23,7 @@ export function initRenderer(engine, container, dimensions) {
   });  
 
   Matter.Render.run(render);
-  console.log(`Renderer initialized.`);
+  console.log(`[renderer] Renderer initialized.`);
 
   return render;
 }
@@ -30,13 +31,13 @@ export function initRenderer(engine, container, dimensions) {
 export function renderScene(container, assets, dimensions) {
   const engine = initEngine();
   runEngine(engine);
-  console.log('Engine:', engine);
+  LOGGING ? console.log('Engine:', engine) : null;
   
   const render = initRenderer(engine, container, dimensions);
-  console.log('Renderer:', render);
+  LOGGING ? console.log('Renderer:', render) : null;
 
   const physicsElements = initPhysics(engine, assets, dimensions);
-  console.log('Physics:', physicsElements);
+  LOGGING ? console.log('Physics:', physicsElements) : null;
 
   return { engine, render, physicsElements };
 }

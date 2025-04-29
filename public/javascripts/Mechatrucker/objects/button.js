@@ -63,7 +63,7 @@ export default class Button extends Interactable {
    * Renders the button on the given canvas context.
    * @param {CanvasRenderingContext2D} context - The 2D drawing context.
    */
-  render(context) {
+  render(body, dimensions, context) {
     context.save();
     const svgImg = this.svg; 
   

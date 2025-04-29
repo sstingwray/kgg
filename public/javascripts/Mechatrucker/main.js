@@ -1,10 +1,12 @@
 // js/main.js
 
-import { setupInput } from './modules/inputManager.js';
 import { setupUI, renderUI } from './modules/sceneManager.js';
+import { setupAudio } from './modules/audioManager.js';
+import { setupInput } from './modules/inputManager.js';
+import { setupGameState } from './modules/gameManager.js';
 import { renderScene } from './modules/renderer.js';
 import { preloadAssets } from './utils/helpers.js';
-import { setupGameState } from './modules/gameManager.js';
+
 
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -13,18 +15,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const dimensions = { width: 1024, height: 1024 };
 
   preloadAssets((assets) => {
-      console.log('Assets preloaded:', assets);
+      console.log('[main] Assets preloaded:', assets);
       const { engine, render, physicsElements } = renderScene(container, assets, dimensions);
-      setupUI(render, assets);
+      setupUI(render, assets, physicsElements);
+      console.log(physicsElements);
+      
       Matter.Events.on(render, 'afterRender', function() {
         renderUI(render, physicsElements);
       });
-      
+
+      setupAudio();
       setupInput(engine, render, physicsElements);
 
       setupGameState();
-
-      //console.log(Matter.Composite.allBodies(engine.world));
     });
 
   

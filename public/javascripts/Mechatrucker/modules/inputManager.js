@@ -8,6 +8,7 @@ export function setupInput(engine, render, physicsElements) {
     const canvas = document.getElementById('game-container').children[0];
     const sceneElements = getSceneElements();
     const defaultShakeForce = 0.5;
+    const state = getGameState();
     
     // Example: Handle keyboard input for cockpit controls
     document.addEventListener('keydown', event => {
@@ -17,10 +18,10 @@ export function setupInput(engine, render, physicsElements) {
                 console.log('Game State:', getGameState());
                 break;
             case 'KeyW':
-                emitter.emit('outputChange', true);
+                emitter.emit('outputChange', state.mech.status.energyOutput + 1);
                 break;
             case 'KeyS':
-                emitter.emit('outputChange', false);
+                emitter.emit('outputChange', state.mech.status.energyOutput - 1);
                 break;
             case 'KeyA':
                 if (event.repeat) return;
@@ -35,6 +36,14 @@ export function setupInput(engine, render, physicsElements) {
                 );
                 Matter.Body.applyForce(
                     physicsElements.rightMonitor, 
+                    {
+                        x: physicsElements.rightMonitor.position.x + Math.random()*10,
+                        y: physicsElements.rightMonitor.position.y + Math.random()*10
+                    },
+                    { x: -defaultShakeForce + Math.random()*0.1, y: Math.random()*1 }
+                );
+                Matter.Body.applyForce(
+                    physicsElements.centralPanel, 
                     {
                         x: physicsElements.rightMonitor.position.x + Math.random()*10,
                         y: physicsElements.rightMonitor.position.y + Math.random()*10
@@ -57,6 +66,14 @@ export function setupInput(engine, render, physicsElements) {
                 );
                 Matter.Body.applyForce(
                     physicsElements.rightMonitor, 
+                    {
+                        x: physicsElements.rightMonitor.position.x + Math.random()*10,
+                        y: physicsElements.rightMonitor.position.y + Math.random()*10
+                    },
+                    { x: defaultShakeForce + Math.random()*0.1, y: Math.random()*1 }
+                );
+                Matter.Body.applyForce(
+                    physicsElements.centralPanel, 
                     {
                         x: physicsElements.rightMonitor.position.x + Math.random()*10,
                         y: physicsElements.rightMonitor.position.y + Math.random()*10
@@ -124,6 +141,6 @@ export function setupInput(engine, render, physicsElements) {
 
     canvas.addEventListener('mousedown', (event) => sceneElements.ignitionBtn.onMouseDown(event));
     
-    console.log(`Input Handler initialized.`);
+    console.log(`[inputManager] Input Handler initialized.`);
   }
   

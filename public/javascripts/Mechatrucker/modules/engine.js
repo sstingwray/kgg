@@ -17,7 +17,7 @@ engine.timing.timeScale = 1;
 // For example, setting gravity in the y-direction:
 engine.gravity.y = 1; // Default value; adjust as needed.
 
-console.log(`Engine initialized.`);
+console.log(`[engine] Engine initialized.`);
 
 return engine;
 }

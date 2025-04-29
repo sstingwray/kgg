@@ -18,9 +18,16 @@ Matter.Composite.allBodies = function(composite) {
 
 export function clamp(value, min, max) {
     return Math.max(min, Math.min(max, value));
-  }
-  
-  // Add other general purpose functions as needed.
+}
+
+export function round(value, decimals = 0) {
+  let returnNum = Number(Math.round(value + 'e' + decimals) + 'e-' + decimals);
+  return returnNum ? returnNum : 0;
+};
+
+function randRange(min, max) {
+  return min + Math.random() * (max - min);
+}
 
 export function getRGBA(name, opacity) {
   switch (name) {

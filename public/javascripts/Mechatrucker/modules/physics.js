@@ -102,8 +102,6 @@ export function initPhysics(engine, assets, dimensions) {
     mask: 0xFFFFFFFF & ~FOREGROUND_CATEGORY  
   };
   
-  
-  // --- Create a dangling cable for the left monitor---
   const cableLeft = Matter.Composites.stack(
     paramsMonitorLeft.cable.start.x, paramsMonitorLeft.cable.start.y, 1, cableSegmentCount, 0, 5,
     (x, y) => Matter.Bodies.circle(x, y, cableSegmentRadius, {
@@ -165,7 +163,6 @@ export function initPhysics(engine, assets, dimensions) {
     },
   });
 
-  // --- Create a dangling cable for the right monitor---
   const cableRight = Matter.Composites.stack(
     paramsMonitorRight.cable.start.x, paramsMonitorRight.cable.start.y, 1, cableSegmentCount, 0, 5,
     (x, y) => Matter.Bodies.circle(x, y, cableSegmentRadius, {
@@ -233,7 +230,7 @@ export function initPhysics(engine, assets, dimensions) {
     paramsCentralPanel.size.width,
     paramsCentralPanel.size.height,
     {
-      isStatic: true,
+      isStatic: false,
       string: 'central-panel',
       restitution: 0.8,
       render: {
@@ -247,7 +244,7 @@ export function initPhysics(engine, assets, dimensions) {
     }
   );
 
-  const floor = Matter.Bodies.rectangle(width/2, height, width, 24,  { isStatic: true, render: { visible: false }});
+  const floor = Matter.Bodies.rectangle(width/2, height, width, 1,  { isStatic: true, render: { visible: false }});
   const roof = Matter.Bodies.rectangle(width/2, -96, width, 24, { isStatic: true, render: { visible: true } });
   const leftWall = Matter.Bodies.rectangle(- 48, height/2, 24, height, { isStatic: true, render: { visible: true } });
   const rightWall = Matter.Bodies.rectangle(width + 48, height/2, 24, height, { isStatic: true, render: { visible: true } });
@@ -260,26 +257,11 @@ export function initPhysics(engine, assets, dimensions) {
     floor, roof, leftWall, rightWall
   ]);
 
-  function engineShake(value) {
-    const force = value * 0.005;
-  
-    Matter.Composite.allBodies(engine.world).forEach(body => {
-      if (body.string) {
-        Matter.Body.applyForce(
-          body, 
-          {
-              x: body.position.x + 10 - Math.random()*20,
-              y: body.position.y + 10 - Math.random()*20
-          },
-          { x: force - force * Math.random()*2, y: force*2 }
-      )};
-    })
-  }
-
   //bind to events
-  emitter.subscribe('engineWorking', engineShake.bind(this))
+  emitter.subscribe('engineWorking', engineShake.bind(this, engine));
+  emitter.subscribe('stepMade', stepShake.bind(this, engine));
 
-  console.log(`Physics initialized.`);
+  console.log(`[physics] Physics initialized.`);
   
   // Return an object with references for further use if needed.
   return {
@@ -346,4 +328,36 @@ export function connectMonitorWithConnector(engine, monitorBody, canvasAnchor, c
   Matter.World.add(engine.world, [connector, constraintAnchor, constraintMonitor]);
   
   return connector;
+}
+
+function engineShake(engine, value) {
+  const force = value * 0.002;  
+
+  Matter.Composite.allBodies(engine.world).forEach(body => {
+    if (body.string) {
+      Matter.Body.applyForce(
+        body, 
+        {
+            x: body.position.x + 10 - Math.random()*20,
+            y: body.position.y + 10 - Math.random()*20
+        },
+        { x: force - force * Math.random()*2, y: force*2 }
+    )};
+  })
+}
+
+function stepShake(engine, value) {
+  const force = value.currentStepDistance * 0.001;
+
+  Matter.Composite.allBodies(engine.world).forEach(body => {
+    if (body.string) {
+      Matter.Body.applyForce(
+        body, 
+        {
+            x: body.position.x + 10 - Math.random()*20,
+            y: body.position.y + 10 - Math.random()*20
+        },
+        { x: force - force * Math.random()*2, y: force*2 }
+    )};
+  })
 }
