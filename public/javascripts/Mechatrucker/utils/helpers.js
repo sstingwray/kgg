@@ -29,6 +29,11 @@ function randRange(min, max) {
   return min + Math.random() * (max - min);
 }
 
+export function localToWorld(body, local) {
+  const rotated = Matter.Vector.rotate(local, body.angle);
+  return Matter.Vector.add(rotated, body.position);
+}
+
 export function getRGBA(name, opacity) {
   switch (name) {
     case 'night':

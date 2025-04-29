@@ -26,7 +26,7 @@ export function setupUI(render, assets, physicsElements) {
 
   const controlPanelOptions = {
     x: 0, y: height - 12*20,
-    width: width, height: 12*22,
+    width: width, height: 12*28 + 2,
     body: physicsElements.centralPanel,
     icons: {
       ignition: assets.ignitionIco,

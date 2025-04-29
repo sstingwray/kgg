@@ -16,18 +16,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   preloadAssets((assets) => {
       console.log('[main] Assets preloaded:', assets);
+      setupGameState();
       const { engine, render, physicsElements } = renderScene(container, assets, dimensions);
       setupUI(render, assets, physicsElements);
-      console.log(physicsElements);
       
       Matter.Events.on(render, 'afterRender', function() {
         renderUI(render, physicsElements);
       });
-
       setupAudio();
       setupInput(engine, render, physicsElements);
-
-      setupGameState();
     });
 
   

@@ -135,11 +135,11 @@ export function setupInput(engine, render, physicsElements) {
         }
     });
 
-    canvas.addEventListener('mousedown', (event) => sceneElements.gearShiftLever.onMouseDown(event));
-    canvas.addEventListener('mousemove', (event) => sceneElements.gearShiftLever.onMouseMove(event));
-    canvas.addEventListener('mouseup', (event) => sceneElements.gearShiftLever.onMouseUp(event));
+    canvas.addEventListener('mousedown', (event) => sceneElements.levers.gearShiftLever.onMouseDown(event));
+    canvas.addEventListener('mousemove', (event) => sceneElements.levers.gearShiftLever.onMouseMove(event));
+    canvas.addEventListener('mouseup',   (event) => sceneElements.levers.gearShiftLever.onMouseUp(event));
 
-    canvas.addEventListener('mousedown', (event) => sceneElements.ignitionBtn.onMouseDown(event));
+    canvas.addEventListener('mousedown', (event) => sceneElements.buttons.ignitionBtn.onMouseDown(event));
     
     console.log(`[inputManager] Input Handler initialized.`);
   }

@@ -37,8 +37,8 @@ export function initPhysics(engine, assets, dimensions) {
   }
 
   const paramsCentralPanel = {
-    placement:    { x: width / 2,                               y: height - (12*28 + 2) / 2 },
-    size:         { width: width,                               height: 12*28 + 2 }
+    placement:    { x: width / 2,                               y: height - 12*14 },
+    size:         { width: width + 12*5 + 8,                        height: 12*28 + 2 },
   }
 
   const leftMonitor = Matter.Bodies.rectangle(
@@ -66,7 +66,7 @@ export function initPhysics(engine, assets, dimensions) {
     }
   );
   
-  const leftMonitorConnector = connectMonitorWithConnector(engine, leftMonitor, paramsMonitorLeft.mount, MONITOR_ARM_WIDTH);
+  const leftMonitorConnector = createBodyConnector(engine, leftMonitor, paramsMonitorLeft.mount, MONITOR_ARM_WIDTH);
   leftMonitorConnector.collisionFilter = {
     category: BACKGROUND_CATEGORY,
     mask: 0xFFFFFFFF & ~FOREGROUND_CATEGORY  
@@ -96,7 +96,7 @@ export function initPhysics(engine, assets, dimensions) {
     }
   );
 
-  const rightMonitorConnector = connectMonitorWithConnector(engine, rightMonitor, paramsMonitorRight.mount, MONITOR_ARM_WIDTH);
+  const rightMonitorConnector = createBodyConnector(engine, rightMonitor, paramsMonitorRight.mount, MONITOR_ARM_WIDTH);
   rightMonitorConnector.collisionFilter = {
     category: BACKGROUND_CATEGORY,
     mask: 0xFFFFFFFF & ~FOREGROUND_CATEGORY  
@@ -271,15 +271,12 @@ export function initPhysics(engine, assets, dimensions) {
   };
 }
 
-export function connectMonitorWithConnector(engine, monitorBody, canvasAnchor, connectorWidth = 10) {
-  // Calculate the vector from the canvas anchor to the monitor.
-  const dx = monitorBody.position.x - canvasAnchor.x;
-  const dy = monitorBody.position.y - canvasAnchor.y;
+export function createBodyConnector(engine, body, canvasAnchor, connectorWidth = 10) {
+  const dx = body.position.x - canvasAnchor.x;
+  const dy = body.position.y - canvasAnchor.y;
   const distance = Math.sqrt(dx * dx + dy * dy);
-  
-  // Find the midpoint between the canvas anchor and the monitor.
-  const midX = (canvasAnchor.x + monitorBody.position.x) / 2;
-  const midY = (canvasAnchor.y + monitorBody.position.y) / 2;
+  const midX = (canvasAnchor.x + body.position.x) / 2;
+  const midY = (canvasAnchor.y + body.position.y) / 2;
   
   // Create the connector rectangle.
   // The rectangle's height is set to the distance between the two points
@@ -315,7 +312,7 @@ export function connectMonitorWithConnector(engine, monitorBody, canvasAnchor, c
   const constraintMonitor = Matter.Constraint.create({
     bodyA: connector,
     pointA: localBottom,
-    bodyB: monitorBody,
+    bodyB: body,
     pointB: { x: 0, y: -24 },
     stiffness: 1,
     damping: 0.1,

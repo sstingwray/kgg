@@ -11,21 +11,8 @@ import { getRGBA } from '../utils/helpers.js';
 const DEBUG = true;
 
 export default class ControlPanel extends Interactable {
-  /**
-   * A container component for cockpit controls.
-   * Renders a panel and propagates input to its child interactables.
-   *
-   * @param {Object} options
-   * @param {number} options.x       – top‐left x of panel
-   * @param {number} options.y       – top‐left y of panel
-   * @param {number} options.width   – panel width
-   * @param {number} options.height  – panel height
-   * @param {string} [options.fill]  – background color
-   * @param {string} [options.stroke]– border color
-   * @param {number} [options.lineWidth] – border thickness
-   */
   constructor(options = {}) {
-    super({});
+    super();
     this.x         = options.x;
     this.y         = options.y;
     this.width     = options.width;
@@ -35,25 +22,57 @@ export default class ControlPanel extends Interactable {
     this.canvases = {};
     this.MONITOR_LEFT_SIZE   = { width: 12*29, height: 12*15 - 4 };
     this.MONITOR_RIGHT_SIZE  = { width: 12*29, height: 12*15 - 4 };
-    this.CENTRAL_PANEL_SIZE  = { width: 12*27, height: 12*14     };
+    this.CENTRAL_PANEL_SIZE  = { width: this.width, height: this.height };
     this.GEARBOX_CANVAS_SIZE = { width: 12*8,  height: 12*5 - 4  };
+
+    const state = getGameState();
+
     this.elements = {
+      levers: {
         gearShiftLever: new GearShiftLever({
-          panelBody: this.body,
-          x: this.width / 2 - 12*10 + 6,
-          y: 48,
+          body: this.body,
+          x: this.width / 2 - 12*10 + 6, y: 48,
           width: 108,
           channelLen: 152,
           handleRadius: 20,
-        }),
-        ignitionBtn: new Button({
-            x: this.width - 12*19,
-            y: this.y + 12*12,
-            radius: 18, svg: this.icons.ignition,
-            eventType: 'ignitionToggle',
-            onClick: toggleIgnition
         })
-    }
+      },
+      gauges: {
+        gaugePRM: new Gauge({
+          body: this.body,
+          x: 12*17 - 2, y: 3 - 12*11, radius: 33,
+          maxValue: state.mech.engine.maxBaseRPM,
+          divisions: state.mech.engine.maxBaseRPM,
+          redZoneStart: 0.8,
+          label: 'RPM',
+        }),
+        speedRPM: new Gauge({
+          body: this.body,
+          x: 12*24 - 4, y: 3 - 12*11, radius: 33,
+          maxValue: state.mech.engine.maxSpeed,
+          divisions: state.mech.engine.maxSpeed / 20,
+          redZoneStart: 0.8,
+          label: 'Speed',
+        })
+      },
+      buttons: {
+        ignitionBtn: new Button({
+          body: this.body,
+          x: 12*24 - 4, y: -12*3 - 10,
+          radius: 18, svg: this.icons.ignition,
+          eventType: 'ignitionToggle',
+          onClick: toggleIgnition
+        })
+      },
+      lights: {
+        clutchLight: new Light({
+          body: this.body,
+          x: this.width / 2 - 12*10 + 6, y: 2 - 12*7, radius: 8,
+          label: 'Clutch',
+          eventType: 'clutchToggle',
+        })
+      }
+    }    
   }
 
   returnElements() {
@@ -63,19 +82,18 @@ export default class ControlPanel extends Interactable {
   render(biggerContext, physicsElements) {
     const state = getGameState();
   
-    this.drawLeftMonitor(state, physicsElements.leftMonitor, biggerContext);
-    this.drawRightMonitor(state, physicsElements.rightMonitor, biggerContext);
-    this.drawCentralPanel(state, physicsElements.centralPanel, biggerContext);
-    this.drawGearbox(state, physicsElements.centralPanel, biggerContext);
+    this.drawLeftMonitorStatic(state, physicsElements.leftMonitor, biggerContext);
+    this.drawRightMonitorStatic(state, physicsElements.rightMonitor, biggerContext);
+    this.drawCentralPanelStatic(state, physicsElements.centralPanel, biggerContext);
 
-    this.elements.gearShiftLever.render(biggerContext);
-    this.elements.ignitionBtn.render(
-      physicsElements.centralPanel,
-      { width: this.width, height: this.height },
-      biggerContext);
+    this.elements.levers.gearShiftLever.render(biggerContext);
+    this.elements.gauges.gaugePRM.render(state.mech.status.baseRPM, biggerContext);
+    this.elements.gauges.speedRPM.render(state.mech.status.movement.speedApprox, biggerContext);
+    this.elements.buttons.ignitionBtn.render(biggerContext);
+    this.elements.lights.clutchLight.render(biggerContext);
   }
 
-  drawLeftMonitor(state, body, biggerContext) {
+  drawLeftMonitorStatic(state, body, biggerContext) {
     this.canvases.leftMonitor           = document.createElement('canvas');
     this.canvases.leftMonitor.width     = this.MONITOR_LEFT_SIZE.width;
     this.canvases.leftMonitor.height    = this.MONITOR_LEFT_SIZE.height;
@@ -112,7 +130,7 @@ export default class ControlPanel extends Interactable {
     biggerContext.restore();
   }
 
-  drawRightMonitor(state, body, biggerContext) {
+  drawRightMonitorStatic(state, body, biggerContext) {
     this.canvases.rightMonitor          = document.createElement('canvas');
     this.canvases.rightMonitor.width    = this.MONITOR_LEFT_SIZE.width;
     this.canvases.rightMonitor.height   = this.MONITOR_LEFT_SIZE.height;
@@ -149,7 +167,7 @@ export default class ControlPanel extends Interactable {
     biggerContext.restore();
   }
 
-  drawCentralPanel(state, body, biggerContext) {
+  drawCentralPanelStatic(state, body, biggerContext) {
     this.canvases.centralPanel          = document.createElement('canvas');
     this.canvases.centralPanel.width    = this.CENTRAL_PANEL_SIZE.width;
     this.canvases.centralPanel.height   = this.CENTRAL_PANEL_SIZE.height;
@@ -160,11 +178,8 @@ export default class ControlPanel extends Interactable {
     ctx.fillStyle = getRGBA('auburn', 0);
     ctx.fillRect(0, 0, this.CENTRAL_PANEL_SIZE.width, this.CENTRAL_PANEL_SIZE.height);
 
-    this.drawRPMGauge(state, ctx);
-    this.drawSpeedGauge(state, ctx);
-
     biggerContext.save();
-    biggerContext.translate(body.position.x + 12*13, body.position.y - 12*7 - 2);
+    biggerContext.translate(body.position.x, body.position.y);
     biggerContext.rotate(body.angle);
     biggerContext.drawImage(
         this.canvases.centralPanel,
@@ -176,87 +191,5 @@ export default class ControlPanel extends Interactable {
     biggerContext.restore();
   }
 
-  drawGearbox(state, body, biggerContext) {
-    this.canvases.gearbox               = document.createElement('canvas');
-    this.canvases.gearbox.width         = this.GEARBOX_CANVAS_SIZE.width;
-    this.canvases.gearbox.height        = this.GEARBOX_CANVAS_SIZE.height;
-    this.canvases.gearbox.ctx           = this.canvases.gearbox.getContext('2d');
-
-    let ctx = this.canvases.gearbox.ctx;
-
-    ctx.fillStyle = getRGBA('auburn', 0);
-    ctx.fillRect(0, 0, this.GEARBOX_CANVAS_SIZE.width, this.GEARBOX_CANVAS_SIZE.height);
-
-    this.drawClutchLight(state, ctx);
-
-    biggerContext.save();
-    biggerContext.translate(body.position.x + 12*35 + 4, body.position.y - 12*6);
-    biggerContext.rotate(body.angle);
-    biggerContext.drawImage(
-        this.canvases.gearbox,
-        -this.GEARBOX_CANVAS_SIZE.width  / 2,
-        -this.GEARBOX_CANVAS_SIZE.height  / 2,
-        this.GEARBOX_CANVAS_SIZE.width,
-        this.GEARBOX_CANVAS_SIZE.height
-    );
-    biggerContext.restore();
-  }
-
-  drawRPMGauge(state, ctx) {
-    const radius = 33;
-    let cx = 0;
-    let cy = 0;
-
-    cx = 12*9 + 1 + radius * 2 + radius;
-    cy = 8 + radius;
-
-    const newGauge = new Gauge({
-        x: cx, y: cy, radius: radius,
-        divisions: state.mech.engine.maxBaseRPM,
-        redZoneStart: 0.8,
-        maxValue: state.mech.engine.maxBaseRPM,
-        label: 'RPM',
-    });
-
-    newGauge.setValue(state.mech.status.baseRPM);
-    newGauge.render(ctx);
-  }
-
-  drawSpeedGauge(state, ctx) {
-    const radius = 33;
-    let cx = 0;
-    let cy = 0;
-
-    cx = 12*17 - 13 + radius * 2 + radius;
-    cy = 8 + radius;
-
-    const newGauge = new Gauge({
-        x: cx, y: cy, radius: radius,
-        divisions: state.mech.engine.maxSpeed / 20,
-        redZoneStart: 0.8,
-        maxValue: state.mech.engine.maxSpeed,
-        label: 'Speed',
-    });
-
-    newGauge.setValue(state.mech.status.movement.speedApprox);
-    newGauge.render(ctx);
-  }
-
-  drawClutchLight(state, ctx) {
-    const radius = 8;
-    let cx = 0;
-    let cy = 0;
-
-    cx = 6 + radius * 2;
-    cy = 16 + radius;
-
-    let newLight = new Light({
-        x: cx, y: cy, radius: radius,
-        label: 'Clutch',
-        state: state.mech.status.flags.clutch
-    });
-    
-    newLight.render(ctx);
-  }
 
 }

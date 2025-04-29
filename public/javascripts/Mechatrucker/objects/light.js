@@ -1,56 +1,55 @@
-// js/gameObjects/light.js
+import emitter from '../modules/eventEmitter.js';
 import Interactable from './interactable.js';
-import { getRGBA } from '../utils/helpers.js';
+import { localToWorld, getRGBA } from '../utils/helpers.js';
 
 export default class Light extends Interactable {
-  /**
-   * Creates a new Light indicator.
-   * @param {Object} options
-   * @param {number} options.x      – center x of the light
-   * @param {number} options.y      – center y of the light
-   * @param {number} options.radius – radius of the light circle
-   * @param {string} options.label  – text label shown underneath
-   * @param {boolean} [options.state=false] – initial on/off state
-   * @param {Function} [options.onToggle]   – called whenever the light changes state
-   */
   constructor(options = {}) {
-    super(options);
-    this.x       = options.x      || 0;
-    this.y       = options.y      || 0;
-    this.radius  = options.radius || 12;
-    this.label   = options.label  || '';
-    this.state   = options.state;
-    this.callback= options.onToggle || (() => {});
+    super();
+    this.body      = options.body;
+    this.localPos  = { x: options.x, y: options.y };
+    this.radius    = options.radius;
+    this.label     = options.label;
+    this.state     = options.state;
+    this.event     = options.eventType;
+    this.callback  = options.onToggle || (() => {});
     this.isPressed = false;
-    // give it a render order if you sort bodies
-    this.render.order = options.renderOrder || 100;
+
+    emitter.subscribe(this.event, this.reactToState.bind(this))
   }
 
-  /** hit‑test a point (canvas coords) against the light’s circle */
+  getWorldCircle() {
+    // top-left in world
+    const worldTL = localToWorld(this.body, this.localPos);
+    return { x: worldTL.x, y: worldTL.y, r: this.radius };
+  }
+
   isPointInside(px, py) {
-    const dx = px - this.x, dy = py - this.y;
-    return dx*dx + dy*dy <= this.radius*this.radius;
+    const { x, y, r } = this.getWorldCircle();
+    console.log({ x, y, r });
+    console.log({ px, py });
+        
+    return px >= x - r && px <= x + r && py >= y - r && py <= y + r;
   }
 
   onMouseDown(event) {
-    if (this.isPointInside(event.canvasX, event.canvasY)) {
+    if (this.isPointInside(event.offsetX, event.offsetY)) {
       this.isPressed = true;
-      this.state     = !this.state;     // immediate visual feedback
-      this.callback(this.state);        // notify listener
+      console.log(`[DEBUG] ${ this.label } light is clicked`);
+      
     }
   }
 
-  onMouseUp(event) {
-    this.isPressed = false;
-    // no further action on release
+  reactToState(event) {
+    this.state = event;
   }
 
   render(ctx) {
+    const { x, y, r } = this.getWorldCircle();
     ctx.save();
     
     // fill circle
     ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2);
+    ctx.arc(x, y, r, 0, Math.PI*2);
     ctx.fillStyle = this.state ? getRGBA('dark-cyan', 1) : getRGBA('dark-cyan', 0.2);
     ctx.shadowColor = 'transparent';
     if (this.state) {
@@ -66,7 +65,7 @@ export default class Light extends Interactable {
     ctx.font         = `12px sans-serif`;
     ctx.textAlign    = 'center';
     ctx.textBaseline = 'top';
-    ctx.fillText(this.label, this.x, this.y + this.radius + 8);
+    ctx.fillText(this.label, x, y + r + 8);
     ctx.restore();
   }
 }

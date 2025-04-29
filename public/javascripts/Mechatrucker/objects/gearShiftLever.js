@@ -10,17 +10,9 @@ const Vector = Matter.Vector;
  * GearShiftLever rides on a moving panelBody and allows selecting gears when clutch is disengaged.
  */
 export default class GearShiftLever extends Interactable {
-  /**
-   * @param {Object} options
-   * @param {Matter.Body} options.panelBody    - Matter body for the control panel
-   * @param {number} options.x                - local x offset on panel
-   * @param {number} options.y                - local y offset on panel
-   * @param {number} options.channelLen       - total length of the shift channel
-   * @param {number} options.handleRadius     - radius of the draggable handle
-   */
-  constructor({ panelBody, x = 0, y = 0, channelLen = 120, handleRadius = 15 } = {}) {
+  constructor({ body, x = 0, y = 0, channelLen = 120, handleRadius = 15 } = {}) {
     super();
-    this.panelBody    = panelBody;
+    this.body         = body;
     this.localOffset  = Vector.create(x, y);
     this.channelLen   = channelLen;
     this.handleRadius = handleRadius;
@@ -45,8 +37,8 @@ export default class GearShiftLever extends Interactable {
    */
   toWorld(local) {
     // rotate local vector by panel angle, then translate
-    const rotated = Vector.rotate(local, this.panelBody.angle);
-    return Vector.add(rotated, this.panelBody.position);
+    const rotated = Vector.rotate(local, this.body.angle);
+    return Vector.add(rotated, this.body.position);
   }
 
   /**
@@ -83,9 +75,9 @@ export default class GearShiftLever extends Interactable {
   onMouseMove(event) {
     if (!this.isDragging) return;
     // map screen coords to panel-local coords
-    const P = this.panelBody.position;
+    const P = this.body.position;
     const rel = Vector.create(event.offsetX - P.x, event.offsetY - P.y);
-    const local = Vector.rotate(rel, -this.panelBody.angle);
+    const local = Vector.rotate(rel, -this.body.angle);
     // extract local Y relative to lever channel
     const localY = local.y - this.localOffset.y;
     const frac = Math.min(1, Math.max(0, (localY + this.channelLen/2) / this.channelLen));

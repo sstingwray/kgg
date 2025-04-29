@@ -1,47 +1,41 @@
 // js/gameObjects/gauge.js
 import Interactable from './interactable.js';
-import { getRGBA } from '../utils/helpers.js';
+import { localToWorld, getRGBA } from '../utils/helpers.js';
 
 export default class Gauge extends Interactable {
-  /**
-   * Circular gauge with dynamic notches, a pointer, and a redline zone.
-   *
-   * @param {Object} options
-   * @param {number} options.x             – center x of the gauge
-   * @param {number} options.y             – center y of the gauge
-   * @param {number} options.radius        – gauge radius
-   * @param {number} options.maxValue      – maximum value (e.g. max RPM)
-   * @param {number} [options.divisions=10]– number of notches around the arc
-   * @param {number} [options.redZoneStart=0.8] – fraction (0–1) of maxValue where red zone begins
-   * @param {string} [options.label='']    – optional gauge label underneath
-   */
-  constructor({
-    x, y, radius, maxValue,
-    divisions = 10,
-    redZoneStart = 0.8,
-    label = ''
-  }) {
-    super({});
-    this.x            = x;
-    this.y            = y;
-    this.radius       = radius;
-    this.maxValue     = maxValue;
-    this.divisions    = divisions;
-    this.redZoneStart = redZoneStart;
-    this.label        = label;
+  constructor(options) {
+    super();
+    this.body         = options.body;
+    this.localPos     = { x: options.x, y: options.y };
+    this.radius       = options.radius;
+    this.maxValue     = options.maxValue;
+    this.divisions    = options.divisions;
+    this.redZoneStart = options.redZoneStart;
+    this.label        = options.label;
     this.value        = 0;
   }
 
-  /**
-   * Update the gauge’s current value.
-   * @param {number} v
-   */
   setValue(v) {
     this.value = Math.max(0, Math.min(v, this.maxValue));
   }
 
-  render(ctx) {
-    const { x, y, radius, maxValue, divisions, redZoneStart, value } = this;
+  getWorldCircle() {
+    // top-left in world
+    const worldTL = localToWorld(this.body, this.localPos);
+    return { x: worldTL.x, y: worldTL.y, r: this.radius };
+  }
+  
+  isPointInside(px, py) {
+    const { x, y, r } = this.getWorldCircle();
+    console.log({ x, y, r });
+    console.log({ px, py });
+        
+    return px >= x - r && px <= x + r && py >= y - r && py <= y + r;
+  }
+
+  render(value, ctx) {
+    this.value = Math.max(0, Math.min(value, this.maxValue));
+    const { x, y, r } = this.getWorldCircle();
     // Angles for a 270° arc from 225° to -45°
     const startAngle = Math.PI;
     const endAngle   = Math.PI*2;
@@ -52,7 +46,7 @@ export default class Gauge extends Interactable {
 
     // ---- Draw background ----
     ctx.beginPath();
-    ctx.arc(0, 0, radius, 0, Math.PI * 2);
+    ctx.arc(0, 0, r, 0, Math.PI * 2);
     ctx.fillStyle = getRGBA('raisin-black', 1);
     ctx.fill();
 
@@ -60,28 +54,28 @@ export default class Gauge extends Interactable {
     ctx.lineWidth   = 2;
     ctx.strokeStyle = getRGBA('davy-gray', 1);
     ctx.beginPath();
-    ctx.arc(0, 0, radius, 0, Math.PI * 2);
+    ctx.arc(0, 0, r, 0, Math.PI * 2);
     ctx.stroke();
 
     // ---- Draw tick marks ----
-    for (let i = 0; i <= divisions; i++) {
-      const fraction = i / divisions;
+    for (let i = 0; i <= this.divisions; i++) {
+      const fraction = i / this.divisions;
       const angle = startAngle + fraction * totalArc;
       // determine color: red if beyond redZoneStart
-      const isRed = fraction >= redZoneStart;
+      const isRed = fraction >= this.redZoneStart;
       ctx.strokeStyle = isRed ? getRGBA('auburn', 1) : getRGBA('white', 0.5);
       ctx.lineWidth = 3;
       // inner and outer radius for tick
-      const r1 = radius * 0.8;
-      const r2 = radius * 0.95;
+      const r1 = r * 0.8;
+      const r2 = r * 0.95;
       ctx.beginPath();
       ctx.moveTo(r1 * Math.cos(angle), r1 * Math.sin(angle));
       ctx.lineTo(r2 * Math.cos(angle), r2 * Math.sin(angle));
       ctx.stroke();
       
       // Draw label at each major division
-      const labelRadius = radius * 0.65;
-      const labelValue  = Math.round(fraction * maxValue);
+      const labelRadius = r * 0.65;
+      const labelValue  = Math.round(fraction * this.maxValue);
       const lx = labelRadius * Math.cos(angle);
       const ly = labelRadius * Math.sin(angle);
       ctx.fillStyle = getRGBA('white', 0.5);
@@ -92,22 +86,22 @@ export default class Gauge extends Interactable {
     }
 
     // ---- Draw pointer ----
-    const valueFraction = value / maxValue;
+    const valueFraction = value / this.maxValue;
     const pointerAngle  = startAngle + valueFraction * totalArc;
     ctx.strokeStyle = getRGBA('gold', 1);
     ctx.lineWidth = 4;
     ctx.beginPath();
     ctx.moveTo(0, 3);
     ctx.lineTo(
-      radius * 0.7 * Math.cos(pointerAngle),
-      radius * 0.7 * Math.sin(pointerAngle)
+      r * 0.7 * Math.cos(pointerAngle),
+      r * 0.7 * Math.sin(pointerAngle)
     );
     ctx.stroke();
 
     // ---- Draw center hub ----
     ctx.fillStyle = getRGBA('jet', 1);
     ctx.beginPath();
-    ctx.arc(0, 3, radius * 0.2, 0, 2*Math.PI);
+    ctx.arc(0, 3, r * 0.2, 0, 2*Math.PI);
     ctx.fill();
 
     // ---- Draw label and value ----
@@ -115,8 +109,8 @@ export default class Gauge extends Interactable {
     ctx.textAlign = 'center';
     // label underneath
     if (this.label) {
-      ctx.font = `${radius * 0.3}px sans-serif`;
-      ctx.fillText(this.label, 0, radius * 0.6);
+      ctx.font = `${r * 0.3}px sans-serif`;
+      ctx.fillText(this.label, 0, r * 0.6);
     }
 
     ctx.restore();
