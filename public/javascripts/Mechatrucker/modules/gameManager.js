@@ -102,9 +102,15 @@ const state = {
             maxSpeed: 0
         },
         status: {
-            fuel: 0,
+            bars: {
+                mechIntegrity: 255,
+                crewHealth: 255,
+                heat: 120,
+                pathfinding: 255,
+                flooding: 0,
+                fuel: 255,
+            },
             energyOutput: 0,
-            heat: 0,
             baseRPM: 0,
             torque: 0,
             gear: 'Neutral',
@@ -280,7 +286,6 @@ function updateEndpointRPM() {
         state.mech.status.endpointRPM = round(state.mech.status.endpointRPM, 3)
     else state.mech.status.endpointRPM = 0
     
-    
     LOGGING && endpointRPM !== state.mech.status.endpointRPM ?
     emitter.emit('[LOG][gameManager] endpointRPM', {
         value: state.mech.status.endpointRPM,
@@ -293,6 +298,8 @@ function calculateSpeedApprox () {
     const targetSpeed = round(endpointRPM * SPEED_SCALE, 3);
 
     state.mech.status.movement.speedApprox = targetSpeed;
+
+    emitter.emit('mechMoving', state.mech.status.movement.speedApprox);
 
     LOGGING && targetSpeed > 0 ?
     emitter.emit('[LOG][gameManager] speedApprox', {

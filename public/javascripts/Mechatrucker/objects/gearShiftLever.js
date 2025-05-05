@@ -108,6 +108,7 @@ export default class GearShiftLever extends Interactable {
     ctx.moveTo(top.x, top.y);
     ctx.lineTo(bottom.x, bottom.y);
     ctx.stroke();
+    ctx.shadowColor = getRGBA('dark-cyan', 1);
 
     // draw gear markers and labels
     for (let i = 0; i < this.gearCount; i++) {
@@ -115,9 +116,6 @@ export default class GearShiftLever extends Interactable {
       const mark  = this.toWorld(Vector.create(this.localOffset.x, this.localOffset.y + dy));
       // marker circle
       ctx.beginPath();
-      ctx.shadowColor = (i === this.currentGear
-        ? getRGBA('dark-cyan', 1)
-        : getRGBA('dark-cyan', 0));
       ctx.shadowBlur = (i === this.currentGear ? 20 : 0);
       ctx.shadowOffsetX = 0;            
       ctx.shadowOffsetY = 0;
@@ -134,16 +132,17 @@ export default class GearShiftLever extends Interactable {
       ctx.fillText(this.gearNames[i], mark.x + 24, mark.y);
     }
 
+    ctx.shadowBlur = 0;
     // draw handle
     const handle = this.getHandlePos();
     ctx.beginPath();
     ctx.arc(handle.x, handle.y, this.handleRadius, 0, 2*Math.PI);
     ctx.fillStyle   = getRGBA('gold', 1);
     ctx.fill();
-    ctx.lineWidth   = 2;
+    ctx.lineWidth   = 1;
     ctx.strokeStyle = getRGBA('raisin-black', 1);
-
     ctx.stroke();
+    
     // Draw the main pad of the cat paw (acting as the gear shift handle)
     // Define toe pad positions relative to the handle center
     const toePads = [

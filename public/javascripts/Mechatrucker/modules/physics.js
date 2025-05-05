@@ -12,9 +12,9 @@ export function initPhysics(engine, assets, dimensions) {
   const MONITOR_ARM_WIDTH = 16;
 
   const cableSegmentCount = 76;
-  const cableSegmentRadius = 0.05;
+  const cableSegmentRadius = 0.01;
   const cableWidth = 4;
-  const cableColor = getRGBA('raisin-black', 1);
+  const cableColor = getRGBA('davy-gray', 1);
 
   const paramsMonitorLeft = {
     placement:    { x: 24 + MONITOR_LEFT_SIZE.width,            y: -96 + MONITOR_LEFT_SIZE.height / 2 },
@@ -25,7 +25,6 @@ export function initPhysics(engine, assets, dimensions) {
       connector:  { x: 200,                                     y: 24 },
     }
   }
-
   const paramsMonitorRight = {
     placement:    { x: width - (24 + MONITOR_RIGHT_SIZE.width), y: -96 + MONITOR_RIGHT_SIZE.height / 2 },
     size:         MONITOR_RIGHT_SIZE,
@@ -35,12 +34,12 @@ export function initPhysics(engine, assets, dimensions) {
       connector:  { x: -201,                                    y: 24 },
     }
   }
-
   const paramsCentralPanel = {
     placement:    { x: width / 2,                               y: height - 12*14 },
     size:         { width: width + 12*5 + 8,                        height: 12*28 + 2 },
   }
 
+  //LEFT MONITOR
   const leftMonitor = Matter.Bodies.rectangle(
     paramsMonitorLeft.placement.x,
     paramsMonitorLeft.placement.y,
@@ -65,13 +64,13 @@ export function initPhysics(engine, assets, dimensions) {
       },
     }
   );
-  
   const leftMonitorConnector = createBodyConnector(engine, leftMonitor, paramsMonitorLeft.mount, MONITOR_ARM_WIDTH);
   leftMonitorConnector.collisionFilter = {
     category: BACKGROUND_CATEGORY,
     mask: 0xFFFFFFFF & ~FOREGROUND_CATEGORY  
   };
 
+  //RIGHT CABLE
   const rightMonitor = Matter.Bodies.rectangle(
     paramsMonitorRight.placement.x,
     paramsMonitorRight.placement.y,
@@ -95,13 +94,13 @@ export function initPhysics(engine, assets, dimensions) {
       }
     }
   );
-
   const rightMonitorConnector = createBodyConnector(engine, rightMonitor, paramsMonitorRight.mount, MONITOR_ARM_WIDTH);
   rightMonitorConnector.collisionFilter = {
     category: BACKGROUND_CATEGORY,
     mask: 0xFFFFFFFF & ~FOREGROUND_CATEGORY  
   };
   
+  //LEFT CABLE
   const cableLeft = Matter.Composites.stack(
     paramsMonitorLeft.cable.start.x, paramsMonitorLeft.cable.start.y, 1, cableSegmentCount, 0, 5,
     (x, y) => Matter.Bodies.circle(x, y, cableSegmentRadius, {
@@ -147,7 +146,7 @@ export function initPhysics(engine, assets, dimensions) {
     pointA: { x: 0, y: 0 },
     bodyB: leftMonitor,
     pointB: { x: -paramsMonitorLeft.cable.connector.x, y: paramsMonitorLeft.cable.connector.y },
-    length: 4,
+    length: 0,
     stiffness: 0.8,
     damping: 0.05,
     collisionFilter: {
@@ -163,6 +162,7 @@ export function initPhysics(engine, assets, dimensions) {
     },
   });
 
+  //RIGHT CABLE
   const cableRight = Matter.Composites.stack(
     paramsMonitorRight.cable.start.x, paramsMonitorRight.cable.start.y, 1, cableSegmentCount, 0, 5,
     (x, y) => Matter.Bodies.circle(x, y, cableSegmentRadius, {
@@ -208,7 +208,7 @@ export function initPhysics(engine, assets, dimensions) {
     pointA: { x: 0, y: 0 },
     bodyB: rightMonitor,
     pointB: { x: -paramsMonitorRight.cable.connector.x, y: paramsMonitorRight.cable.connector.y },
-    length: 4,
+    length: 0,
     stiffness: 0.8,
     damping: 0.05,
     collisionFilter: {
@@ -223,7 +223,8 @@ export function initPhysics(engine, assets, dimensions) {
       type: 'line'
     },
   });
-  
+
+  //CENTRAL PANEL
   const centralPanel = Matter.Bodies.rectangle(
     paramsCentralPanel.placement.x,
     paramsCentralPanel.placement.y,
@@ -244,6 +245,7 @@ export function initPhysics(engine, assets, dimensions) {
     }
   );
 
+  //CABIN CONTRAINTS
   const floor = Matter.Bodies.rectangle(width/2, height, width, 1,  { isStatic: true, render: { visible: false }});
   const roof = Matter.Bodies.rectangle(width/2, -96, width, 24, { isStatic: true, render: { visible: true } });
   const leftWall = Matter.Bodies.rectangle(- 48, height/2, 24, height, { isStatic: true, render: { visible: true } });
@@ -262,8 +264,6 @@ export function initPhysics(engine, assets, dimensions) {
   emitter.subscribe('stepMade', stepShake.bind(this, engine));
 
   console.log(`[physics] Physics initialized.`);
-  
-  // Return an object with references for further use if needed.
   return {
     cableLeft, cableRight,
     leftMonitor, rightMonitor,

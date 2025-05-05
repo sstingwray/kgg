@@ -25,9 +25,7 @@ export default class Button extends Interactable {
 
   isPointInside(px, py) {
     const { x, y, r } = this.getWorldCircle();
-    console.log({ x, y, r });
-    console.log({ px, py });
-        
+
     return px >= x - r && px <= x + r && py >= y - r && py <= y + r;
   }
 

@@ -20,7 +20,9 @@ class EventEmitter {
     }
   
     emit(eventName, data) {
-        if (this.lastPayload[eventName] !== undefined && this.lastPayload[eventName] === data) { return }
+        //console.log(this.lastPayload[eventName], 'vs', data);
+        if (this.lastPayload[eventName] !== undefined
+            && JSON.stringify(this.lastPayload[eventName]) === JSON.stringify(data)) { return }
         LOGGING ? console.log(`[EVENT] ${eventName}:`, data) : null;
         this.lastPayload[eventName] = data;
         if (!this.events[eventName]) return;

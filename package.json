@@ -16,6 +16,7 @@
     "http-errors": "~1.6.3",
     "jquery": "^3.7.1",
     "morgan": "~1.9.1",
-    "tinysort": "^3.2.8"
+    "tinysort": "^3.2.8",
+    "tone": "^15.1.22"
   }
 }

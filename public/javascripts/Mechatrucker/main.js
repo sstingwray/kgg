@@ -7,8 +7,6 @@ import { setupGameState } from './modules/gameManager.js';
 import { renderScene } from './modules/renderer.js';
 import { preloadAssets } from './utils/helpers.js';
 
-
-
 document.addEventListener('DOMContentLoaded', () => {
   const canvas = document.getElementById('game-container').children[0];
   const container = document.getElementById('game-container');
