@@ -9,6 +9,7 @@ const BASE_RPM_RAMP_RATE = 0.015;
 const ENDPOINT_RPM_RAMP_RATE = 0.1;
 const ENDPOINT_RPM_DECAY = 0.05;
 const BRAKING_STRENGTH = 2;
+const FUEL_CONS_MOD = 0.01;
 
 
 const state = {
@@ -23,9 +24,9 @@ const state = {
             heatDissRate: 0.5
         },
         reactor: {
-            maxFuel: 100,
+            maxFuel: 255,
             maxOutput: 12,
-            maxHeat: 100,
+            maxHeat: 255,
             fuelEfficiency: 0.3,
         },
         engine: {
@@ -105,7 +106,7 @@ const state = {
             bars: {
                 mechIntegrity: 255,
                 crewHealth: 255,
-                heat: 120,
+                heat: 0,
                 pathfinding: 255,
                 flooding: 0,
                 fuel: 255,
@@ -138,6 +139,7 @@ const state = {
 export function setupGameState() {
     //stocking the Mech
     state.mech.status.fuel = state.mech.reactor.maxFuel;
+    state.mech.status.bars.heat = round( state.mech.reactor.maxHeat / 2, 0);
     //calculating maxSpeed for the speedGauge
     const maxBaseRPM = state.mech.engine.maxBaseRPM
     const highestSpeedRatio = state.mech.engine.gears['3rd'].ratio;
@@ -214,7 +216,7 @@ function updateClutch(flag) {
 function updateIgnition(newState) {
     state.mech.status.flags.ignition = newState;
 
-    if (newState) {
+    if (newState && state.mech.status.bars.fuel > 0) {
         setEnergyOutput(1);
     } else {
         setEnergyOutput(0);
@@ -318,7 +320,7 @@ function calculateSteps() {
 
     if (endpointRPM > 0.01) {
         if (accum >= currentStepDistance) {
-            emitter.emit('stepMade', { currentStepDistance,  stepNum});
+            emitter.emit('stepMade', { currentStepDistance,  stepNum });
             state.mech.status.movement.stepAccumulator = 0;
             state.mech.status.movement.stepCount++;
         } else {
@@ -349,6 +351,17 @@ function updateTorque() {
     }) : null;
 }
 
+function consumeFuel() {
+    const fuelConsumptionTarget = state.mech.status.energyOutput * state.mech.reactor.fuelEfficiency * FUEL_CONS_MOD;
+
+    if (state.mech.status.bars.fuel > fuelConsumptionTarget) state.mech.status.bars.fuel -= fuelConsumptionTarget;
+    else {
+        state.mech.status.bars.fuel = 0;
+        updateIgnition(false);
+    }
+    
+}
+
 function updateLocation(stepDistance) {
     const segID = state.mech.location.segmentID
     const loc = state.map[segID];
@@ -375,11 +388,13 @@ export function getGameState() {
 
 export function updateGameState(delta) {
     state.timeElapsed += delta;
+    state.timeElapsed = round(state.timeElapsed, 4)
     updateBaseRPM();
     updateEndpointRPM();
     calculateSpeedApprox();
     calculateSteps();
     updateTorque();
+    consumeFuel();
 }
 
 function createAsymmetricTorque({

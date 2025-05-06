@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
       Matter.Events.on(render, 'afterRender', function() {
         renderUI(render, physicsElements);
       });
-      setupAudio();
+      setupAudio(assets);
       setupInput(engine, render, physicsElements);
     });
 

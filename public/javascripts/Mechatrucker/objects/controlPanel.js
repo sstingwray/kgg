@@ -143,15 +143,24 @@ export default class ControlPanel extends Interactable {
     ctx.fillRect(0, 0, this.MONITOR_RIGHT_SIZE.width, this.MONITOR_RIGHT_SIZE.height);
 
     const values = [
+        { label:`Press "Space" to toggle the Clutch.`, pct: null },
+        { label:`Use "W" and "S" to control Energy Output.`, pct: null },
+        { label:`To begin, press the red ignition button.`, pct: null },
         { label:'Energy', pct: state.mech.status.energyOutput/state.mech.reactor.maxOutput },
-        { label:'Heat',   pct: state.mech.status.heat/state.mech.reactor.maxHeat },
-        { label:'Fuel',   pct: state.mech.status.fuel/state.mech.reactor.maxFuel }
+        { label:'Heat',   pct: state.mech.status.bars.heat/state.mech.reactor.maxHeat },
+        { label:'Fuel',   pct: state.mech.status.bars.fuel/state.mech.reactor.maxFuel }
     ];
     values.forEach((v,i) => {
-        ctx.fillStyle = getRGBA('dark-cyan', 0.2);
-        ctx.fillRect(24, 12*2*i+12, (this.MONITOR_RIGHT_SIZE.width-48)*v.pct, 24);
-        ctx.fillStyle = getRGBA('white', 0.8);
-        ctx.fillText(`${ v.label }: ${ Math.round(v.pct*100) }%`, 36, 12*2*i+24+4);
+        if (v.pct) {
+          ctx.fillStyle = getRGBA('dark-cyan', 0.2);
+          ctx.fillRect(24, 12*2*i+12, (this.MONITOR_RIGHT_SIZE.width-48)*v.pct, 24);
+          ctx.fillStyle = getRGBA('white', 0.8);
+          ctx.fillText(`${ v.label }: ${ Math.round(v.pct*100) }%`, 36, 12*2*i+24+4);
+        } else {
+          ctx.fillStyle = getRGBA('white', 0.8);
+          ctx.fillText(`${ v.label }`, 36, 12*2*i+24+4);
+        };
+        
     });
 
     biggerContext.save();
