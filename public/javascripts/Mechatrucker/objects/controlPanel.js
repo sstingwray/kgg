@@ -31,7 +31,7 @@ export default class ControlPanel extends Interactable {
       levers: {
         gearShiftLever: new GearShiftLever({
           body: this.body,
-          x: this.width / 2 - 12*10 + 6, y: 48,
+          x: this.width / 2 - 12*10 + 6, y: 22,
           width: 108,
           channelLen: 152,
           handleRadius: 20,
@@ -40,7 +40,7 @@ export default class ControlPanel extends Interactable {
       gauges: {
         gaugePRM: new Gauge({
           body: this.body,
-          x: 12*17 - 2, y: 3 - 12*11, radius: 33,
+          x: 12*3 + 5, y: 8 - 12*6, radius: 33,
           maxValue: state.mech.engine.maxBaseRPM,
           divisions: state.mech.engine.maxBaseRPM,
           redZoneStart: 0.8,
@@ -48,7 +48,7 @@ export default class ControlPanel extends Interactable {
         }),
         speedRPM: new Gauge({
           body: this.body,
-          x: 12*24 - 4, y: 3 - 12*11, radius: 33,
+          x: 12*10 + 3, y: 8 - 12*6, radius: 33,
           maxValue: state.mech.engine.maxSpeed,
           divisions: state.mech.engine.maxSpeed / 20,
           redZoneStart: 0.8,
@@ -58,8 +58,8 @@ export default class ControlPanel extends Interactable {
       buttons: {
         ignitionBtn: new Button({
           body: this.body,
-          x: 12*24 - 4, y: -12*3 - 10,
-          radius: 18, svg: this.icons.ignition,
+          x: 12*22 + 5, y: - 12*4,
+          radius: 17, svg: this.icons.ignition,
           eventType: 'ignitionToggle',
           onClick: toggleIgnition
         })
@@ -67,7 +67,7 @@ export default class ControlPanel extends Interactable {
       lights: {
         clutchLight: new Light({
           body: this.body,
-          x: this.width / 2 - 12*10 + 6, y: 2 - 12*7, radius: 8,
+          x: this.width / 2 - 12*10 + 6, y: 2 - 12*8, radius: 8,
           label: 'Clutch',
           eventType: 'clutchToggle',
         })
@@ -185,7 +185,7 @@ export default class ControlPanel extends Interactable {
     let ctx = this.canvases.centralPanel.ctx;
 
     ctx.fillStyle = getRGBA('auburn', 0);
-    ctx.fillRect(0, 0, this.CENTRAL_PANEL_SIZE.width, this.CENTRAL_PANEL_SIZE.height);
+    ctx.fillRect(0, 18, this.CENTRAL_PANEL_SIZE.width, this.CENTRAL_PANEL_SIZE.height - 38);
 
     biggerContext.save();
     biggerContext.translate(body.position.x, body.position.y);

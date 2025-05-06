@@ -66,6 +66,7 @@ export function preloadAssets(callback) {
     bg:           'images/Mechatrucker/bg.png',     
     monitorL:     'images/Mechatrucker/monitor-l.svg',
     monitorR:     'images/Mechatrucker/monitor-r.svg',
+    thermometer:  'images/Mechatrucker/thermometer.svg',
     centralPanel: 'images/Mechatrucker/Central-Terminal.svg',
     ignitionIco:  'images/Mechatrucker/bolt-solid.svg',
   };

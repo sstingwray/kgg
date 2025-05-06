@@ -7,7 +7,9 @@ import { getGameState } from './gameManager.js';
 export function setupInput(engine, render, physicsElements) {
     const canvas = document.getElementById('game-container').children[0];
     const sceneElements = getSceneElements();
-    const defaultShakeForce = 0.5;
+    const defaultShakeForce = 0.25;
+    const xRandMod = 0.5;
+    const yRandMod = 0.1;
     const state = getGameState();
     
     // Example: Handle keyboard input for cockpit controls
@@ -32,7 +34,7 @@ export function setupInput(engine, render, physicsElements) {
                         x: physicsElements.leftMonitor.position.x + Math.random()*10,
                         y: physicsElements.leftMonitor.position.y + Math.random()*10
                     },
-                    { x: -defaultShakeForce + Math.random()*0.1, y: Math.random()*1 }
+                    { x: -defaultShakeForce + Math.random()*xRandMod, y: Math.random()*yRandMod }
                 );
                 Matter.Body.applyForce(
                     physicsElements.rightMonitor, 
@@ -40,7 +42,7 @@ export function setupInput(engine, render, physicsElements) {
                         x: physicsElements.rightMonitor.position.x + Math.random()*10,
                         y: physicsElements.rightMonitor.position.y + Math.random()*10
                     },
-                    { x: -defaultShakeForce + Math.random()*0.1, y: Math.random()*1 }
+                    { x: -defaultShakeForce + Math.random()*xRandMod, y: Math.random()*yRandMod }
                 );
                 Matter.Body.applyForce(
                     physicsElements.centralPanel, 
@@ -48,7 +50,7 @@ export function setupInput(engine, render, physicsElements) {
                         x: physicsElements.rightMonitor.position.x + Math.random()*10,
                         y: physicsElements.rightMonitor.position.y + Math.random()*10
                     },
-                    { x: -defaultShakeForce + Math.random()*0.1, y: Math.random()*1 }
+                    { x: -defaultShakeForce + Math.random()*xRandMod, y: Math.random()*yRandMod }
                 );
 
                 emitter.emit('turningLeft', true);
@@ -62,7 +64,7 @@ export function setupInput(engine, render, physicsElements) {
                         x: physicsElements.leftMonitor.position.x + Math.random()*10,
                         y: physicsElements.leftMonitor.position.y + Math.random()*10
                     },
-                    { x: defaultShakeForce + Math.random()*0.1, y: Math.random()*1 }
+                    { x: defaultShakeForce + Math.random()*xRandMod, y: Math.random()*yRandMod }
                 );
                 Matter.Body.applyForce(
                     physicsElements.rightMonitor, 
@@ -70,7 +72,7 @@ export function setupInput(engine, render, physicsElements) {
                         x: physicsElements.rightMonitor.position.x + Math.random()*10,
                         y: physicsElements.rightMonitor.position.y + Math.random()*10
                     },
-                    { x: defaultShakeForce + Math.random()*0.1, y: Math.random()*1 }
+                    { x: defaultShakeForce + Math.random()*xRandMod, y: Math.random()*yRandMod }
                 );
                 Matter.Body.applyForce(
                     physicsElements.centralPanel, 
@@ -78,7 +80,7 @@ export function setupInput(engine, render, physicsElements) {
                         x: physicsElements.rightMonitor.position.x + Math.random()*10,
                         y: physicsElements.rightMonitor.position.y + Math.random()*10
                     },
-                    { x: defaultShakeForce + Math.random()*0.1, y: Math.random()*1 }
+                    { x: defaultShakeForce + Math.random()*xRandMod, y: Math.random()*yRandMod }
                 );
 
                 emitter.emit('turningRight', true);

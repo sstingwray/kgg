@@ -7,13 +7,15 @@ export function initPhysics(engine, assets, dimensions) {
   const { width, height } = dimensions;
   const FOREGROUND_CATEGORY = 0x0002;
   const BACKGROUND_CATEGORY = 0x0004;
-  const MONITOR_LEFT_SIZE =   { width: 12*18, height: 12*32 };
-  const MONITOR_RIGHT_SIZE =  { width: 12*18, height: 12*32 };
-  const MONITOR_ARM_WIDTH = 16;
+  const MONITOR_LEFT_SIZE   = { width: 12*18, height: 12*32 };
+  const MONITOR_RIGHT_SIZE  = { width: 12*18, height: 12*32 };
+  const MONITOR_ARM_WIDTH   = 16;
+  const THERMO_SIZE         = { width: 12*3, height: 12*10 };
 
-  const cableSegmentCount = 76;
+  const cableSegmentCount = 24;
   const cableSegmentRadius = 0.01;
   const cableWidth = 4;
+  const cableLength = 24;
   const cableColor = getRGBA('davy-gray', 1);
 
   const paramsMonitorLeft = {
@@ -34,17 +36,25 @@ export function initPhysics(engine, assets, dimensions) {
       connector:  { x: -201,                                    y: 24 },
     }
   }
+  const paramsThermometer = {
+    placement:    { x: width - (24 + MONITOR_RIGHT_SIZE.width), y: 96 + MONITOR_RIGHT_SIZE.height / 2 },
+    size:         THERMO_SIZE,
+    cable: {
+      start:      { x: width - 12,                              y: -4 },
+      connector:  { x: 0,                                       y: -THERMO_SIZE.height / 2 },
+    }
+  }
   const paramsCentralPanel = {
     placement:    { x: width / 2,                               y: height - 12*14 },
-    size:         { width: width + 12*5 + 8,                        height: 12*28 + 2 },
+    size:         { width: width + 12*5 + 8,                        height: 12*25 },
   }
 
   //LEFT MONITOR
   const leftMonitor = Matter.Bodies.rectangle(
     paramsMonitorLeft.placement.x,
     paramsMonitorLeft.placement.y,
-    24 + paramsMonitorLeft.size.width,
     paramsMonitorLeft.size.height,
+    paramsMonitorLeft.size.width,
     {
       string: 'monitor-l',
       restitution: 0.5,
@@ -54,6 +64,7 @@ export function initPhysics(engine, assets, dimensions) {
         mask: 0xFFFFFFFF
       },
       render: {
+        fillStyle: getRGBA('auburn', 1),
         anchors: false,
         order: 2,
         sprite: {
@@ -70,12 +81,12 @@ export function initPhysics(engine, assets, dimensions) {
     mask: 0xFFFFFFFF & ~FOREGROUND_CATEGORY  
   };
 
-  //RIGHT CABLE
+  //RIGHT MONITOR
   const rightMonitor = Matter.Bodies.rectangle(
     paramsMonitorRight.placement.x,
     paramsMonitorRight.placement.y,
-    24 + paramsMonitorRight.size.width,
     paramsMonitorRight.size.height,
+    paramsMonitorRight.size.width,
     {
       string: 'monitor-r',
       restitution: 0.5,
@@ -84,6 +95,7 @@ export function initPhysics(engine, assets, dimensions) {
         mask: 0xFFFFFFFF  
       },
       render: {
+        fillStyle: getRGBA('auburn', 1),
         order: 2,
         sprite: {
           texture: assets.monitorR.src,
@@ -99,6 +111,33 @@ export function initPhysics(engine, assets, dimensions) {
     category: BACKGROUND_CATEGORY,
     mask: 0xFFFFFFFF & ~FOREGROUND_CATEGORY  
   };
+
+  //THERMOMETER
+  const thermometer = Matter.Bodies.rectangle(
+    paramsThermometer.placement.x,
+    paramsThermometer.placement.y,
+    paramsThermometer.size.width,
+    paramsThermometer.size.height,
+    {
+      string: 'thermometer',
+      restitution: 0.5,
+      collisionFilter: {
+        category: FOREGROUND_CATEGORY,
+        // let it collide with everything else (adjust mask as needed)
+        mask: 0xFFFFFFFF
+      },
+      render: {
+        fillStyle: getRGBA('auburn', 1),
+        anchors: false,
+        order: 2,
+        sprite: {
+          texture: assets.thermometer.src,
+          xScale: 1,  // Adjust this divisor based on the SVG's natural width.
+          yScale: 1  // Adjust this divisor based on the SVG's natural height.
+        }
+      },
+    }
+  );
   
   //LEFT CABLE
   const cableLeft = Matter.Composites.stack(
@@ -118,7 +157,7 @@ export function initPhysics(engine, assets, dimensions) {
   );
   Matter.Composites.chain(cableLeft, 0.5, 0, -0.5, 0, {
     stiffness: 1,
-    length: 4,
+    length: cableLength,
     render: {
       strokeStyle: cableColor,
       lineWidth: cableWidth,
@@ -180,7 +219,7 @@ export function initPhysics(engine, assets, dimensions) {
   );
   Matter.Composites.chain(cableRight, 0.5, 0, -0.5, 0, {
     stiffness: 1,
-    length: 4,
+    length: cableLength,
     render: {
       strokeStyle: cableColor,
       lineWidth: cableWidth,
@@ -224,6 +263,71 @@ export function initPhysics(engine, assets, dimensions) {
     },
   });
 
+  //THERMO CABLE
+  const cableThermo = Matter.Composites.stack(
+    paramsThermometer.cable.start.x, paramsThermometer.cable.start.y, 1, cableSegmentCount / 1.2, 0, 5,
+    (x, y) => Matter.Bodies.circle(x, y, cableSegmentRadius, {
+      stiffness: 1,
+      damping: 0.05,
+      collisionFilter: {
+        category: BACKGROUND_CATEGORY,
+        // Exclude collisions with monitors by removing MONITOR_CATEGORY from the mask.
+        mask: 0xFFFFFFFF & ~FOREGROUND_CATEGORY  
+      },
+      render: {
+        fillStyle: cableColor,
+        order: 1,
+      }
+    })
+  );
+  Matter.Composites.chain(cableThermo, 0.5, 0, -0.5, 0, {
+    stiffness: 1,
+    damping: 0.05,
+    length: cableLength,
+    render: {
+      strokeStyle: cableColor,
+      lineWidth: cableWidth,
+      anchors: false,
+      order: 1,
+    },
+  });
+  const cableThermoAttachment = Matter.Constraint.create({
+    pointA: paramsThermometer.cable.start,
+    bodyB: cableThermo.bodies[0],
+    pointB: { x: 0, y: 0 },
+    stiffness: 0.8,
+    damping: 0.05,
+    collisionFilter: {
+      category: BACKGROUND_CATEGORY,
+      // Exclude collisions with monitors by removing MONITOR_CATEGORY from the mask.
+      mask: 0xFFFFFFFF & ~FOREGROUND_CATEGORY  
+    },
+    render: {
+      visible: false,
+      order: 1
+    },
+  });
+  const cableToThermo = Matter.Constraint.create({
+    bodyA: cableThermo.bodies[cableThermo.bodies.length - 1],
+    pointA: { x: 0, y: 0 },
+    bodyB: thermometer,
+    pointB: { x: -paramsThermometer.cable.connector.x, y: paramsThermometer.cable.connector.y },
+    length: 0,
+    stiffness: 0.8,
+    damping: 0.05,
+    collisionFilter: {
+      category: BACKGROUND_CATEGORY,
+      // Exclude collisions with monitors by removing MONITOR_CATEGORY from the mask.
+      mask: 0xFFFFFFFF & ~FOREGROUND_CATEGORY  
+    },
+    render: {
+      strokeStyle: cableColor,
+      lineWidth: cableWidth,
+      anchors: true,
+      type: 'line'
+    },
+  });
+
   //CENTRAL PANEL
   const centralPanel = Matter.Bodies.rectangle(
     paramsCentralPanel.placement.x,
@@ -235,9 +339,11 @@ export function initPhysics(engine, assets, dimensions) {
       string: 'central-panel',
       restitution: 0.8,
       render: {
+        fillStyle: getRGBA('auburn', 0.5),
         visible: true,
         sprite: {
           texture: assets.centralPanel.src,
+          //yOffset: 0.05,
           xScale: 0.53,  // Adjust this divisor based on the SVG's natural width.
           yScale: 0.53  // Adjust this divisor based on the SVG's natural height.
         }
@@ -254,7 +360,8 @@ export function initPhysics(engine, assets, dimensions) {
   Matter.World.add(engine.world, [
     cableLeft, cableLeftAttachment, cableToLeftMonitor,
     cableRight, cableRightAttachment, cableToRightMonitor,
-    leftMonitor, rightMonitor,
+    cableThermo, cableThermoAttachment, cableToThermo,
+    leftMonitor, rightMonitor, thermometer,
     centralPanel,
     floor, roof, leftWall, rightWall
   ]);
@@ -282,7 +389,6 @@ export function createBodyConnector(engine, body, canvasAnchor, connectorWidth =
   // The rectangle's height is set to the distance between the two points
   const connector = Matter.Bodies.rectangle(midX, midY, connectorWidth, distance, {
     // If the connector should move (rather than being static), leave isStatic false.
-    isStatic: false,
     render: {
       fillStyle: getRGBA('jet', 0.5),
       order: 1
@@ -301,7 +407,6 @@ export function createBodyConnector(engine, body, canvasAnchor, connectorWidth =
     pointA: localTop,
     pointB: canvasAnchor,  // Fixed point in world coordinates.
     stiffness: 1,
-    damping: 0.1,
     render: {
       visible: false
     }
@@ -315,7 +420,6 @@ export function createBodyConnector(engine, body, canvasAnchor, connectorWidth =
     bodyB: body,
     pointB: { x: 0, y: -24 },
     stiffness: 1,
-    damping: 0.1,
     render: {
       visible: false
     }
@@ -328,15 +432,17 @@ export function createBodyConnector(engine, body, canvasAnchor, connectorWidth =
 }
 
 function engineShake(engine, value) {
-  const force = value * 0.002;  
+  const force = value * 0.001;
+  console.log('force', force);
+  
 
   Matter.Composite.allBodies(engine.world).forEach(body => {
     if (body.string) {
       Matter.Body.applyForce(
         body, 
         {
-            x: body.position.x + 10 - Math.random()*20,
-            y: body.position.y + 10 - Math.random()*20
+            x: body.position.x + 5 - Math.random()*10,
+            y: body.position.y + 5 - Math.random()*10
         },
         { x: force - force * Math.random()*2, y: force*2 }
     )};
