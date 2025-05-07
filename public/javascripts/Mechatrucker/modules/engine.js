@@ -8,9 +8,9 @@ const { Engine, Runner, Events } = window.Matter;
 export function initEngine() {
 // Create a new Matter.js engine with default options.
 const engine = Engine.create({
-  constraintIterations: 12,
-  positionIterations:   6,
-  velocityIterations:   4
+  constraintIterations: 36,
+  positionIterations:   12,
+  velocityIterations:   12
 });
 
 // Configure the engine's timing.

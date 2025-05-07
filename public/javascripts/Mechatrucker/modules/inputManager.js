@@ -7,8 +7,8 @@ import { getGameState } from './gameManager.js';
 export function setupInput(engine, render, physicsElements) {
     const canvas = document.getElementById('game-container').children[0];
     const sceneElements = getSceneElements();
-    const defaultShakeForce = 0.25;
-    const xRandMod = 0.5;
+    const defaultShakeForce = 0.5;
+    const xRandMod = 0.25;
     const yRandMod = 0.1;
     const state = getGameState();
     
@@ -27,61 +27,43 @@ export function setupInput(engine, render, physicsElements) {
                 break;
             case 'KeyA':
                 if (event.repeat) return;
-                // Turn left, etc.
-                Matter.Body.applyForce(
-                    physicsElements.leftMonitor, 
-                    {
-                        x: physicsElements.leftMonitor.position.x + Math.random()*10,
-                        y: physicsElements.leftMonitor.position.y + Math.random()*10
-                    },
-                    { x: -defaultShakeForce + Math.random()*xRandMod, y: Math.random()*yRandMod }
-                );
-                Matter.Body.applyForce(
-                    physicsElements.rightMonitor, 
-                    {
-                        x: physicsElements.rightMonitor.position.x + Math.random()*10,
-                        y: physicsElements.rightMonitor.position.y + Math.random()*10
-                    },
-                    { x: -defaultShakeForce + Math.random()*xRandMod, y: Math.random()*yRandMod }
-                );
-                Matter.Body.applyForce(
-                    physicsElements.centralPanel, 
-                    {
-                        x: physicsElements.rightMonitor.position.x + Math.random()*10,
-                        y: physicsElements.rightMonitor.position.y + Math.random()*10
-                    },
-                    { x: -defaultShakeForce + Math.random()*xRandMod, y: Math.random()*yRandMod }
-                );
+                Matter.Composite.allBodies(engine.world).forEach(body => {
+                    if (body.string) {
+                        let bodyMassMod = body.mass * 0.005;
+                        
+                        Matter.Body.applyForce(
+                            body, 
+                            {
+                                x: body.position.x + 5 - Math.random()*10,
+                                y: body.position.y + 5 - Math.random()*10
+                            },
+                            {
+                                x: bodyMassMod * (-defaultShakeForce + Math.random()*xRandMod),
+                                y: bodyMassMod * Math.random()*yRandMod
+                            }
+                    )};
+                });
 
                 emitter.emit('turningLeft', true);
                 break;
             case 'KeyD':
                 if (event.repeat) return;
-                
-                Matter.Body.applyForce(
-                    physicsElements.leftMonitor, 
-                    {
-                        x: physicsElements.leftMonitor.position.x + Math.random()*10,
-                        y: physicsElements.leftMonitor.position.y + Math.random()*10
-                    },
-                    { x: defaultShakeForce + Math.random()*xRandMod, y: Math.random()*yRandMod }
-                );
-                Matter.Body.applyForce(
-                    physicsElements.rightMonitor, 
-                    {
-                        x: physicsElements.rightMonitor.position.x + Math.random()*10,
-                        y: physicsElements.rightMonitor.position.y + Math.random()*10
-                    },
-                    { x: defaultShakeForce + Math.random()*xRandMod, y: Math.random()*yRandMod }
-                );
-                Matter.Body.applyForce(
-                    physicsElements.centralPanel, 
-                    {
-                        x: physicsElements.rightMonitor.position.x + Math.random()*10,
-                        y: physicsElements.rightMonitor.position.y + Math.random()*10
-                    },
-                    { x: defaultShakeForce + Math.random()*xRandMod, y: Math.random()*yRandMod }
-                );
+                Matter.Composite.allBodies(engine.world).forEach(body => {
+                    if (body.string) {
+                        let bodyMassMod = body.mass * 0.005;
+                        
+                        Matter.Body.applyForce(
+                            body, 
+                            {
+                                x: body.position.x + 5 - Math.random()*10,
+                                y: body.position.y + 5 - Math.random()*10
+                            },
+                            {
+                                x: bodyMassMod * (defaultShakeForce + Math.random()*xRandMod),
+                                y: bodyMassMod * Math.random()*yRandMod
+                            }
+                    )};
+                });
 
                 emitter.emit('turningRight', true);
                 break;
