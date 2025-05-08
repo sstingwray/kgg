@@ -69,6 +69,8 @@ export function preloadAssets(callback) {
     thermometer:  'images/Mechatrucker/thermometer.svg',
     centralPanel: 'images/Mechatrucker/Central-Terminal.svg',
     ignitionIco:  'images/Mechatrucker/bolt-solid.svg',
+    clutchIco:    'images/Mechatrucker/clutch.svg',
+    reactorIco:    'images/Mechatrucker/nuclear.svg',
   };
 
   const assetNames = Object.keys(assetSources);

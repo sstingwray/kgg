@@ -154,7 +154,7 @@ export function setupGameState() {
     emitter.subscribe('ignitionToggle', updateIgnition.bind(this));
     emitter.subscribe('clutchToggle', updateClutch.bind(this));
     emitter.subscribe('gearShift', updateGear.bind(this));
-    emitter.subscribe('outputChange', setEnergyOutput.bind(this));
+    emitter.subscribe('outputInput', setEnergyOutput.bind(this));
     emitter.subscribe('stepMade', updateLocation.bind(this));
     
 
@@ -212,7 +212,7 @@ function mulberry32(seed) {
 }
 
 function updateClutch(flag) {
-    state.mech.status.flags.clutch = flag;
+    state.mech.status.flags.clutch = !flag;
 }
 
 function updateIgnition(newState) {
@@ -229,8 +229,9 @@ function setEnergyOutput(value) {
     const maxOutput = state.mech.reactor.maxOutput;
     const checkedValue = value >= 1 ? value : 1;
     if (state.mech.status.flags.ignition)
-        state.mech.status.energyOutput = checkedValue <= maxOutput ? checkedValue : maxOutput
-    else state.mech.status.energyOutput = 0
+        state.mech.status.energyOutput = checkedValue <= maxOutput ? checkedValue : maxOutput;
+    else state.mech.status.energyOutput = 0;
+    emitter.emit('outputChange', state.mech.status.energyOutput);
 }
 
 function updateGear (gear) {
@@ -361,7 +362,9 @@ function consumeFuel() {
         state.mech.status.bars.fuel = 0;
         emitter.emit('outOfFuel', true);
         emitter.emit('ignitionToggle', false);
-    }
+    };
+
+    state.mech.status.bars.fuel = round(state.mech.status.bars.fuel, 4);
 };
 
 function updateHeat() {
@@ -369,10 +372,11 @@ function updateHeat() {
     const baseHeatDiss = state.mech.chassis.heatDissRate * HEAT_DISS_MOD;
     const targetHeat = state.mech.status.bars.heat + baseHeatGen - baseHeatDiss;
 
-    if (targetHeat < 0) targetHeat = 0;
-    else if (targetHeat > state.mech.reactor.maxHeat) targetHeat = state.mech.reactor.maxHeat;
+    if (targetHeat < 0) state.mech.status.bars.heat = 0;
+    else if (targetHeat > state.mech.reactor.maxHeat) state.mech.status.bars.heat = state.mech.reactor.maxHeat;
+    else state.mech.status.bars.heat = targetHeat;
 
-    state.mech.status.bars.heat = round(targetHeat, 4);
+    state.mech.status.bars.heat = round(state.mech.status.bars.heat, 4);
 
     emitter.emit('heatUpdate', state.mech.status.bars.heat);
 }

@@ -1,18 +1,24 @@
 import emitter from '../modules/eventEmitter.js';
 import Interactable from './interactable.js';
-import { localToWorld, getRGBA } from '../utils/helpers.js';
+import { localToWorld, getRGBA, clamp } from '../utils/helpers.js';
 
 export default class Light extends Interactable {
   constructor(options = {}) {
     super();
-    this.body      = options.body;
-    this.localPos  = { x: options.x, y: options.y };
-    this.radius    = options.radius;
-    this.label     = options.label;
-    this.state     = options.state;
-    this.event     = options.eventType;
-    this.callback  = options.onToggle || (() => {});
-    this.isPressed = false;
+    this.body        = options.body;
+    this.localPos    = { x: options.x, y: options.y };
+    this.radius      = options.radius;
+    this.color       = options.color;
+    this.label       = options.label;
+    this.svg         = options.svg;
+    this.progressive = options.progressive;
+    this.maxValue    = options.maxValue;
+    this.value       = 0.2;
+    this.state       = options.state;
+    this.event       = options.eventType;
+    this.callback    = options.onToggle || (() => {});
+    this.isPressed   = false;
+    
 
     emitter.subscribe(this.event, this.reactToState.bind(this))
   }
@@ -40,32 +46,48 @@ export default class Light extends Interactable {
   }
 
   reactToState(event) {
-    this.state = event;
+    if (this.progressive) this.value = clamp(event / this.maxValue, 0.2, 1);
+    else this.state = event;
+    
   }
 
   render(ctx) {
     const { x, y, r } = this.getWorldCircle();
     ctx.save();
     
-    // fill circle
     ctx.beginPath();
     ctx.arc(x, y, r, 0, Math.PI*2);
-    ctx.fillStyle = this.state ? getRGBA('dark-cyan', 1) : getRGBA('dark-cyan', 0.2);
-    ctx.shadowColor = 'transparent';
-    if (this.state) {
-        ctx.shadowColor = getRGBA('dark-cyan', 1);
-        ctx.shadowBlur = 20;           
-        ctx.shadowOffsetX = 0;            
-        ctx.shadowOffsetY = 0;
-    }
-    // draw label
+    ctx.fillStyle = getRGBA(this.color, 0.2);
+    if (this.progressive) {
+      ctx.fillStyle = getRGBA(this.color, this.value);
+      ctx.shadowColor = getRGBA(this.color, this.value);
+      ctx.shadowBlur = 40;           
+      ctx.shadowOffsetX = 0;            
+      ctx.shadowOffsetY = 0;
+    } else {
+      ctx.fillStyle = this.state ? getRGBA(this.color, 1) : null;
+      ctx.shadowColor = 'transparent';
+      if (this.state) {
+          ctx.shadowColor = getRGBA(this.color, 1);
+          ctx.shadowBlur = 20;           
+          ctx.shadowOffsetX = 0;            
+          ctx.shadowOffsetY = 0;
+      }
+    };
     ctx.fill();
     ctx.shadowColor = 'transparent';
-    ctx.fillStyle    = getRGBA('white', 0.5);
-    ctx.font         = `12px sans-serif`;
-    ctx.textAlign    = 'center';
-    ctx.textBaseline = 'top';
-    ctx.fillText(this.label, x, y + r + 8);
+    if (this.label) {
+      ctx.fillStyle    = getRGBA('white', 0.5);
+      ctx.font         = `12px sans-serif`;
+      ctx.textAlign    = 'center';
+      ctx.textBaseline = 'top';
+      ctx.fillText(this.label, x, y + r + 8);
+    };
+    if (this.svg) {
+      const svgScale = 1.4;
+      ctx.drawImage(this.svg, x - r*svgScale / 2, y - r*svgScale / 2, r*svgScale, r*svgScale);
+    }
+    
     ctx.restore();
   }
 }

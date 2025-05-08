@@ -36,6 +36,8 @@ export function setupUI(render, assets, physicsElements) {
     body: physicsElements.centralPanel,
     icons: {
       ignition: assets.ignitionIco,
+      clutch: assets.clutchIco,
+      reactor: assets.reactorIco
     }
   };
 

@@ -29,7 +29,7 @@ export default class GearShiftLever extends Interactable {
   }
 
   handleClutchChange(state) {
-    this.clutch = state;
+    this.clutch = !state;
   }
 
   /**
@@ -131,16 +131,16 @@ export default class GearShiftLever extends Interactable {
       ctx.textBaseline= 'middle';
       ctx.fillText(this.gearNames[i], mark.x + 24, mark.y);
     }
-
     ctx.shadowBlur = 0;
+
     // draw handle
     const handle = this.getHandlePos();
     ctx.beginPath();
     ctx.arc(handle.x, handle.y, this.handleRadius, 0, 2*Math.PI);
-    ctx.fillStyle   = getRGBA('gold', 1);
+    ctx.fillStyle   = getRGBA('raisin-black', 1);
     ctx.fill();
     ctx.lineWidth   = 1;
-    ctx.strokeStyle = getRGBA('raisin-black', 1);
+    ctx.strokeStyle = getRGBA('night', 1);
     ctx.stroke();
     
     // Draw the main pad of the cat paw (acting as the gear shift handle)
@@ -159,7 +159,7 @@ export default class GearShiftLever extends Interactable {
       toePads.forEach(pad => {
         ctx.beginPath();
         ctx.arc(pad.x, pad.y, pad.r, 0, Math.PI * 2);
-        ctx.fillStyle = getRGBA('raisin-black', 1);
+        ctx.fillStyle = getRGBA('dark-cyan', 1);
         ctx.fill();
       });
 

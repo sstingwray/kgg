@@ -2,11 +2,13 @@
 import Interactable from './interactable.js';
 import Light from '../objects/light.js';
 import Gauge from '../objects/gauge.js';
+import Dial from './dial.js';
 import GearShiftLever from '../objects/gearShiftLever.js';
 import Button from '../objects/button.js';
 import { toggleIgnition } from '../objects/controls.js';
 import { getGameState } from '../modules/gameManager.js';
 import { clamp, getRGBA } from '../utils/helpers.js';
+
 
 const DEBUG = true;
 
@@ -29,9 +31,9 @@ export default class ControlPanel extends Interactable {
       levers: {
         gearShiftLever: new GearShiftLever({
           body: this.body,
-          x: this.width / 2 - 12*10 + 6, y: 22,
+          x: this.width / 2 - 12*10 + 6, y: 0,
           width: 108,
-          channelLen: 152,
+          channelLen: 12*16,
           handleRadius: 20,
         })
       },
@@ -42,7 +44,7 @@ export default class ControlPanel extends Interactable {
           maxValue: state.mech.engine.maxBaseRPM,
           divisions: state.mech.engine.maxBaseRPM,
           redZoneStart: 0.8,
-          label: 'RPM',
+          pointerColor: 'gold', label: 'RPM',
         }),
         speedRPM: new Gauge({
           body: this.body,
@@ -50,14 +52,14 @@ export default class ControlPanel extends Interactable {
           maxValue: state.mech.engine.maxSpeed,
           divisions: state.mech.engine.maxSpeed / 20,
           redZoneStart: 0.8,
-          label: 'Speed',
+          pointerColor: 'dark-cyan', label: 'Speed',
         })
       },
       buttons: {
-        ignitionBtn: new Button({
+        ignitionBtn: new Button({ 
           body: this.body,
-          x: 12*22 + 5, y: - 12*4,
-          radius: 17, svg: this.icons.ignition,
+          x: 12*22 + 4, y: - 12*4, radius: 17,
+          color: 'gold', highlight: 'gold', svg: this.icons.ignition,
           eventType: 'ignitionToggle',
           onClick: toggleIgnition
         })
@@ -65,12 +67,30 @@ export default class ControlPanel extends Interactable {
       lights: {
         clutchLight: new Light({
           body: this.body,
-          x: this.width / 2 - 12*10 + 6, y: 2 - 12*8, radius: 8,
-          label: 'Clutch',
-          eventType: 'clutchToggle',
+          x: 12*22 + 4 , y: 5 - 12*8, radius: 8,
+          color: 'dark-cyan', label: null, svg: null,//this.icons.clutch,
+          eventType: 'clutchToggle', state: true,
+          progressive: false
+        }),
+        outputLight: new Light({
+          body: this.body,
+          x: 12*17 - 5, y: 8 - 12*6, radius: 21,
+          color: 'gold', label: null, svg: this.icons.reactor,
+          eventType: 'outputChange', state: true,
+          progressive: true, maxValue: state.mech.reactor.maxOutput
         })
+      },
+      modules: {
+        coolantDispenser: {
+          dial: new Dial({
+            body: this.body,
+            x: -12*13 - 5, y: 8 - 12*8, radius: 21,
+            minAngle: 15, maxAngle: 270,
+            divisions: 6
+          }),
+        }
       }
-    }    
+    }
   }
 
   returnElements() {
@@ -87,6 +107,8 @@ export default class ControlPanel extends Interactable {
     this.elements.gauges.speedRPM.render(state.mech.status.movement.speedApprox, biggerContext);
     this.elements.buttons.ignitionBtn.render(biggerContext);
     this.elements.lights.clutchLight.render(biggerContext);
+    this.elements.lights.outputLight.render(biggerContext);
+    this.elements.modules.coolantDispenser.dial.render(biggerContext);
   }
 
   drawCentralPanelStatic(state, body, biggerContext) {
@@ -101,8 +123,8 @@ export default class ControlPanel extends Interactable {
     ctx.fillStyle = getRGBA('auburn', 0);
     ctx.fillRect(0, 18, this.CENTRAL_PANEL_SIZE.width, this.CENTRAL_PANEL_SIZE.height - 38);
 
-    ctx.fillStyle = getRGBA('dark-cyan', 1);
-    ctx.fillRect(12*68, 12*10 + 11, 6, -fuelLevel);
+    ctx.fillStyle = getRGBA('gold', 1);
+    ctx.fillRect(12*68 + 1, 12*10 + 11, 5, -fuelLevel);
 
     biggerContext.save();
     biggerContext.translate(body.position.x, body.position.y);

@@ -19,7 +19,7 @@ export function initPhysics(engine, assets, dimensions) {
   const paramsMonitorLeft = {
     string: 'monitor-l',
     texture:      assets.monitorL.src,
-    placement:    { x: 60 + MONITOR_LEFT_SIZE.width,            y: -48 + MONITOR_LEFT_SIZE.height / 2 },
+    placement:    { x: 24 + MONITOR_LEFT_SIZE.width,            y: -12 + MONITOR_LEFT_SIZE.height / 2 },
     size:         MONITOR_LEFT_SIZE,
     mount:        { x: 24 + MONITOR_LEFT_SIZE.width,            y: -12},
     cable: {
@@ -33,7 +33,7 @@ export function initPhysics(engine, assets, dimensions) {
   const paramsMonitorRight = {
     string: 'monitor-r',
     texture:      assets.monitorR.src,
-    placement:    { x: width - (60 + MONITOR_RIGHT_SIZE.width), y: -48 + MONITOR_RIGHT_SIZE.height / 2 },
+    placement:    { x: width - (24 + MONITOR_RIGHT_SIZE.width), y: -12 + MONITOR_RIGHT_SIZE.height / 2 },
     size:         MONITOR_RIGHT_SIZE,
     mount:        { x: width - (24 + MONITOR_RIGHT_SIZE.width), y: -12 },
     cable: {
@@ -47,7 +47,7 @@ export function initPhysics(engine, assets, dimensions) {
   const paramsThermometer = {
     string: 'thermometer',
     texture:      assets.thermometer.src,
-    placement:    { x: width - 96, y: 12*32 },
+    placement:    { x: width - 36,                              y: 12*40 },
     size:         THERMO_SIZE,
     cable: {
       cableSegmentCount: 4,
@@ -82,8 +82,8 @@ export function initPhysics(engine, assets, dimensions) {
         sprite: {
           texture: assets.centralPanel.src,
           //yOffset: 0.05,
-          xScale: 0.53,  // Adjust this divisor based on the SVG's natural width.
-          yScale: 0.53  // Adjust this divisor based on the SVG's natural height.
+          xScale: 1024/1923,  // Adjust this divisor based on the SVG's natural width.
+          yScale: 1024/1923  // Adjust this divisor based on the SVG's natural height.
         }
       }
     }
@@ -336,7 +336,6 @@ function stepShake(engine, value) {
 
   Matter.Composite.allBodies(engine.world).forEach(body => {
     if (body.string) {
-      console.log('body', body);
       let bodyMassMod = body.mass * 0.05;
       let bodySizeXMod = body.bounds.max.x * 0.1;
       let bodySizeYMod = body.bounds.max.y * 0.1;

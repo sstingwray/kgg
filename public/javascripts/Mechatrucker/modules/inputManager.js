@@ -20,10 +20,10 @@ export function setupInput(engine, render, physicsElements) {
                 console.log('Game State:', getGameState());
                 break;
             case 'KeyW':
-                emitter.emit('outputChange', state.mech.status.energyOutput + 1);
+                emitter.emit('outputInput', state.mech.status.energyOutput + 1);
                 break;
             case 'KeyS':
-                emitter.emit('outputChange', state.mech.status.energyOutput - 1);
+                emitter.emit('outputInput', state.mech.status.energyOutput - 1);
                 break;
             case 'KeyA':
                 if (event.repeat) return;
@@ -70,7 +70,7 @@ export function setupInput(engine, render, physicsElements) {
             case 'Space':
                 if (event.repeat) return;
                 // Disengage clutch
-                emitter.emit('clutchToggle', true);
+                emitter.emit('clutchToggle', false);
                 break;
             // Add other key mappings...
         }
@@ -114,16 +114,20 @@ export function setupInput(engine, render, physicsElements) {
                 break;*/
             case 'Space':
                 // Engage clutch
-                emitter.emit('clutchToggle', false);
+                emitter.emit('clutchToggle', true);
                 break;
         }
     });
 
     canvas.addEventListener('mousedown', (event) => sceneElements.levers.gearShiftLever.onMouseDown(event));
     canvas.addEventListener('mousemove', (event) => sceneElements.levers.gearShiftLever.onMouseMove(event));
-    canvas.addEventListener('mouseup',   (event) => sceneElements.levers.gearShiftLever.onMouseUp(event));
+    canvas.addEventListener('mouseup', (event)   => sceneElements.levers.gearShiftLever.onMouseUp(event));
 
     canvas.addEventListener('mousedown', (event) => sceneElements.buttons.ignitionBtn.onMouseDown(event));
+
+    canvas.addEventListener('mousedown', (event) => sceneElements.modules.coolantDispenser.dial.onMouseDown(event));
+    canvas.addEventListener('mousemove', (event) => sceneElements.modules.coolantDispenser.dial.onMouseMove(event));
+    canvas.addEventListener('mouseup', (event)   => sceneElements.modules.coolantDispenser.dial.onMouseUp(event));
     
     console.log(`[inputManager] Input Handler initialized.`);
   }

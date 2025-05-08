@@ -12,6 +12,7 @@ export default class Gauge extends Interactable {
     this.divisions    = options.divisions;
     this.redZoneStart = options.redZoneStart;
     this.label        = options.label;
+    this.pointerColor = options.pointerColor;
     this.value        = 0;
   }
 
@@ -88,7 +89,7 @@ export default class Gauge extends Interactable {
     // ---- Draw pointer ----
     const valueFraction = value / this.maxValue;
     const pointerAngle  = startAngle + valueFraction * totalArc;
-    ctx.strokeStyle = getRGBA('gold', 1);
+    ctx.strokeStyle = getRGBA(this.pointerColor, 1);
     ctx.lineWidth = 4;
     ctx.beginPath();
     ctx.moveTo(0, 3);

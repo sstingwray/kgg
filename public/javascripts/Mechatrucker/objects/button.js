@@ -3,11 +3,13 @@ import Interactable from './interactable.js';
 import { localToWorld, getRGBA } from '../utils/helpers.js';
 
 export default class Button extends Interactable {
-  constructor(options = {}) {    
+  constructor(options = {}) {
     super();
     this.body      = options.body;
     this.localPos  = { x: options.x, y: options.y };
     this.radius    = options.radius;
+    this.color     = options.color;
+    this.highlight = options.highlight;
     this.svg       = options.svg;
     this.event     = options.eventType;
     this.callback  = options.onClick;
@@ -49,25 +51,23 @@ export default class Button extends Interactable {
 
   render(context) {
     const { x, y, r } = this.getWorldCircle();
-    const svgImg = this.svg; 
     context.save();
     // Circle
     context.beginPath();
     context.arc(x, y, r, 0, Math.PI * 2);
-    context.fillStyle = this.isPressed ? getRGBA('auburn', 0.5) : getRGBA('auburn', 1);
+    context.fillStyle = this.isPressed ? getRGBA(this.color, 0.2) : getRGBA(this.color, 0.6);
     context.fill();
 
-    // Icon
-    context.drawImage(svgImg, x - (r / 2), y - (r / 2), r, r);
+    if (this.svg) context.drawImage(this.svg, x - (r / 2), y - (r / 2), r, r);
     
     // On-light
     if (this.isActive) {
-      context.shadowColor = getRGBA('dark-cyan', 1);
+      context.shadowColor = getRGBA(this.highlight, 1);
       context.shadowBlur = 4;           
       context.shadowOffsetX = 0;            
       context.shadowOffsetY = 0;
       context.lineWidth = 2;
-      context.strokeStyle = getRGBA('dark-cyan', 1);
+      context.strokeStyle = getRGBA(this.highlight, 1);
       context.stroke();
     };
 
