@@ -12,49 +12,31 @@ export default class Thermometer extends Interactable {
     this.height    = options.height;
     this.min       = options.min;
     this.max       = options.max;
-    this.heat      = options.min;
+    this.heat      = options.heat;
 
     // subscribe to your heat updates
     emitter.subscribe('heatUpdate', this.setHeat.bind(this));
   }
 
   setHeat(value) {
-    this.heat = Math.max(this.min, Math.min(this.max, value));
+    this.heat = value;
   }
 
   render(ctx) {
-    // compute world-space base point and rotation
     const base = localToWorld(this.body, this.localPos);
     const angle = this.body.angle;
 
-    // fraction of fill
     const frac = (this.heat - this.min) / (this.max - this.min);
-
     ctx.save();
-    // move to base and rotate
     ctx.translate(base.x, base.y);
     ctx.rotate(angle);
 
-    // draw tube outline
-    ctx.strokeStyle = getRGBA('jet', 1);
-    ctx.lineWidth   = 2;
-    ctx.strokeRect(0, -this.height, this.width, this.height);
+    ctx.fillStyle = getRGBA('dark-cyan', 0);
+    ctx.fillRect(0, 0, this.width, this.height);
 
-    // draw filled “mercury”
-    const fillH = this.height * frac;
-    ctx.fillStyle = getRGBA(this.fillKey, 1);
-    ctx.fillRect(0, -fillH, this.width, fillH);
-
-    // optional: draw tick marks at 0%, 50%, 100%
-    ctx.strokeStyle = getRGBA('davy\'s gray', 1);
-    ctx.lineWidth   = 1;
-    [0, 0.5, 1].forEach(f => {
-      const y = -this.height * f;
-      ctx.beginPath();
-      ctx.moveTo(-4, y);
-      ctx.lineTo(0, y);
-      ctx.stroke();
-    });
+    const fillH = this.height * 0.66 * frac;
+    ctx.fillStyle = getRGBA('auburn', 1);
+    ctx.fillRect(this.width / 2 - 2, this.height - 28, 4, -fillH);
 
     ctx.restore();
   }

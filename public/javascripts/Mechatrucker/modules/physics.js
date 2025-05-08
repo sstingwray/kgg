@@ -121,6 +121,7 @@ export function initPhysics(engine, assets, dimensions) {
     cableRight:   rightMonitor.cable.cable,
     leftMonitor:  leftMonitor.monitor,
     rightMonitor: rightMonitor.monitor,
+    thermometer: thermometer.thermometer,
     centralPanel
   };
 }

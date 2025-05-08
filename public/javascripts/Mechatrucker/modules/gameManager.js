@@ -10,6 +10,8 @@ const ENDPOINT_RPM_RAMP_RATE = 0.1;
 const ENDPOINT_RPM_DECAY = 0.05;
 const BRAKING_STRENGTH = 2;
 const FUEL_CONS_MOD = 0.01;
+const HEAT_GEN_MOD = 0.001;
+const HEAT_DISS_MOD = 0.01;
 
 
 const state = {
@@ -49,7 +51,7 @@ const state = {
                 },
                 'Neutral': {
                     ratio: 1,
-                    torqueFn: createAsymmetricTorque ({
+                    torqueFn: () => ({
                         peak: 6,
                         center: 4,
                         width: 2,
@@ -357,9 +359,22 @@ function consumeFuel() {
     if (state.mech.status.bars.fuel > fuelConsumptionTarget) state.mech.status.bars.fuel -= fuelConsumptionTarget;
     else {
         state.mech.status.bars.fuel = 0;
-        updateIgnition(false);
+        emitter.emit('outOfFuel', true);
+        emitter.emit('ignitionToggle', false);
     }
-    
+};
+
+function updateHeat() {
+    const baseHeatGen = state.mech.status.energyOutput * HEAT_GEN_MOD;
+    const baseHeatDiss = state.mech.chassis.heatDissRate * HEAT_DISS_MOD;
+    const targetHeat = state.mech.status.bars.heat + baseHeatGen - baseHeatDiss;
+
+    if (targetHeat < 0) targetHeat = 0;
+    else if (targetHeat > state.mech.reactor.maxHeat) targetHeat = state.mech.reactor.maxHeat;
+
+    state.mech.status.bars.heat = round(targetHeat, 4);
+
+    emitter.emit('heatUpdate', state.mech.status.bars.heat);
 }
 
 function updateLocation(stepDistance) {
@@ -395,6 +410,7 @@ export function updateGameState(delta) {
     calculateSteps();
     updateTorque();
     consumeFuel();
+    updateHeat();
 }
 
 function createAsymmetricTorque({

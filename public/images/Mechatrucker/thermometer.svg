@@ -3,13 +3,13 @@
 <rect x="2" y="-2" width="34" height="124" rx="2" transform="matrix(1 0 0 -1 1.19209e-07 124)" fill="#343434"/>
 <rect x="2" y="-2" width="34" height="124" rx="2" transform="matrix(1 0 0 -1 1.19209e-07 124)" stroke="#555555" stroke-width="4"/>
 <g clip-path="url(#clip1_197_2)">
-<path d="M17 32C17 30.8954 17.8954 30 19 30V30C20.1046 30 21 30.8954 21 32V100C21 101.105 20.1046 102 19 102V102C17.8954 102 17 101.105 17 100V32Z" fill="#555555"/>
+<path d="M17 32C17 30.8954 17.8954 30 19 30C20.1046 30 21 30.8954 21 32V100C21 101.105 20.1046 102 19 102C17.8954 102 17 101.105 17 100V32Z" fill="#555555"/>
 <rect width="4" height="4" transform="translate(17 98)" fill="#A52A2A"/>
 </g>
-<path d="M10 109C10 104.029 14.0294 100 19 100V100C23.9706 100 28 104.029 28 109V109C28 113.971 23.9706 118 19 118V118C14.0294 118 10 113.971 10 109V109Z" fill="#A52A2A"/>
+<path d="M10 109C10 104.029 14.0294 100 19 100C23.9706 100 28 104.029 28 109C28 113.971 23.9706 118 19 118C14.0294 118 10 113.971 10 109Z" fill="#A52A2A"/>
 <rect width="2" height="32" transform="matrix(0 -1 1 0 3 24)" fill="#555555"/>
-<rect width="7" height="20" transform="translate(3 3)" fill="#555555"/>
-<rect width="7" height="20" transform="translate(28 3)" fill="#555555"/>
+<rect width="8" height="20" transform="translate(3 3)" fill="#555555"/>
+<rect width="8" height="20" transform="translate(27 3)" fill="#555555"/>
 <rect width="1" height="2" transform="matrix(0 -1 1 0 13 95)" fill="#008B8B"/>
 <rect width="1" height="2" transform="matrix(0 -1 1 0 23 95)" fill="#008B8B"/>
 <rect width="1" height="2" transform="matrix(0 -1 1 0 13 91)" fill="#008B8B"/>
@@ -53,7 +53,7 @@
 <rect width="38" height="128" fill="white"/>
 </clipPath>
 <clipPath id="clip1_197_2">
-<path d="M17 32C17 30.8954 17.8954 30 19 30V30C20.1046 30 21 30.8954 21 32V100C21 101.105 20.1046 102 19 102V102C17.8954 102 17 101.105 17 100V32Z" fill="white"/>
+<path d="M17 32C17 30.8954 17.8954 30 19 30C20.1046 30 21 30.8954 21 32V100C21 101.105 20.1046 102 19 102C17.8954 102 17 101.105 17 100V32Z" fill="white"/>
 </clipPath>
 <clipPath id="clip2_197_2">
 <rect width="12" height="16" fill="white" transform="translate(14 4)"/>

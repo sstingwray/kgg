@@ -6,7 +6,7 @@ import GearShiftLever from '../objects/gearShiftLever.js';
 import Button from '../objects/button.js';
 import { toggleIgnition } from '../objects/controls.js';
 import { getGameState } from '../modules/gameManager.js';
-import { getRGBA } from '../utils/helpers.js';
+import { clamp, getRGBA } from '../utils/helpers.js';
 
 const DEBUG = true;
 
@@ -95,10 +95,14 @@ export default class ControlPanel extends Interactable {
     this.canvases.centralPanel.height   = this.CENTRAL_PANEL_SIZE.height;
     this.canvases.centralPanel.ctx      = this.canvases.centralPanel.getContext('2d');
 
-    let ctx = this.canvases.centralPanel.ctx;
+    const ctx = this.canvases.centralPanel.ctx;
+    const fuelLevel = 18 * state.mech.status.bars.fuel / state.mech.reactor.maxFuel;
 
     ctx.fillStyle = getRGBA('auburn', 0);
     ctx.fillRect(0, 18, this.CENTRAL_PANEL_SIZE.width, this.CENTRAL_PANEL_SIZE.height - 38);
+
+    ctx.fillStyle = getRGBA('dark-cyan', 1);
+    ctx.fillRect(12*68, 12*10 + 11, 6, -fuelLevel);
 
     biggerContext.save();
     biggerContext.translate(body.position.x, body.position.y);

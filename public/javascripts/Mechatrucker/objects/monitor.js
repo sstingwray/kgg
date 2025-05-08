@@ -17,10 +17,10 @@ export default class Monitor extends Interactable {
   render(ctx, values) {
     const base = localToWorld(this.body, this.localPos);
     const angle = this.body.angle;
-    const orientAdjustX = this.orientation == 'left' ? 0 : -18;
+    const orientAdjustX = this.orientation == 'left' ? 9 : -9;
 
     ctx.save();
-    ctx.translate(base.x + orientAdjustX, base.y);
+    ctx.translate(base.x + orientAdjustX, base.y - 2);
     ctx.rotate(angle);
     ctx.fillStyle = getRGBA('dark-cyan', 0.1);
     ctx.fillRect(0, 0, this.width, this.height);    
@@ -32,7 +32,7 @@ export default class Monitor extends Interactable {
         else ctx.fillText(`${ v.label }`, 36, 12*2*i+24+4);
         
     });
-    
+
     ctx.restore();
   }
 }
