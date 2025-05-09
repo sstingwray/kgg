@@ -77,15 +77,22 @@ export default class ControlPanel extends Interactable {
           color: 'gold', label: null, svg: this.icons.reactor,
           eventType: 'outputChange', state: true,
           progressive: true, maxValue: state.mech.reactor.maxOutput
-        })
+        }),
+        coolantStatus: new Light({
+          body: this.body,
+          x: -12*7 - 6, y: - 12*8, radius: 8,
+          color: 'white', label: null, svg: null,
+          eventType: 'coolantLeft', state: true,
+          progressive: true, maxValue: state.mech.modules.coolantCanister.maxCapacity
+        }),
       },
       modules: {
         coolantDispenser: {
           dial: new Dial({
             body: this.body,
-            x: -12*13 - 5, y: 8 - 12*8, radius: 22,
+            x: -12*11 - 4, y: 4 - 12*7, radius: 26,
             svg: this.icons.coolant, color: 'jet', highlight: 'auburn', notches: 1,
-            teethCount: 6, toothWidth: 12, toothLength: 6,
+            teethCount: 6, toothWidth: 18, toothLength: 8,
             minAngle: 0, maxAngle: 360,
             eventType: 'heatUpdate', onChange: (value) => { emitter.emit('coolantCanisterValveChange', value) }
           }),
@@ -109,6 +116,7 @@ export default class ControlPanel extends Interactable {
     this.elements.buttons.ignitionBtn.render(biggerContext);
     this.elements.lights.clutchLight.render(biggerContext);
     this.elements.lights.outputLight.render(biggerContext);
+    this.elements.lights.coolantStatus.render(biggerContext);
     this.elements.modules.coolantDispenser.dial.render(biggerContext);
   }
 

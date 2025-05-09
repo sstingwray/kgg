@@ -402,6 +402,11 @@ function updateHeat() {
     if (hasCoolant) state.mech.status.modules.coolantCanister.amount -= state.mech.status.modules.coolantCanister.valve;
     else state.mech.status.modules.coolantCanister.amount = 0;
 
+    if (coolantValve > 0 && hasCoolant) emitter.emit('coolantRelease', coolantValve);
+    else emitter.emit('coolantRelease', 0);
+
+    emitter.emit('coolantLeft', state.mech.status.modules.coolantCanister.amount);
+
     state.mech.status.bars.heat = round(state.mech.status.bars.heat, 4);
 
     emitter.emit('heatUpdate', state.mech.status.bars.heat);

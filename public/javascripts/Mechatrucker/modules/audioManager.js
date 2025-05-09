@@ -9,7 +9,8 @@ const VOLUME_SETTINGS = {
     gearShift: 0.8,
     venting: 1.0,
     step: 0.2,
-    music: 6
+    music: 6,
+    canister: -48
 };
 
 const engineContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -20,7 +21,7 @@ let musicManager = null;
 let contextStarted = false;
 
 export function setupAudio(assets) {
-    musicManager = setupMusicManager();
+    musicManager = setupMusicManager() ;
 
     emitter.subscribe('ignitionState', manageEngineLoop.bind(this));
     emitter.subscribe('ignitionState', async (isOn) => {
@@ -41,6 +42,7 @@ export function setupAudio(assets) {
     emitter.subscribe('stepMade', playStepSound.bind(this));
     emitter.subscribe('mechMoving', musicManager.updateRPM.bind(this));
     //emitter.subscribe('outputChange', placeholder.bind(this));
+    initCoolantCanisterSound();
 }
   
 async function loadEngineBuffer() {
@@ -136,6 +138,30 @@ function playVentingSound() {
         console.warn("Venting sound failed to play:", e);
     }
 }
+
+function initCoolantCanisterSound() {
+    const noise    = new Tone.Noise('white').start();
+    const filter   = new Tone.Filter(400, 'bandpass').toDestination();
+    const gainNode = new Tone.Gain(0).connect(filter);
+
+    noise.connect(gainNode);
+    noise.volume.rampTo(VOLUME_SETTINGS.canister);
+  
+    let started = false;
+    emitter.subscribe('coolantRelease', async (value) => {
+      if (!started) {
+        await Tone.start();
+        started = true;
+      };
+      if (value > 0) {
+        const lvl = value;
+        gainNode.gain.rampTo(Tone.gainToDb(lvl * 0.01));
+        const cutoff = 5000 - lvl * (5000 - 400);
+        filter.frequency.rampTo(cutoff, 0.2);
+        
+      } else gainNode.gain.rampTo(0);
+    });
+  }
   
 function playStepSound() {
     try {

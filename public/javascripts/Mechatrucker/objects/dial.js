@@ -17,7 +17,7 @@ export default class PanelDial extends Interactable {
     this.callback    = options.onChange;
     this.teethCount  = options.teethCount;
     this.toothWidth  = options.toothWidth;
-    this.toothLength = options.toothLength + 2;
+    this.toothLength = options.toothLength;
     this.minDeg      = options.minAngle;
     this.maxDeg      = options.maxAngle;
     this.notches     = options.notches;
@@ -43,7 +43,7 @@ export default class PanelDial extends Interactable {
   onMouseDown(event) {
     const local = this._toLocal(event);
     const dist  = Math.hypot(local.x, local.y);
-    if (dist < this.radius * this.innerRadius || dist > (this.radius + this.toothLength) * 1) return;
+    if (dist < 0 || dist > (this.radius + this.toothLength) * 1) return;
 
     this.dragging = true;
     // initialize raw angle
@@ -86,11 +86,11 @@ export default class PanelDial extends Interactable {
     for (let i = 0; i < this.notches; i++) {
       const deg  = this.minDeg + (i / this.notches) * (this.maxDeg - this.minDeg);
       const ang  = deg * Math.PI/180;
-      const x1   = Math.cos(ang) * (this.radius + 4);
-      const y1   = Math.sin(ang) * (this.radius + 4);
-      const x2   = Math.cos(ang) * (this.radius + 10);
-      const y2   = Math.sin(ang) * (this.radius + 10);
-      ctx.lineWidth   = 2;
+      const x1   = Math.cos(ang) * (this.radius + 8);
+      const y1   = Math.sin(ang) * (this.radius + 8);
+      const x2   = Math.cos(ang) * (this.radius + 32);
+      const y2   = Math.sin(ang) * (this.radius + 32);
+      ctx.lineWidth   = 4;
       ctx.strokeStyle = getRGBA(this.highlight, 1);
       ctx.save();
       ctx.beginPath();
@@ -99,6 +99,36 @@ export default class PanelDial extends Interactable {
       ctx.stroke();
       ctx.restore();
     }
+
+    const arrowRadius = this.radius + 20;
+    const endRad      = Math.PI / 2;
+    const headLen     = 8;
+    const headAngle   = Math.PI / 4;
+
+    ctx.strokeStyle = getRGBA(this.highlight, 1);
+    ctx.lineWidth   = 4;
+    ctx.lineCap     = 'round';
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(0, 0, arrowRadius, this.minDeg, endRad, false);
+    ctx.stroke();
+
+    const tangent = endRad - Math.PI / 2;
+
+    const tipX = Math.cos(endRad) * arrowRadius;
+    const tipY = Math.sin(endRad) * arrowRadius;
+
+    const leftX  = tipX + Math.cos(tangent - headAngle) * (headLen);
+    const leftY  = tipY + Math.sin(tangent - headAngle) * (headLen);
+    const rightX = tipX + Math.cos(tangent + headAngle) * (headLen);
+    const rightY = tipY + Math.sin(tangent + headAngle) * (headLen);
+
+    ctx.beginPath();
+    ctx.moveTo(leftX, leftY);
+    ctx.lineTo(tipX, tipY);
+    ctx.lineTo(rightX, rightY);
+    ctx.stroke();
+    ctx.restore();
 
     ctx.rotate(this.valueDeg * Math.PI/180);
 
@@ -122,7 +152,7 @@ export default class PanelDial extends Interactable {
       ctx.fillStyle = (i === 0) ? getRGBA(this.highlight, 1) : getRGBA(this.color, 1);
       ctx.save();
       ctx.rotate(i * step);
-      ctx.fillRect(innerR - 2, -this.toothWidth / 2, (i === 0) ? this.toothLength*1.2 : this.toothLength, this.toothWidth);
+      ctx.fillRect(innerR - 1, -this.toothWidth / 2, (i === 0) ? this.toothLength*1.2 + 2 : this.toothLength + 2, this.toothWidth);
       ctx.restore();
     }
 

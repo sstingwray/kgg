@@ -20,7 +20,7 @@ export default class Light extends Interactable {
     this.isPressed   = false;
     
 
-    emitter.subscribe(this.event, this.reactToState.bind(this))
+    if (this.event) emitter.subscribe(this.event, this.reactToState.bind(this));
   }
 
   getWorldCircle() {
