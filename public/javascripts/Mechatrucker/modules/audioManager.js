@@ -3,12 +3,12 @@ import { getGameState } from '../modules/gameManager.js';
 import { clamp } from '../utils/helpers.js';
 
 const VOLUME_SETTINGS = {
-    engine: 0.1,
+    engine: 0.01,
     ignition: 0.4,
     ignitionOff: 1,
     gearShift: 0.8,
     venting: 1.0,
-    step: 0.1,
+    step: 0.2,
     music: 6
 };
 
@@ -22,8 +22,8 @@ let contextStarted = false;
 export function setupAudio(assets) {
     musicManager = setupMusicManager();
 
-    //emitter.subscribe('ignitionToggle', manageEngineLoop.bind(this));
-    emitter.subscribe('ignitionToggle', async (isOn) => {
+    emitter.subscribe('ignitionState', manageEngineLoop.bind(this));
+    emitter.subscribe('ignitionState', async (isOn) => {
         if (isOn) {
           if (!contextStarted) {
             await Tone.start('0:0:0');

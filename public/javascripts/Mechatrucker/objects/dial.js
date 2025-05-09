@@ -1,104 +1,132 @@
+// js/gameObjects/panelDial.js
 import Interactable from './interactable.js';
-import { localToWorld } from '../utils/helpers.js';
+import { getRGBA, localToWorld } from '../utils/helpers.js';
 
-export default class Dial extends Interactable {
-  constructor(options) {
+const Vector = Matter.Vector;
+
+export default class PanelDial extends Interactable {
+  constructor(options = {}) {
     super();
-    this.body       = options.body;
-    this.localPos   = { x: options.x, y: options.y };
-    this.radius     = options.radius;
-    this.minRad     = this.deg2rad(options.minAngle);
-    this.maxRad     = this.deg2rad(options.maxAngle);
-    this.divisions  = options.divisions;
-    this.valueRad   = this.minRad;
-    this.dragging   = false;
-    this._offset    = 0;
-  }
+    this.body        = options.body;
+    this.localPos    = { x: options.x, y: options.y };
+    this.radius      = options.radius;
+    this.color       = options.color;
+    this.highlight   = options.highlight;
+    this.svg         = options.svg;
+    this.event       = options.eventType;
+    this.callback    = options.onChange;
+    this.teethCount  = options.teethCount;
+    this.toothWidth  = options.toothWidth;
+    this.toothLength = options.toothLength + 2;
+    this.minDeg      = options.minAngle;
+    this.maxDeg      = options.maxAngle;
+    this.notches     = options.notches;
 
-  deg2rad(deg) {
-    return (deg * Math.PI) / 180;
-  }
-
-  rad2deg(rad) {
-    return (rad * 180) / Math.PI;
+    this.valueDeg    = options.minAngle;
+    this.innerRadius = 0.8;
+    this.dragging    = false;
+    this.prevRawDeg  = 0;
   }
 
   get center() {
     return localToWorld(this.body, this.localPos);
   }
 
-  /** Mouse down: start drag if pointer in dial circle */
-  onMouseDown(event) {
-    const { x, y } = event.offsetX != null
-      ? { x: event.offsetX, y: event.offsetY }
-      : { x: event.clientX, y: event.clientY };
+  _toLocal(event) {
+    const x = event.offsetX ?? event.clientX;
+    const y = event.offsetY ?? event.clientY;
     const c = this.center;
     const dx = x - c.x, dy = y - c.y;
-    if (dx*dx + dy*dy <= this.radius * this.radius) {
-      this.dragging = true;
-      // compute pointer angle
-      const ang = Math.atan2(dy, dx);
-      // store offset: difference between pointer and current value
-      this._offset = ang - this.valueRad;
-    }
+    return Vector.rotate(Vector.create(dx, dy), -this.body.angle);
   }
 
-  /** Mouse move: update angle if dragging */
+  onMouseDown(event) {
+    const local = this._toLocal(event);
+    const dist  = Math.hypot(local.x, local.y);
+    if (dist < this.radius * this.innerRadius || dist > (this.radius + this.toothLength) * 1) return;
+
+    this.dragging = true;
+    // initialize raw angle
+    let raw = Math.atan2(local.y, local.x) * 180/Math.PI;
+    if (raw < 0) raw += 360;
+    this.prevRawDeg = raw;
+  }
+
   onMouseMove(event) {
     if (!this.dragging) return;
-    const { x, y } = event.offsetX != null
-      ? { x: event.offsetX, y: event.offsetY }
-      : { x: event.clientX, y: event.clientY };
-    const c = this.center;
-    const dx = x - c.x, dy = y - c.y;
-    let ang = Math.atan2(dy, dx) - this._offset;
-    // normalize to [–PI, PI]
-    ang = ((ang + Math.PI*3) % (Math.PI*2)) - Math.PI;
-    // clamp between minRad and maxRad
-    if (ang < this.minRad) ang = this.minRad;
-    if (ang > this.maxRad) ang = this.maxRad;
-    this.valueRad = ang;
+    const local = this._toLocal(event);
+    let raw = Math.atan2(local.y, local.x) * 180/Math.PI;
+    if (raw < 0) raw += 360;
+
+    // compute smallest delta around the circle
+    let d = raw - this.prevRawDeg;
+    if (d > 180)  d -= 360;
+    if (d < -180) d += 360;
+
+    // accumulate and clamp
+    let v = this.valueDeg + d;
+    if (v < this.minDeg) v = this.minDeg;
+    if (v > this.maxDeg) v = this.maxDeg;
+    this.valueDeg = v;
+
+    this.prevRawDeg = raw;
+
+    if (this.callback) this.callback(this.valueDeg / this.maxDeg);
   }
 
-  /** Mouse up: end drag */
   onMouseUp() {
     this.dragging = false;
   }
 
-  /** Render the dial */
   render(ctx) {
     const c = this.center;
     ctx.save();
-    // draw dial background
-    ctx.fillStyle = '#333';
-    ctx.beginPath();
-    ctx.arc(c.x, c.y, this.radius, 0, Math.PI*2);
-    ctx.fill();
+    ctx.translate(c.x, c.y);
 
-    // draw notches
-    ctx.strokeStyle = '#555';
-    ctx.lineWidth = 2;
-    for (let i = 0; i < this.divisions; i++) {
-      const frac = i / this.divisions;
-      const ang = this.minRad + frac * (this.maxRad - this.minRad);
-      const x1 = c.x + Math.cos(ang) * (this.radius * 0.9);
-      const y1 = c.y + Math.sin(ang) * (this.radius * 0.9);
-      const x2 = c.x + Math.cos(ang) * (this.radius * 0.75);
-      const y2 = c.y + Math.sin(ang) * (this.radius * 0.75);
+    for (let i = 0; i < this.notches; i++) {
+      const deg  = this.minDeg + (i / this.notches) * (this.maxDeg - this.minDeg);
+      const ang  = deg * Math.PI/180;
+      const x1   = Math.cos(ang) * (this.radius + 4);
+      const y1   = Math.sin(ang) * (this.radius + 4);
+      const x2   = Math.cos(ang) * (this.radius + 10);
+      const y2   = Math.sin(ang) * (this.radius + 10);
+      ctx.lineWidth   = 2;
+      ctx.strokeStyle = getRGBA(this.highlight, 1);
+      ctx.save();
       ctx.beginPath();
       ctx.moveTo(x1, y1);
       ctx.lineTo(x2, y2);
       ctx.stroke();
+      ctx.restore();
     }
 
-    // draw pointer dot
-    const px = c.x + Math.cos(this.valueRad) * (this.radius * 0.6);
-    const py = c.y + Math.sin(this.valueRad) * (this.radius * 0.6);
-    ctx.fillStyle = this.dragging ? '#0f0' : '#0af';
+    ctx.rotate(this.valueDeg * Math.PI/180);
+
+    ctx.fillStyle = getRGBA(this.color, 1);
     ctx.beginPath();
-    ctx.arc(px, py, this.radius * 0.1, 0, Math.PI*2);
+    ctx.arc(0, 0, this.radius, 0, 2 * Math.PI);
     ctx.fill();
+
+    ctx.fillStyle = getRGBA(this.highlight, 1);
+    ctx.beginPath();
+    ctx.arc(0, 0, this.radius * this.innerRadius, 0, 2 * Math.PI);
+    ctx.fill();
+    if (this.svg) ctx.drawImage(this.svg, 0 - (this.radius / 2), 0 - (this.radius / 2), this.radius, this.radius);
+
+    const step = (2 * Math.PI) / this.teethCount;
+    const innerR = this.radius * this.innerRadius;
+    for (let i = 0; i < this.teethCount; i++) {
+      const mid = i * step;
+      const a1  = mid - this.toothWidth / 2;
+      const a2  = mid + this.toothWidth / 2;
+      ctx.fillStyle = (i === 0) ? getRGBA(this.highlight, 1) : getRGBA(this.color, 1);
+      ctx.save();
+      ctx.rotate(i * step);
+      ctx.fillRect(innerR - 2, -this.toothWidth / 2, (i === 0) ? this.toothLength*1.2 : this.toothLength, this.toothWidth);
+      ctx.restore();
+    }
 
     ctx.restore();
   }
+  
 }

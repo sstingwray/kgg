@@ -20,7 +20,6 @@ export default class Button extends Interactable {
   }
 
   getWorldCircle() {
-    // top-left in world
     const worldTL = localToWorld(this.body, this.localPos);
     return { x: worldTL.x, y: worldTL.y, r: this.radius };
   }

@@ -70,7 +70,8 @@ export function preloadAssets(callback) {
     centralPanel: 'images/Mechatrucker/Central-Terminal.svg',
     ignitionIco:  'images/Mechatrucker/bolt-solid.svg',
     clutchIco:    'images/Mechatrucker/clutch.svg',
-    reactorIco:    'images/Mechatrucker/nuclear.svg',
+    reactorIco:   'images/Mechatrucker/nuclear.svg',
+    coolantIco:   'images/Mechatrucker/snowflake-solid.svg',
   };
 
   const assetNames = Object.keys(assetSources);

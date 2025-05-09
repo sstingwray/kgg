@@ -5,9 +5,9 @@ import Gauge from '../objects/gauge.js';
 import Dial from './dial.js';
 import GearShiftLever from '../objects/gearShiftLever.js';
 import Button from '../objects/button.js';
-import { toggleIgnition } from '../objects/controls.js';
+import emitter from '../modules/eventEmitter.js';
 import { getGameState } from '../modules/gameManager.js';
-import { clamp, getRGBA } from '../utils/helpers.js';
+import { round, getRGBA } from '../utils/helpers.js';
 
 
 const DEBUG = true;
@@ -60,8 +60,7 @@ export default class ControlPanel extends Interactable {
           body: this.body,
           x: 12*22 + 4, y: - 12*4, radius: 17,
           color: 'gold', highlight: 'gold', svg: this.icons.ignition,
-          eventType: 'ignitionToggle',
-          onClick: toggleIgnition
+          eventType: 'ignitionState', onClick: () => { emitter.emit('ignitionToggle', round(performance.now() / 100, 2)) }
         })
       },
       lights: {
@@ -84,9 +83,11 @@ export default class ControlPanel extends Interactable {
         coolantDispenser: {
           dial: new Dial({
             body: this.body,
-            x: -12*13 - 5, y: 8 - 12*8, radius: 21,
-            minAngle: 15, maxAngle: 270,
-            divisions: 6
+            x: -12*13 - 5, y: 8 - 12*8, radius: 22,
+            svg: this.icons.coolant, color: 'jet', highlight: 'auburn', notches: 1,
+            teethCount: 6, toothWidth: 12, toothLength: 6,
+            minAngle: 0, maxAngle: 360,
+            eventType: 'heatUpdate', onChange: (value) => { emitter.emit('coolantCanisterValveChange', value) }
           }),
         }
       }

@@ -13,7 +13,7 @@ export default class Light extends Interactable {
     this.svg         = options.svg;
     this.progressive = options.progressive;
     this.maxValue    = options.maxValue;
-    this.value       = 0.2;
+    this.value       = 0.01;
     this.state       = options.state;
     this.event       = options.eventType;
     this.callback    = options.onToggle || (() => {});
@@ -31,14 +31,14 @@ export default class Light extends Interactable {
 
   isPointInside(px, py) {
     const { x, y, r } = this.getWorldCircle();
-    console.log({ x, y, r });
-    console.log({ px, py });
         
     return px >= x - r && px <= x + r && py >= y - r && py <= y + r;
   }
 
   onMouseDown(event) {
-    if (this.isPointInside(event.offsetX, event.offsetY)) {
+    const x = event.offsetX, y = event.offsetY;
+
+    if (this.isPointInside(x, y)) {
       this.isPressed = true;
       console.log(`[DEBUG] ${ this.label } light is clicked`);
       
@@ -46,7 +46,7 @@ export default class Light extends Interactable {
   }
 
   reactToState(event) {
-    if (this.progressive) this.value = clamp(event / this.maxValue, 0.2, 1);
+    if (this.progressive) this.value = clamp(event / this.maxValue, 0.01, 1);
     else this.state = event;
     
   }

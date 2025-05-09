@@ -104,14 +104,20 @@ const state = {
             },
             maxSpeed: 0
         },
+        modules: {
+            coolantCanister: {
+                maxCapacity: 255,
+                coolantStrength: 1
+            }
+        },
         status: {
             bars: {
                 mechIntegrity: 255,
                 crewHealth: 255,
-                heat: 0,
+                heat: null,
                 pathfinding: 255,
                 flooding: 0,
-                fuel: 255,
+                fuel: null,
             },
             energyOutput: 0,
             baseRPM: 0,
@@ -122,6 +128,12 @@ const state = {
                 stepAccumulator: 0,
                 speedApprox: 0,
                 stepCount: 0
+            },
+            modules: {
+                coolantCanister: {
+                    amount: null,
+                    valve: 0
+                }
             },
             flags: {
                 ignition: false,
@@ -140,7 +152,8 @@ const state = {
 
 export function setupGameState() {
     //stocking the Mech
-    state.mech.status.fuel = state.mech.reactor.maxFuel;
+    state.mech.status.bars.fuel = state.mech.reactor.maxFuel;
+    state.mech.status.modules.coolantCanister.amount = state.mech.modules.coolantCanister.maxCapacity;
     state.mech.status.bars.heat = round( state.mech.reactor.maxHeat / 2, 0);
     //calculating maxSpeed for the speedGauge
     const maxBaseRPM = state.mech.engine.maxBaseRPM
@@ -155,6 +168,7 @@ export function setupGameState() {
     emitter.subscribe('clutchToggle', updateClutch.bind(this));
     emitter.subscribe('gearShift', updateGear.bind(this));
     emitter.subscribe('outputInput', setEnergyOutput.bind(this));
+    emitter.subscribe('coolantCanisterValveChange', updateCoolantCanisterValve.bind(this));
     emitter.subscribe('stepMade', updateLocation.bind(this));
     
 
@@ -215,14 +229,17 @@ function updateClutch(flag) {
     state.mech.status.flags.clutch = !flag;
 }
 
-function updateIgnition(newState) {
-    state.mech.status.flags.ignition = newState;
+function updateIgnition() {
+    state.mech.status.flags.ignition = !state.mech.status.flags.ignition;
+    console.log('state.mech.status.flags.ignition', state.mech.status.flags.ignition);
+    
 
-    if (newState && state.mech.status.bars.fuel > 0) {
+    if (state.mech.status.flags.ignition && state.mech.status.bars.fuel > 0) {
         setEnergyOutput(1);
     } else {
         setEnergyOutput(0);
     }
+    emitter.emit('ignitionState', state.mech.status.flags.ignition);
 }
 
 function setEnergyOutput(value) {
@@ -369,16 +386,29 @@ function consumeFuel() {
 
 function updateHeat() {
     const baseHeatGen = state.mech.status.energyOutput * HEAT_GEN_MOD;
+
     const baseHeatDiss = state.mech.chassis.heatDissRate * HEAT_DISS_MOD;
-    const targetHeat = state.mech.status.bars.heat + baseHeatGen - baseHeatDiss;
+    const hasCoolant = state.mech.status.modules.coolantCanister.amount > 0 ? true: false;
+    const coolantValve = state.mech.status.modules.coolantCanister.valve;
+    const coolantStrength = state.mech.modules.coolantCanister.coolantStrength;
+    const coolantEffect = hasCoolant ? coolantValve * coolantStrength : 0;
+
+    const targetHeat = state.mech.status.bars.heat + baseHeatGen - baseHeatDiss - coolantEffect;
 
     if (targetHeat < 0) state.mech.status.bars.heat = 0;
     else if (targetHeat > state.mech.reactor.maxHeat) state.mech.status.bars.heat = state.mech.reactor.maxHeat;
     else state.mech.status.bars.heat = targetHeat;
 
+    if (hasCoolant) state.mech.status.modules.coolantCanister.amount -= state.mech.status.modules.coolantCanister.valve;
+    else state.mech.status.modules.coolantCanister.amount = 0;
+
     state.mech.status.bars.heat = round(state.mech.status.bars.heat, 4);
 
     emitter.emit('heatUpdate', state.mech.status.bars.heat);
+}
+
+function updateCoolantCanisterValve(value) {
+    state.mech.status.modules.coolantCanister.valve = value;
 }
 
 function updateLocation(stepDistance) {
