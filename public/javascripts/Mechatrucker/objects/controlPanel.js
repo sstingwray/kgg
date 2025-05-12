@@ -40,15 +40,15 @@ export default class ControlPanel extends Interactable {
       gauges: {
         gaugePRM: new Gauge({
           body: this.body,
-          x: 12*3 + 5, y: 8 - 12*6, radius: 33,
+          x: 12*15 + 11, y: 8 - 12*6, radius: 33,
           maxValue: state.mech.engine.maxBaseRPM,
           divisions: state.mech.engine.maxBaseRPM,
           redZoneStart: 0.8,
-          pointerColor: 'gold', label: 'RPM',
+          pointerColor: 'dark-cyan', label: 'RPM',
         }),
         speedRPM: new Gauge({
           body: this.body,
-          x: 12*10 + 3, y: 8 - 12*6, radius: 33,
+          x: 12*9 + 0, y: 8 - 12*6, radius: 33,
           maxValue: state.mech.engine.maxSpeed,
           divisions: state.mech.engine.maxSpeed / 20,
           redZoneStart: 0.8,
@@ -59,7 +59,7 @@ export default class ControlPanel extends Interactable {
         ignitionBtn: new Button({ 
           body: this.body,
           x: 12*22 + 4, y: - 12*4, radius: 17,
-          color: 'gold', highlight: 'gold', svg: this.icons.ignition,
+          color: 'dark-cyan', highlight: 'dark-cyan', svg: this.icons.ignition,
           eventType: 'ignitionState', onClick: () => { emitter.emit('ignitionToggle', round(performance.now() / 100, 2)) }
         })
       },
@@ -73,15 +73,15 @@ export default class ControlPanel extends Interactable {
         }),
         outputLight: new Light({
           body: this.body,
-          x: 12*17 - 5, y: 8 - 12*6, radius: 21,
-          color: 'gold', label: null, svg: this.icons.reactor,
+          x: 12*3, y: 8 - 12*6, radius: 21,
+          color: 'dark-cyan', label: null, svg: this.icons.reactor,
           eventType: 'outputChange', state: true,
           progressive: true, maxValue: state.mech.reactor.maxOutput
         }),
         coolantStatus: new Light({
           body: this.body,
-          x: -12*7 - 6, y: - 12*8, radius: 8,
-          color: 'white', label: null, svg: null,
+          x: -12*14 - 5, y: - 12*4 - 1, radius: 7,
+          color: 'cosmic-latte', label: null, svg: null,
           eventType: 'coolantLeft', state: true,
           progressive: true, maxValue: state.mech.modules.coolantCanister.maxCapacity
         }),
@@ -90,8 +90,8 @@ export default class ControlPanel extends Interactable {
         coolantDispenser: {
           dial: new Dial({
             body: this.body,
-            x: -12*11 - 4, y: 4 - 12*7, radius: 26,
-            svg: this.icons.coolant, color: 'jet', highlight: 'auburn', notches: 1,
+            x: -12*11 - 0, y: 4 - 12*7, radius: 26,
+            svg: this.icons.coolant, color: 'davy-gray', highlight: 'auburn', notches: 4,
             teethCount: 6, toothWidth: 18, toothLength: 8,
             minAngle: 0, maxAngle: 360,
             eventType: 'heatUpdate', onChange: (value) => { emitter.emit('coolantCanisterValveChange', value) }
@@ -132,7 +132,7 @@ export default class ControlPanel extends Interactable {
     ctx.fillStyle = getRGBA('auburn', 0);
     ctx.fillRect(0, 18, this.CENTRAL_PANEL_SIZE.width, this.CENTRAL_PANEL_SIZE.height - 38);
 
-    ctx.fillStyle = getRGBA('gold', 1);
+    ctx.fillStyle = getRGBA('dark-cyan', 1);
     ctx.fillRect(12*68 + 1, 12*10 + 11, 5, -fuelLevel);
 
     biggerContext.save();

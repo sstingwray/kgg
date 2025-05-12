@@ -40,64 +40,20 @@
 <path d="M536 272V303C536 305.209 534.209 307 532 307H4C1.79083 307 0 305.209 0 303V272L536 272Z"/>
 </mask>
 <path d="M536 272V303C536 305.209 534.209 307 532 307H4C1.79083 307 0 305.209 0 303V272L536 272Z" fill="#343434"/>
-<g clip-path="url(#clip3_38_216)">
-<rect x="524" y="283" width="12" height="12" rx="6" transform="rotate(90 524 283)" fill="#343434"/>
-<rect x="524" y="288" width="2" height="12" transform="rotate(90 524 288)" fill="#555555"/>
-<rect x="519" y="283" width="12" height="2" transform="rotate(90 519 283)" fill="#555555"/>
-</g>
-<rect x="523.5" y="283.5" width="11" height="11" rx="5.5" transform="rotate(90 523.5 283.5)" stroke="#343434"/>
-<g clip-path="url(#clip4_38_216)">
-<rect x="512" y="283" width="12" height="12" rx="6" fill="#555555"/>
-<rect x="517" y="283" width="2" height="12" fill="#343434"/>
-<rect x="512" y="288" width="12" height="2" fill="#343434"/>
-</g>
-<rect x="512.5" y="283.5" width="11" height="11" rx="5.5" stroke="#555555"/>
-<g clip-path="url(#clip5_38_216)">
-<rect x="12" y="283" width="12" height="12" rx="6" fill="#555555"/>
-<rect x="17" y="283" width="2" height="12" fill="#343434"/>
-<rect x="12" y="288" width="12" height="2" fill="#343434"/>
-</g>
-<rect x="12.5" y="283.5" width="11" height="11" rx="5.5" stroke="#555555"/>
 <g filter="url(#filter0_d_38_216)">
-<path d="M392 287C393.105 287 394 287.895 394 289V289C394 290.105 393.105 291 392 291H360C358.895 291 358 290.105 358 289V289C358 287.895 358.895 287 360 287H392Z" fill="#F2F3F4"/>
+<path d="M392 287C393.105 287 394 287.895 394 289C394 290.105 393.105 291 392 291H360C358.895 291 358 290.105 358 289C358 287.895 358.895 287 360 287H392Z" fill="#F2F3F4"/>
 </g>
 <g filter="url(#filter1_d_38_216)">
-<path d="M176 287C177.105 287 178 287.895 178 289V289C178 290.105 177.105 291 176 291H144C142.895 291 142 290.105 142 289V289C142 287.895 142.895 287 144 287H176Z" fill="#F2F3F4"/>
+<path d="M176 287C177.105 287 178 287.895 178 289C178 290.105 177.105 291 176 291H144C142.895 291 142 290.105 142 289C142 287.895 142.895 287 144 287H176Z" fill="#F2F3F4"/>
 </g>
 <path d="M302 278C306.418 278 310 281.582 310 286V297C310 298.105 309.105 299 308 299H228C226.895 299 226 298.105 226 297V286C226 281.582 229.582 278 234 278H302Z" fill="#242124"/>
 </g>
 <path d="M540 272V303C540 307.418 536.418 311 532 311V303V272H540ZM4 311C-0.418274 311 -4 307.418 -4 303V272H4V303V311ZM0 272L536 272L0 272ZM540 303C540 307.418 536.418 311 532 311H4C-0.418274 311 -4 307.418 -4 303H4H532H540Z" fill="#555555" mask="url(#path-23-inside-4_38_216)"/>
-<g clip-path="url(#clip6_38_216)">
-<mask id="path-40-inside-5_38_216" fill="white">
+<mask id="path-28-inside-5_38_216" fill="white">
 <path d="M536 35V4C536 1.79086 534.209 0 532 0L4 0C1.79083 0 0 1.79086 0 4V35L536 35Z"/>
 </mask>
 <path d="M536 35V4C536 1.79086 534.209 0 532 0L4 0C1.79083 0 0 1.79086 0 4V35L536 35Z" fill="#343434"/>
-<g clip-path="url(#clip7_38_216)">
-<rect width="12" height="12" rx="6" transform="matrix(0 -1 -1 0 524 24)" fill="#343434"/>
-<rect width="2" height="12" transform="matrix(0 -1 -1 0 524 19)" fill="#555555"/>
-<rect width="12" height="2" transform="matrix(0 -1 -1 0 519 24)" fill="#555555"/>
-</g>
-<rect x="-0.5" y="-0.5" width="11" height="11" rx="5.5" transform="matrix(0 -1 -1 0 523 23)" stroke="#343434"/>
-<g clip-path="url(#clip8_38_216)">
-<rect width="12" height="12" rx="6" transform="matrix(1 0 0 -1 512 24)" fill="#555555"/>
-<rect width="2" height="12" transform="matrix(1 0 0 -1 517 24)" fill="#343434"/>
-<rect width="12" height="2" transform="matrix(1 0 0 -1 512 19)" fill="#343434"/>
-</g>
-<rect x="0.5" y="-0.5" width="11" height="11" rx="5.5" transform="matrix(1 0 0 -1 512 23)" stroke="#555555"/>
-<g clip-path="url(#clip9_38_216)">
-<rect width="12" height="12" rx="6" transform="matrix(1 0 0 -1 262 24)" fill="#555555"/>
-<rect width="2" height="12" transform="matrix(1 0 0 -1 267 24)" fill="#343434"/>
-<rect width="12" height="2" transform="matrix(1 0 0 -1 262 19)" fill="#343434"/>
-</g>
-<rect x="0.5" y="-0.5" width="11" height="11" rx="5.5" transform="matrix(1 0 0 -1 262 23)" stroke="#555555"/>
-<g clip-path="url(#clip10_38_216)">
-<rect x="12" y="11" width="12" height="12" rx="6" fill="#555555"/>
-<rect x="17" y="11" width="2" height="12" fill="#343434"/>
-<rect x="12" y="16" width="12" height="2" fill="#343434"/>
-</g>
-<rect x="12.5" y="11.5" width="11" height="11" rx="5.5" stroke="#555555"/>
-</g>
-<path d="M540 35V4C540 -0.418278 536.418 -4 532 -4V4V35H540ZM4 -4C-0.418274 -4 -4 -0.418278 -4 4V35H4V4V-4ZM0 35L536 35L0 35ZM540 4C540 -0.418278 536.418 -4 532 -4L4 -4C-0.418274 -4 -4 -0.418278 -4 4H4L532 4H540Z" fill="#555555" mask="url(#path-40-inside-5_38_216)"/>
+<path d="M540 35V4C540 -0.418278 536.418 -4 532 -4V4V35H540ZM4 -4C-0.418274 -4 -4 -0.418278 -4 4V35H4V4V-4ZM0 35L536 35L0 35ZM540 4C540 -0.418278 536.418 -4 532 -4L4 -4C-0.418274 -4 -4 -0.418278 -4 4H4L532 4H540Z" fill="#555555" mask="url(#path-28-inside-5_38_216)"/>
 <rect width="2" height="470" transform="matrix(0 1 -1 0 503 34)" fill="#555555"/>
 <rect width="2" height="470" transform="matrix(0 1 -1 0 503 272)" fill="#555555"/>
 <rect width="240" height="2" transform="matrix(0 1 -1 0 503 34)" fill="#555555"/>
@@ -132,30 +88,6 @@
 </clipPath>
 <clipPath id="clip2_38_216">
 <path d="M536 272V303C536 305.209 534.209 307 532 307H4C1.79083 307 0 305.209 0 303V272L536 272Z" fill="white"/>
-</clipPath>
-<clipPath id="clip3_38_216">
-<rect x="524" y="283" width="12" height="12" rx="6" transform="rotate(90 524 283)" fill="white"/>
-</clipPath>
-<clipPath id="clip4_38_216">
-<rect x="512" y="283" width="12" height="12" rx="6" fill="white"/>
-</clipPath>
-<clipPath id="clip5_38_216">
-<rect x="12" y="283" width="12" height="12" rx="6" fill="white"/>
-</clipPath>
-<clipPath id="clip6_38_216">
-<path d="M536 35V4C536 1.79086 534.209 0 532 0L4 0C1.79083 0 0 1.79086 0 4V35L536 35Z" fill="white"/>
-</clipPath>
-<clipPath id="clip7_38_216">
-<rect width="12" height="12" rx="6" transform="matrix(0 -1 -1 0 524 24)" fill="white"/>
-</clipPath>
-<clipPath id="clip8_38_216">
-<rect width="12" height="12" rx="6" transform="matrix(1 0 0 -1 512 24)" fill="white"/>
-</clipPath>
-<clipPath id="clip9_38_216">
-<rect width="12" height="12" rx="6" transform="matrix(1 0 0 -1 262 24)" fill="white"/>
-</clipPath>
-<clipPath id="clip10_38_216">
-<rect x="12" y="11" width="12" height="12" rx="6" fill="white"/>
 </clipPath>
 </defs>
 </svg>

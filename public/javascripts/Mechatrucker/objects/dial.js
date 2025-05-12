@@ -88,10 +88,10 @@ export default class PanelDial extends Interactable {
       const ang  = deg * Math.PI/180;
       const x1   = Math.cos(ang) * (this.radius + 8);
       const y1   = Math.sin(ang) * (this.radius + 8);
-      const x2   = Math.cos(ang) * (this.radius + 32);
-      const y2   = Math.sin(ang) * (this.radius + 32);
-      ctx.lineWidth   = 4;
-      ctx.strokeStyle = getRGBA(this.highlight, 1);
+      const x2   = Math.cos(ang) * (this.radius + 16);
+      const y2   = Math.sin(ang) * (this.radius + 16);
+      ctx.lineWidth   = 2;
+      ctx.strokeStyle = getRGBA('cosmic-latte', 1);
       ctx.save();
       ctx.beginPath();
       ctx.moveTo(x1, y1);
@@ -105,8 +105,8 @@ export default class PanelDial extends Interactable {
     const headLen     = 8;
     const headAngle   = Math.PI / 4;
 
-    ctx.strokeStyle = getRGBA(this.highlight, 1);
-    ctx.lineWidth   = 4;
+    ctx.strokeStyle = getRGBA('cosmic-latte', 1);
+    ctx.lineWidth   = 1.2;
     ctx.lineCap     = 'round';
     ctx.save();
     ctx.beginPath();

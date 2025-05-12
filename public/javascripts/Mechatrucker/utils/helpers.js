@@ -48,6 +48,8 @@ export function getRGBA(name, opacity) {
       return `rgba(85, 85, 85, ${opacity})`;
     case `white`:
       return `rgba(242, 243, 244, ${opacity})`;
+    case `cosmic-latte`:
+      return `rgba(255, 248, 231, ${opacity})`;
     case `neon-green`:
       return `rgba(57, 255, 20, ${opacity})`;
     case `auburn`:
