@@ -28,9 +28,7 @@ export default class PanelDial extends Interactable {
     this.prevRawDeg  = 0;
   }
 
-  get center() {
-    return localToWorld(this.body, this.localPos);
-  }
+  get center() { return localToWorld(this.body, this.localPos);}
 
   _toLocal(event) {
     const x = event.offsetX ?? event.clientX;
@@ -86,11 +84,11 @@ export default class PanelDial extends Interactable {
     for (let i = 0; i < this.notches; i++) {
       const deg  = this.minDeg + (i / this.notches) * (this.maxDeg - this.minDeg);
       const ang  = deg * Math.PI/180;
-      const x1   = Math.cos(ang) * (this.radius + 8);
-      const y1   = Math.sin(ang) * (this.radius + 8);
-      const x2   = Math.cos(ang) * (this.radius + 16);
-      const y2   = Math.sin(ang) * (this.radius + 16);
-      ctx.lineWidth   = 2;
+      const x1   = Math.cos(ang) * (this.radius + this.toothLength + this.radius / 4);
+      const y1   = Math.sin(ang) * (this.radius + this.toothLength + this.radius / 4);
+      const x2   = Math.cos(ang) * (this.radius + this.toothLength + this.radius / 1.5);
+      const y2   = Math.sin(ang) * (this.radius + this.toothLength + this.radius / 1.5);
+      ctx.lineWidth   = 4;
       ctx.strokeStyle = getRGBA('cosmic-latte', 1);
       ctx.save();
       ctx.beginPath();
@@ -100,9 +98,10 @@ export default class PanelDial extends Interactable {
       ctx.restore();
     }
 
-    const arrowRadius = this.radius + 20;
-    const endRad      = Math.PI / 2;
-    const headLen     = 8;
+    const arrowRadius = this.radius + this.toothLength + this.radius * 1;
+    const startRad    = this.minDeg + Math.PI / 8;
+    const endRad      = (Math.PI / 2) - Math.PI / 8;
+    const headLen     = 6;
     const headAngle   = Math.PI / 4;
 
     ctx.strokeStyle = getRGBA('cosmic-latte', 1);
@@ -110,7 +109,7 @@ export default class PanelDial extends Interactable {
     ctx.lineCap     = 'round';
     ctx.save();
     ctx.beginPath();
-    ctx.arc(0, 0, arrowRadius, this.minDeg, endRad, false);
+    ctx.arc(0, 0, arrowRadius, startRad, endRad, false);
     ctx.stroke();
 
     const tangent = endRad - Math.PI / 2;

@@ -73,14 +73,14 @@ export default class ControlPanel extends Interactable {
         }),
         outputLight: new Light({
           body: this.body,
-          x: 12*3, y: 8 - 12*6, radius: 21,
+          x: 0.2 + 12*3, y: 8.2 - 12*6, radius: 22,
           color: 'dark-cyan', label: null, svg: this.icons.reactor,
           eventType: 'outputChange', state: true,
           progressive: true, maxValue: state.mech.reactor.maxOutput
         }),
         coolantStatus: new Light({
           body: this.body,
-          x: -12*14 - 5, y: - 12*4 - 1, radius: 7,
+          x: -12*14 - 4.8, y: - 12*4 - 1, radius: 7,
           color: 'cosmic-latte', label: null, svg: null,
           eventType: 'coolantLeft', state: true,
           progressive: true, maxValue: state.mech.modules.coolantCanister.maxCapacity
@@ -90,9 +90,9 @@ export default class ControlPanel extends Interactable {
         coolantDispenser: {
           dial: new Dial({
             body: this.body,
-            x: -12*11 - 0, y: 4 - 12*7, radius: 26,
+            x: -12*11 - 0, y: 4 - 12*7, radius: 16,
             svg: this.icons.coolant, color: 'davy-gray', highlight: 'auburn', notches: 4,
-            teethCount: 6, toothWidth: 18, toothLength: 8,
+            teethCount: 6, toothWidth: 14, toothLength: 4,
             minAngle: 0, maxAngle: 360,
             eventType: 'heatUpdate', onChange: (value) => { emitter.emit('coolantCanisterValveChange', value) }
           }),
