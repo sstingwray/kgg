@@ -1,6 +1,4 @@
-// js/utils/helpers.js
-
-const Matter = window.Matter;
+import Matter from '../modules/matter.esm.js';
 
 const originalAllBodies = Matter.Composite.allBodies;
 
@@ -17,7 +15,7 @@ Matter.Composite.allBodies = function(composite) {
 };
 
 export function clamp(value, min, max) {
-    return Math.max(min, Math.min(max, value));
+  return Math.max(min, Math.min(max, value));
 }
 
 export function round(value, decimals = 0) {
@@ -25,7 +23,7 @@ export function round(value, decimals = 0) {
   return returnNum ? returnNum : 0;
 };
 
-function randRange(min, max) {
+export function randRange(min, max) {
   return min + Math.random() * (max - min);
 }
 
@@ -36,28 +34,28 @@ export function localToWorld(body, local) {
 
 export function getRGBA(name, opacity) {
   switch (name) {
-    case 'night':
-      return `rgba(17, 17, 17, ${opacity})`;
-    case 'eerie-black':
-      return `rgba(27, 27, 27, ${opacity})`;
-    case `raisin-black`:
-      return `rgba(36, 33, 36, ${opacity})`;
-    case `jet`:
-      return`rgba(52, 52, 52, ${opacity})`;
-    case 'davy-gray':
-      return `rgba(85, 85, 85, ${opacity})`;
-    case `white`:
-      return `rgba(242, 243, 244, ${opacity})`;
-    case `cosmic-latte`:
-      return `rgba(255, 248, 231, ${opacity})`;
-    case `neon-green`:
-      return `rgba(57, 255, 20, ${opacity})`;
-    case `auburn`:
-      return `rgba(165, 42, 42, ${opacity})`;
-    case `dark-cyan`:
-      return `rgba(0, 139, 139, ${opacity})`;
-    case `gold`:
-      return `rgba(212, 175, 55, ${opacity})`;
+  case 'night':
+    return `rgba(17, 17, 17, ${opacity})`;
+  case 'eerie-black':
+    return `rgba(27, 27, 27, ${opacity})`;
+  case `raisin-black`:
+    return `rgba(36, 33, 36, ${opacity})`;
+  case `jet`:
+    return`rgba(52, 52, 52, ${opacity})`;
+  case 'davy-gray':
+    return `rgba(85, 85, 85, ${opacity})`;
+  case `white`:
+    return `rgba(242, 243, 244, ${opacity})`;
+  case `cosmic-latte`:
+    return `rgba(255, 248, 231, ${opacity})`;
+  case `neon-green`:
+    return `rgba(57, 255, 20, ${opacity})`;
+  case `auburn`:
+    return `rgba(165, 42, 42, ${opacity})`;
+  case `dark-cyan`:
+    return `rgba(0, 139, 139, ${opacity})`;
+  case `gold`:
+    return `rgba(212, 175, 55, ${opacity})`;
   };
 }
 

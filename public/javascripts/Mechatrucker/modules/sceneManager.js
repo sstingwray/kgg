@@ -1,3 +1,5 @@
+import emitter from './eventEmitter.js';
+import Matter from './matter.esm.js';
 import ControlPanel from '../objects/controlPanel.js';
 import Monitor from '../objects/monitor.js';
 import Thermometer from '../objects/thermometer.js';
@@ -5,13 +7,12 @@ import { getRGBA } from '../utils/helpers.js';
 import { getGameState } from './gameManager.js';
 
 const sceneElements = {};
-const LOGGING = true;
 const MONITOR_LEFT_SIZE   = { width: 12*29,     height: 12*15 - 4 };
 const MONITOR_RIGHT_SIZE  = { width: 12*29,     height: 12*15 - 4 };
 const THERMOMETER_SIZE    = { width: 12*4 - 10, height: 12*11 - 6 };
 
 export function getSceneElements() {
-    return sceneElements;
+  return sceneElements;
 }
 
 export function setupUI(render, assets, physicsElements) {
@@ -63,7 +64,7 @@ export function setupUI(render, assets, physicsElements) {
     body: physicsElements.thermometer
   };
 
-  console.log('physicsElements', physicsElements);
+  emitter.emit('[LOG][sceneManager] Physics elements', physicsElements);
   
   
   sceneElements.leftMonitor  = new Monitor(leftMonitorOptions);
@@ -72,18 +73,18 @@ export function setupUI(render, assets, physicsElements) {
   sceneElements.controlPanel = new ControlPanel(controlPanelOptions);
   Object.assign(sceneElements, sceneElements.controlPanel.returnElements());
 
-  LOGGING ? console.log(`[sceneManager] Interactive UI is set:`, sceneElements) : null;
+  emitter.emit('[LOG][sceneManager] Interactive UI is set', sceneElements);
 }
 
 export function renderUI(renderer, physicsElements) {
   const ctx = renderer.context;
   const state = getGameState();
   const leftMonitorValues = [
-    { debug: false, label:'Steps',         pct: state.mech.status.movement.stepCount },
-    { debug: true,  label:'[DEBUG]Torque', pct: Math.round(state.mech.status.torque) },
-    { debug: true,  label:'[DEBUG]Energy', pct: state.mech.status.energyOutput },
-    { debug: true,  label:'[DEBUG]Heat',   pct: state.mech.status.bars.heat },
-    { debug: true,  label:'[DEBUG]Fuel',   pct: state.mech.status.bars.fuel }
+    { debug: true,  label:'[DEBUG]Torque:', pct: Math.round(state.mech.status.torque) },
+    { debug: true,  label:'[DEBUG]Heat:',   pct: state.mech.status.bars.heat },
+    { debug: true,  label:'[DEBUG]Current distance:',   pct: state.mech.location.x },
+    { debug: true,  label:'[DEBUG]Current segment:',   pct: state.mech.location.segmentID },
+    { debug: true,  label:'',   pct: JSON.stringify(state.map[state.mech.location.segmentID]) },
   ];
   const rightMonitorValues = [
     { debug: false, label:`Press "Space" to toggle the Clutch.`,       pct: null },

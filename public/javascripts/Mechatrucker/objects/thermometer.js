@@ -1,4 +1,3 @@
-// js/gameObjects/panelThermometer.js
 import Interactable from './interactable.js';
 import emitter from '../modules/eventEmitter.js';
 import { getRGBA, localToWorld } from '../utils/helpers.js';

@@ -1,4 +1,3 @@
-// js/gameObjects/gauge.js
 import Interactable from './interactable.js';
 import { localToWorld, getRGBA } from '../utils/helpers.js';
 
@@ -35,23 +34,20 @@ export default class Gauge extends Interactable {
   render(value, ctx) {
     this.value = Math.max(0, Math.min(value, this.maxValue));
     const { x, y, r } = this.getWorldCircle();
-    // Angles for a 270° arc from 225° to -45°
     const startAngle = Math.PI;
     const endAngle   = Math.PI*2;
-    const totalArc   = (startAngle - endAngle + 2*Math.PI) % (2*Math.PI); // = 1.5π
+    const totalArc   = (startAngle - endAngle + 2*Math.PI) % (2*Math.PI);
 
     ctx.save();
     ctx.translate(x, y);
 
-    // ---- Draw background ----
     ctx.beginPath();
     ctx.arc(0, 0, r, 0, Math.PI * 2);
     ctx.fillStyle = getRGBA('raisin-black', 1);
     ctx.fill();
 
-    // ---- Draw outer stroke ----
     ctx.lineWidth   = 2;
-    ctx.strokeStyle = getRGBA('davy-gray', 1);
+    ctx.strokeStyle = getRGBA('night', 1);
     ctx.beginPath();
     ctx.arc(0, 0, r, 0, Math.PI * 2);
     ctx.stroke();
@@ -60,11 +56,10 @@ export default class Gauge extends Interactable {
     for (let i = 0; i <= this.divisions; i++) {
       const fraction = i / this.divisions;
       const angle = startAngle + fraction * totalArc;
-      // determine color: red if beyond redZoneStart
       const isRed = fraction >= this.redZoneStart;
       ctx.strokeStyle = isRed ? getRGBA('auburn', 1) : getRGBA('white', 0.5);
       ctx.lineWidth = 3;
-      // inner and outer radius for tick
+      
       const r1 = r * 0.8;
       const r2 = r * 0.95;
       ctx.beginPath();

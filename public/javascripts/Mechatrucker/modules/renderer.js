@@ -1,10 +1,8 @@
-// js/modules/renderer.js
-
 import emitter from './eventEmitter.js';
+import Matter from './matter.esm.js';
 import { initEngine, runEngine } from './engine.js';
 import { initPhysics } from './physics.js';
 
-const Matter = window.Matter;
 const LOGGING = false;
 
 export function initRenderer(engine, container, dimensions) {
@@ -23,8 +21,7 @@ export function initRenderer(engine, container, dimensions) {
   });  
 
   Matter.Render.run(render);
-  console.log(`[renderer] Renderer initialized.`);
-
+  emitter.emit('[LOG][renderer] Renderer initialized', render);
   return render;
 }
 

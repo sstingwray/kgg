@@ -1,144 +1,93 @@
-// js/gameObjects/interactable.js
+import emitter from "../modules/eventEmitter.js";
+import Matter from '../modules/matter.esm.js';
+import { getRGBA } from "../utils/helpers.js";
 
 export default class Interactable {
-    /**
-     * Base definition for an interactable object.
-     * @param {Object} options - Configuration options.
-     * @param {number} options.x - The x-coordinate of the interactable.
-     * @param {number} options.y - The y-coordinate of the interactable.
-     * @param {number} options.width - The width of the interactable.
-     * @param {number} options.height - The height of the interactable.
-     * @param {number} [options.threshold=10] - Movement threshold for drag/detection.
-     */
-    constructor(options = {}) {
-      this.x = options.x || 0;
-      this.y = options.y || 0;
-      this.width = options.width || 50;
-      this.height = options.height || 50;
-      this.threshold = options.threshold || 10; // threshold for movement-based interactions
-  
-      // State properties: "idle", "hovered", "pressed", etc.
-      this.state = 'idle';
-      this.active = false; // is the object currently being interacted with?
-  
-      // Store the initial mouse/touch coordinates when interaction begins
-      this._startX = 0;
-      this._startY = 0;
-    }
-  
-    /**
-     * Check if a point (usually mouse coordinates) is inside the interactable's bounds.
-     * @param {number} px - The x-coordinate of the point.
-     * @param {number} py - The y-coordinate of the point.
-     * @return {boolean} True if the point is inside, false otherwise.
-     */
-    isPointInside(px, py) {
-      return (
-        px >= this.x &&
-        px <= this.x + this.width &&
-        py >= this.y &&
-        py <= this.y + this.height
-      );
-    }
-  
-    /**
-     * Handler for mouse down events.
-     * @param {Object} event - The mouse event object.
-     */
-    onMouseDown(event) {
-      if (this.isPointInside(event.clientX, event.clientY)) {
-        this.active = true;
-        this.state = 'pressed';
-        this._startX = event.clientX;
-        this._startY = event.clientY;
-        // Custom behavior can be added here or in subclasses.
-        console.log('Interactable activated');
-      }
-    }
-  
-    /**
-     * Handler for mouse move events.
-     * Only acts if the interactable is in an active state.
-     * @param {Object} event - The mouse event object.
-     */
-    onMouseMove(event) {
-      if (!this.active) return;
-      const dx = event.clientX - this._startX;
-      const dy = event.clientY - this._startY;
-      if (Math.abs(dx) > this.threshold || Math.abs(dy) > this.threshold) {
-        // Invoke custom drag behavior; override onDrag in subclasses for specific interactions.
-        this.onDrag({ dx, dy });
-      }
-    }
-  
-    /**
-     * Called when a dragging motion is detected.
-     * Override this method in subclasses for custom drag behavior (e.g. for levers or sticks).
-     * @param {Object} delta - The delta of movement.
-     * @param {number} delta.dx - Change in x.
-     * @param {number} delta.dy - Change in y.
-     */
-    onDrag(delta) {
-      // Base behavior: log the delta movement.
-      // Subclasses can update position/state here.
-      console.log('Dragging with delta:', delta);
-    }
-  
-    /**
-     * Handler for mouse up events.
-     * Ends the interaction and resets state.
-     * @param {Object} event - The mouse event object.
-     */
-    onMouseUp(event) {
-      if (this.active) {
-        this.active = false;
-        // Optionally determine if the action is valid or if the control should revert.
-        this.onRelease();
-        this.state = 'idle';
-        console.log('Interaction ended');
-      }
-    }
-  
-    /**
-     * Called when the interaction is finished.
-     * Override for custom release behavior (e.g. snapping back to original position).
-     */
-    onRelease() {
-      // Base functionality is empty. Subclasses should override this.
-      console.log('Released');
-    }
-  
-    /**
-     * Updates the state of the interactable.
-     * @param {number} deltaTime - Time elapsed since last update.
-     */
-    update(deltaTime) {
-      // Base update logic can be placed here.
-      // For example: automatic returning to original state if not fully engaged.
-    }
-  
-    /**
-     * Renders the interactable on the provided canvas context.
-     * @param {CanvasRenderingContext2D} context - The drawing context.
-     */
-    render(context) {
-      context.save();
-  
-      // Change appearance based on state (for example purposes)
-      switch (this.state) {
-        case 'pressed':
-          context.fillStyle = '#ccc';
-          break;
-        case 'hovered':
-          context.fillStyle = '#bbb';
-          break;
-        default:
-          context.fillStyle = '#999';
-      }
-  
-      // Draw a simple rectangle as the interactable's visual representation.
-      context.fillRect(this.x, this.y, this.width, this.height);
-      context.restore();
-    }
+
+  constructor(options = {}) {
+    this.id        = options.id;
+    this.body      = options.body;
+    this.localPos  = { x: options.x, y: options.y };
+    this.shape     = options.shape;
+    this.radius    = options.radius || null;
+    this.width     = options.width || null;
+    this.height    = options.height || null;
+    this.event     = options.eventType;
+    this.callback  = options.callback || (() => { console.log(`Fired placeholder event callback for ${ this.id }.`) });
+    this.onClick   = options.onClick  || (() => { console.log(`Fired placeholder onClick for ${ this.id }.`) });
+    this.value     = options.value;
+    this.getValue  = options.getValue;
+    this.x         = 0;
+    this.y         = 0;
+
+    if (this.event) emitter.subscribe(this.event, this.callback.bind(this));
   }
+    
+  get center() {
+    if (!this.body) return { x: this.x, y: this.y };
+    const rotated  = Matter.Vector.rotate(this.localPos, this.body.angle);
+    return Matter.Vector.add(rotated, this.body.position);
+  }
+
+  update() {
+    const c = this.center;
+    this.x = c.x;
+    this.y = c.y;
+      
+    if (this.getValue) this.value = this.getValue();
+  }
+
+  toLocal(event) {
+    const x = event.offsetX ?? event.clientX;
+    const y = event.offsetY ?? event.clientY;
+    const c = this.center;
+    const v = Matter.Vector.create(x - c.x, y - c.y);
+    return this.body ? Matter.Vector.rotate(v, -this.body.angle) : v;
+  }
+
+  isPointInCircle(event, radius) {
+    const local = this.toLocal(event);
+    return local.x**2 + local.y**2 <= radius**2;
+  }
+
+  isPointInRect(event, width, height) {
+    const local = this.toLocal(event);
+    return local.x >= 0 && local.x <= width
+          && local.y >= 0 && local.y <= height;
+  }
+
+  static deg2rad(d) { return d*Math.PI/180; }
+  static rad2deg(r) { return r*180/Math.PI; }
+  static normDeg(rad) {
+    let d = rad*180/Math.PI;
+    if (d<0) d+=360;
+    return d;
+  }
+  static deltaDeg(a,b) {
+    let d = a - b;
+    if (d>180)  d-=360;
+    if (d<-180) d+=360;
+    return d;
+  }
+  
+  onMouseDown(event) {
+    let isClicked = false;
+    if (this.shape == 'circle') isClicked = this.isPointInCircle(event, this.radius);
+    else isClicked = this.isPointInRect(event, this.width, this.height);
+
+    if (isClicked) this.onClick();
+  }
+
+  render(context) {
+    context.save();
+      
+    context.fillStyle = getRGBA('auburn', 0.5);
+    if (this.shape == 'circle') {
+      context.arc(this.x, this.y, this.radius, 0, Math.PI*2);
+      context.fill();
+    } else context.fillRect(this.x, this.y, this.width, this.height);
+
+    context.restore();
+  }
+}
   

@@ -1,8 +1,6 @@
-// js/gameObjects/panelDial.js
 import Interactable from './interactable.js';
+import Matter from '../modules/matter.esm.js';
 import { getRGBA, localToWorld } from '../utils/helpers.js';
-
-const Vector = Matter.Vector;
 
 export default class PanelDial extends Interactable {
   constructor(options = {}) {
@@ -35,7 +33,7 @@ export default class PanelDial extends Interactable {
     const y = event.offsetY ?? event.clientY;
     const c = this.center;
     const dx = x - c.x, dy = y - c.y;
-    return Vector.rotate(Vector.create(dx, dy), -this.body.angle);
+    return Matter.Vector.rotate(Matter.Vector.create(dx, dy), -this.body.angle);
   }
 
   onMouseDown(event) {
@@ -145,9 +143,6 @@ export default class PanelDial extends Interactable {
     const step = (2 * Math.PI) / this.teethCount;
     const innerR = this.radius * this.innerRadius;
     for (let i = 0; i < this.teethCount; i++) {
-      const mid = i * step;
-      const a1  = mid - this.toothWidth / 2;
-      const a2  = mid + this.toothWidth / 2;
       ctx.fillStyle = (i === 0) ? getRGBA(this.highlight, 1) : getRGBA(this.color, 1);
       ctx.save();
       ctx.rotate(i * step);

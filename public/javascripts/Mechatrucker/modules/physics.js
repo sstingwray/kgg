@@ -1,6 +1,5 @@
-// js/modules/physics.js
-
 import emitter from './eventEmitter.js';
+import Matter from './matter.esm.js';
 import { getRGBA } from '../utils/helpers.js';
 
 const FOREGROUND_CATEGORY = 0x0002;
@@ -82,8 +81,8 @@ export function initPhysics(engine, assets, dimensions) {
         sprite: {
           texture: assets.centralPanel.src,
           //yOffset: 0.05,
-          xScale: 1024/1923,  // Adjust this divisor based on the SVG's natural width.
-          yScale: 1024/1923  // Adjust this divisor based on the SVG's natural height.
+          xScale: 1,  // Adjust this divisor based on the SVG's natural width.
+          yScale: 1  // Adjust this divisor based on the SVG's natural height.
         }
       }
     }
@@ -115,7 +114,7 @@ export function initPhysics(engine, assets, dimensions) {
   emitter.subscribe('engineWorking', engineShake.bind(this, engine));
   emitter.subscribe('stepMade', stepShake.bind(this, engine));
 
-  console.log(`[physics] Physics initialized.`);
+  emitter.emit('[LOG][physics] Physics initialized.');
   return {
     cableLeft:    leftMonitor.cable.cable,
     cableRight:   rightMonitor.cable.cable,
@@ -320,19 +319,19 @@ function engineShake(engine, value) {
       Matter.Body.applyForce(
         body, 
         {
-            x: body.position.x + 5 - Math.random()*10,
-            y: body.position.y + 5 - Math.random()*10
+          x: body.position.x + 5 - Math.random()*10,
+          y: body.position.y + 5 - Math.random()*10
         },
         { 
-            x: bodyMassMod * (force - force * Math.random()*2),
-            y: bodyMassMod * force*2 
+          x: bodyMassMod * (force - force * Math.random()*2),
+          y: bodyMassMod * force*2 
         }
-    )};
+      )};
   })
 }
 
 function stepShake(engine, value) {
-  const force = value.currentStepDistance * 0.0001;
+  const force = value.currentStepDistance * 0.0005;
 
   Matter.Composite.allBodies(engine.world).forEach(body => {
     if (body.string) {
@@ -342,13 +341,13 @@ function stepShake(engine, value) {
       Matter.Body.applyForce(
         body, 
         {
-            x: body.position.x + bodySizeXMod - Math.random() * bodySizeXMod * 2,
-            y: body.position.y + bodySizeYMod - Math.random() * bodySizeYMod * 2
+          x: body.position.x + bodySizeXMod - Math.random() * bodySizeXMod * 2,
+          y: body.position.y + bodySizeYMod - Math.random() * bodySizeYMod * 2
         },
         { 
           x: bodyMassMod * (force - force * Math.random()*2),
           y: bodyMassMod * force*2 
-      }
-    )};
+        }
+      )};
   })
 }

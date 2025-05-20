@@ -1,5 +1,5 @@
-import emitter from '../modules/eventEmitter.js';
 import Interactable from './interactable.js';
+import emitter from '../modules/eventEmitter.js';
 import { localToWorld, getRGBA, clamp } from '../utils/helpers.js';
 
 export default class Light extends Interactable {
@@ -68,10 +68,10 @@ export default class Light extends Interactable {
       ctx.fillStyle = this.state ? getRGBA(this.color, 1) : null;
       ctx.shadowColor = 'transparent';
       if (this.state) {
-          ctx.shadowColor = getRGBA(this.color, 1);
-          ctx.shadowBlur = 20;           
-          ctx.shadowOffsetX = 0;            
-          ctx.shadowOffsetY = 0;
+        ctx.shadowColor = getRGBA(this.color, 1);
+        ctx.shadowBlur = 20;           
+        ctx.shadowOffsetX = 0;            
+        ctx.shadowOffsetY = 0;
       }
     };
     ctx.fill();
