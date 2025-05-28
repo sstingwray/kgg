@@ -3,7 +3,7 @@ import Matter from './matter.esm.js';
 import ControlPanel from '../objects/controlPanel.js';
 import Monitor from '../objects/monitor.js';
 import Thermometer from '../objects/thermometer.js';
-import { getRGBA } from '../utils/helpers.js';
+import { getRGBA, round } from '../utils/helpers.js';
 import { getGameState } from './gameManager.js';
 
 const sceneElements = {};
@@ -80,7 +80,7 @@ export function renderUI(renderer, physicsElements) {
   const ctx = renderer.context;
   const state = getGameState();
   const leftMonitorValues = [
-    { debug: true,  label:'[DEBUG]Torque:', pct: Math.round(state.mech.status.torque) },
+    { debug: true,  label:'[DEBUG]Torque', pct: round(state.mech.status.torque, 3) },
     { debug: true,  label:'[DEBUG]Heat:',   pct: state.mech.status.bars.heat },
     { debug: true,  label:'[DEBUG]Current distance:',   pct: state.mech.location.x },
     { debug: true,  label:'[DEBUG]Current segment:',   pct: state.mech.location.segmentID },

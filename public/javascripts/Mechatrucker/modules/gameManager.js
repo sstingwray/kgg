@@ -2,15 +2,14 @@ import emitter from './eventEmitter.js';
 import { round, randRange } from '../utils/helpers.js';
 
 const LOGGING = true;
-const SPEED_SCALE = 20;
 const TORQUE_RAMP_RATE = 0.05;
-const BASE_RPM_RAMP_RATE = 0.05;
-const ENDPOINT_RPM_RAMP_RATE = 0.01;
-const RESISTANCE_STOPPING_RATE = 0.01;
+const RPM_RAMP_RATE = 0.05;
+const MASS_INDEX_BASE = 1;
 const FUEL_CONS_MOD = 0.01;
 const HEAT_GEN_MOD = 0.001;
 const HEAT_DISS_MOD = 0.01;
-
+const GEARSHIFT_DELAY = 320;
+const STALL_DELAY = 350;
 
 const state = {
   timeElapsed: 0,
@@ -18,7 +17,7 @@ const state = {
     chassis: {
       stability: 4,
       traction: 1,
-      stepLength: 10,
+      stepLength: 20,
       emptyWeight: 50,
       maximumLoad: 250,
       heatDissRate: 0.5
@@ -38,26 +37,29 @@ const state = {
         'R': {
           ratio: round(1 / 2.18, 4),
           torqueFn: null,
+          transmitting: -1
         },
         'N': {
           ratio: 1,
           torqueFn: null,
+          transmitting: 0,
         },
         '1st': {
           ratio: round(1 / 2.18, 4),
           torqueFn: null,
+          transmitting: 1,
         },
         '2nd': {
           ratio: round(1 / 1.32, 4),
           torqueFn: null,
+          transmitting: 1,
         },
         '3rd': {
           ratio: round(1 / 0.9, 4),
           torqueFn: null,
+          transmitting: 1,
         }
-      },
-      maxEndpointRPM: 0,
-      maxSpeed: 0
+      }
     },
     modules: {
       coolantCanister: {
@@ -77,6 +79,8 @@ const state = {
       energyOutput: 0,
       baseRPM: 0,
       torque: 0,
+      maxEndpointRPM: 0,
+      maxSpeed: 0,
       speedResistanceFactor: 0,
       gear: 'N',
       endpointRPM: 0,
@@ -111,43 +115,39 @@ export function setupGameState() {
   state.mech.status.bars.fuel = state.mech.reactor.maxFuel;
   state.mech.status.modules.coolantCanister.amount = state.mech.modules.coolantCanister.maxCapacity;
   state.mech.status.bars.heat = round( state.mech.reactor.maxHeat / 2, 0);
-  //calculating maxSpeed for the speedGauge
-  const maxBaseRPM = state.mech.engine.maxBaseRPM
-  const highestSpeedRatio = state.mech.engine.gears['3rd'].ratio;
-  state.mech.engine.maxEndpointRPM = round(maxBaseRPM * highestSpeedRatio);
-  state.mech.engine.maxSpeed = round(state.mech.engine.maxEndpointRPM * SPEED_SCALE);
+  state.mech.status.maxEndpointRPM = state.mech.engine.gears['3rd'].ratio * state.mech.engine.maxBaseRPM;
+  state.mech.status.maxSpeed = state.mech.status.maxEndpointRPM * state.mech.chassis.stepLength;
   //setting up gears
   state.mech.engine.gears['R'].torqueFn = createAsymmetricTorque ({
     peak: round(state.mech.engine.maxBaseRPM / 3, 0),
-    center: state.mech.engine.peakTorqueRPM, width: 2,
-    rate: 2, ascendFactor: 0.5, descendFactor: 2,
-    minValue: 1, minClampX: 1
+    center: state.mech.engine.peakTorqueRPM, width: 3,
+    rate: 0.8, ascendFactor: 0.5, descendFactor: 2,
+    minValue: 1
   });
   state.mech.engine.gears['N'].torqueFn = createAsymmetricTorque ({
     peak: state.mech.engine.maxBaseRPM,
-    center: state.mech.engine.peakTorqueRPM, width: 2,
-    rate: 2, ascendFactor: 0.5, descendFactor: 2,
-    minValue: 1, minClampX: 1
+    center: state.mech.engine.peakTorqueRPM, width: 4,
+    rate: 0.5, ascendFactor: 0.7, descendFactor: 2,
+    minValue: 1
   });
   state.mech.engine.gears['1st'].torqueFn = createAsymmetricTorque ({
     peak: state.mech.engine.maxBaseRPM - 1,
-    center: state.mech.engine.peakTorqueRPM, width: 2,
-    rate: 2, ascendFactor: 0.5, descendFactor: 2,
-    minValue: 1, minClampX: 1
+    center: state.mech.engine.peakTorqueRPM, width: 3,
+    rate: 0.8, ascendFactor: 0.6, descendFactor: 2,
+    minValue: 1
   });
   state.mech.engine.gears['2nd'].torqueFn = createAsymmetricTorque ({
     peak: state.mech.engine.maxBaseRPM - 2,
     center: state.mech.engine.peakTorqueRPM, width: 2,
-    rate: 2, ascendFactor: 0.3, descendFactor: 2,
-    minValue: 1, minClampX: 1
+    rate: 1, ascendFactor: 0.3, descendFactor: 2,
+    minValue: 1
   });
   state.mech.engine.gears['3rd'].torqueFn = createAsymmetricTorque ({
     peak: state.mech.engine.maxBaseRPM - 3,
     center: state.mech.engine.peakTorqueRPM, width: 2,
-    rate: 2, ascendFactor: 0.1, descendFactor: 2,
-    minValue: 1, minClampX: 1
+    rate: 1.2, ascendFactor: 0.1, descendFactor: 2,
+    minValue: 1
   });
-
 
   //setting up a map
   state.map = generateTerrainMap();
@@ -158,8 +158,7 @@ export function setupGameState() {
   emitter.subscribe('gearShift', updateGear.bind(this));
   emitter.subscribe('outputInput', setEnergyOutput.bind(this));
   emitter.subscribe('coolantCanisterValveChange', updateCoolantCanisterValve.bind(this));
-  emitter.subscribe('beat', calculateSteps.bind(this));
-  emitter.subscribe('stepMade', updateLocation.bind(this));
+  emitter.subscribe('beat', updateLocation.bind(this));
   emitter.emit('[LOG][gameManager] Game state is set', state);
 }
 
@@ -177,9 +176,9 @@ export function generateTerrainMap(seed = 0) {
   
   for (let i = 0; i < segmentCount; i++) {
     const segmentLength = Math.floor(rand() * 700) + 300;
+    const type = terrainData.types[randRange(0, terrainData.types.length)];
     const resistance = Math.floor(rand() * 3) + 1;
     const friction = Math.floor(rand() * 3) + 1;
-    const type = terrainData.types[randRange(0, terrainData.types.length)];
 
     // Resistance-based color coding
     let resistanceColor = "green";
@@ -193,6 +192,7 @@ export function generateTerrainMap(seed = 0) {
     map.push({
       x: currentX,
       z: +currentZ.toFixed(0),
+      segmentLength,
       type,
       resistance,
       resistanceColor,
@@ -240,7 +240,12 @@ function setEnergyOutput(value) {
 }
 
 function updateGear (gear) {
+  const currentOutput = state.mech.status.energyOutput;
   state.mech.status.gear = gear;
+  setEnergyOutput(1);
+  setTimeout(() => {
+    setEnergyOutput(currentOutput);
+  }, GEARSHIFT_DELAY);
 }
 
 function updateBaseRPM() {
@@ -248,16 +253,40 @@ function updateBaseRPM() {
   const energyOutput = state.mech.status.energyOutput;
   const maxRPM = state.mech.engine.maxBaseRPM;
   const energyBasedRPM = round((energyOutput / maxEnergyOutput) * maxRPM, 3);
-  const targetRampRate = BASE_RPM_RAMP_RATE;
-  const targetDecayRate = round(targetRampRate * 3, 3);
-  const targetBaseRPM = energyBasedRPM;
+
   const baseRPM = state.mech.status.baseRPM;
-    
-  if (targetBaseRPM > baseRPM && targetBaseRPM - baseRPM > targetRampRate)
-  { state.mech.status.baseRPM += targetRampRate }
-  else if (targetBaseRPM < baseRPM && baseRPM - targetBaseRPM > targetDecayRate)
-  { state.mech.status.baseRPM -= targetDecayRate }
-  else state.mech.status.baseRPM = targetBaseRPM
+  const targetBaseRPM = energyBasedRPM;
+
+  const canTransmit = !state.mech.status.flags.clutch && state.mech.status.gear !== "N";
+
+  const torque = state.mech.status.torque;
+  const momentum = round(MASS_INDEX_BASE * (state.mech.status.movement.speedApprox / state.mech.status.maxSpeed), 3);
+  const resistance = canTransmit ? state.map[state.mech.location.segmentID].resistance : 0;
+  const canClimb = round(torque + momentum - resistance, 3) > 0 ? true : false;
+  const torqueDelta = Math.abs(state.mech.status.torque - resistance);
+  const engineAcceleration = round(1 + torqueDelta / 10, 3);
+  const inertia = round(baseRPM / targetBaseRPM, 3);
+  const rate = round(RPM_RAMP_RATE * inertia + RPM_RAMP_RATE * engineAcceleration, 3);
+
+  if (canClimb) {
+    //if can climb, either ramp up, decay or settle
+    if (targetBaseRPM > baseRPM) {
+      if (targetBaseRPM - baseRPM > rate) state.mech.status.baseRPM += rate
+    } else if (baseRPM > targetBaseRPM) {
+      if (baseRPM - targetBaseRPM > rate) state.mech.status.baseRPM -= rate
+    } else state.mech.status.baseRPM = targetBaseRPM;
+  } else {
+    //if cannot climb, either stall or decay
+    if (baseRPM <= 0) {
+      state.mech.status.baseRPM = 0;
+      if (state.mech.status.flags.ignition) setTimeout(() => {
+        if (state.mech.status.baseRPM == 0) {
+          emitter.emit('stalled', true);
+          emitter.emit('ignitionToggle', false);
+        };
+      }, STALL_DELAY);
+    } else state.mech.status.baseRPM -= rate;
+  }
 
   state.mech.status.baseRPM = round(state.mech.status.baseRPM, 3);
 
@@ -266,8 +295,8 @@ function updateBaseRPM() {
   LOGGING && energyOutput !== state.mech.status.baseRPM ?
     emitter.emit('[LOG][gameManager] baseRPM', {
       value: state.mech.status.baseRPM,
-      maxEnergyOutput, energyOutput, maxRPM, energyBasedRPM,
-      targetRampRate, targetBaseRPM
+      maxEnergyOutput, energyOutput, maxRPM, energyBasedRPM, targetBaseRPM,
+      canTransmit, torque, momentum, resistance, canClimb, torqueDelta, engineAcceleration, inertia, rate
     }) : null;
 }
 
@@ -277,8 +306,8 @@ function updateTorque() {
   const targetTorque = round(state.mech.engine.gears[gear].torqueFn(baseRPM), 4);
   const torque = state.mech.status.torque
 
-  if (targetTorque > torque) { state.mech.status.torque += TORQUE_RAMP_RATE }
-  else { state.mech.status.torque = targetTorque };
+  if (targetTorque > torque) state.mech.status.torque += TORQUE_RAMP_RATE;
+  else state.mech.status.torque = targetTorque;
 
   LOGGING && torque !== state.mech.status.torque ?
     emitter.emit('[LOG][gameManager] torque', {
@@ -288,24 +317,20 @@ function updateTorque() {
 }
 
 function updateEndpointRPM() {
-  const gear = state.mech.status.gear;
   const baseRPM = state.mech.status.baseRPM;
   const endpointRPM = state.mech.status.endpointRPM;
+  const gear = state.mech.engine.gears[state.mech.status.gear];
+  const targetEndpointRPM = baseRPM * gear.ratio;
   const canTransmit = !state.mech.status.flags.clutch && state.mech.status.gear !== "N";
-  const gearRatio = state.mech.engine.gears[gear].ratio;
-  const resistance = state.map[state.mech.location.segmentID].resistance;
-  const speedResistanceFactor = state.mech.status.speedResistanceFactor;
-  const torqueDelta = state.mech.status.torque - speedResistanceFactor - resistance;
-  const targetRampRate = gearRatio * torqueDelta * ENDPOINT_RPM_RAMP_RATE;  
+
+  const rate = RPM_RAMP_RATE;
   
   if (canTransmit) {
-    if (torqueDelta > 0) state.mech.status.endpointRPM += targetRampRate;
-    else state.mech.status.endpointRPM += torqueDelta * RESISTANCE_STOPPING_RATE;
+    state.mech.status.endpointRPM = targetEndpointRPM;
   } else {
-    //clutch off or neutral
-    if (endpointRPM > 0) { state.mech.status.endpointRPM -= (resistance + speedResistanceFactor) * RESISTANCE_STOPPING_RATE }
-    else state.mech.status.endpointRPM = 0
-  }
+    if (endpointRPM - rate > 0) state.mech.status.endpointRPM -= rate
+    else state.mech.status.endpointRPM = 0;
+  };
 
   if (state.mech.status.endpointRPM > 0.001) {
     state.mech.status.endpointRPM = round(state.mech.status.endpointRPM, 3);
@@ -318,32 +343,22 @@ function updateEndpointRPM() {
   LOGGING && endpointRPM !== state.mech.status.endpointRPM ?
     emitter.emit('[LOG][gameManager] endpointRPM', {
       value: state.mech.status.endpointRPM,
-      gear, baseRPM, canTransmit, resistance, speedResistanceFactor, torqueDelta, targetRampRate
+      baseRPM, gear, targetEndpointRPM, canTransmit
     }) : null;
 }
 
 function calculateSpeedApprox () {
+  const currentSpeed = state.mech.status.movement.speedApprox;
   const endpointRPM = state.mech.status.endpointRPM;
-  const targetSpeed = round(endpointRPM * SPEED_SCALE, 3);
-  const maxBaseRPM = state.mech.engine.maxBaseRPM;
+  const stepLength = state.mech.chassis.stepLength;
 
-  state.mech.status.movement.speedApprox = targetSpeed;
-  state.mech.status.speedResistanceFactor = round(Math.max(1, 10 - maxBaseRPM) * Math.max(1, state.mech.status.movement.speedApprox) / state.mech.engine.maxSpeed, 4);
+  state.mech.status.movement.speedApprox = endpointRPM * stepLength;
 
-  LOGGING && targetSpeed > 0 ?
+  LOGGING && currentSpeed !== state.mech.status.movement.speedApprox ?
     emitter.emit('[LOG][gameManager] speedApprox', {
       value: state.mech.status.movement.speedApprox,
-      endpointRPM, targetSpeed
+      endpointRPM, stepLength
     }) : null;
-}
-
-function calculateSteps() {
-  const currentStepDistance = state.mech.status.movement.speedApprox;
-  if (currentStepDistance === 0) return;
-  const stepNum = state.mech.status.movement.stepCount;
-  
-  emitter.emit('stepMade', { currentStepDistance,  stepNum });
-  state.mech.status.movement.stepCount++;
 }
 
 function consumeFuel() {
@@ -391,13 +406,14 @@ function updateCoolantCanisterValve(value) {
   state.mech.status.modules.coolantCanister.valve = value;
 }
 
-function updateLocation(stepData) {
+function updateLocation() {
+  if (state.mech.status.movement.speedApprox == 0) return;
   const segID = state.mech.location.segmentID
   const loc = state.map[segID];
-  const x = round(state.mech.location.x + stepData.currentStepDistance, 4);
+  const x = round(state.mech.location.x + state.mech.chassis.stepLength, 4);
 
   if (segID < (state.map.length - 1)) {
-    emitter.emit('[LOG][gameManager] Location update', { stepData, segID, loc, x });
+    emitter.emit('[LOG][gameManager] Location update', { segID, loc, x });
     if (state.map[segID + 1].x <= x) {
       state.mech.location.x = round(x, 4);
       emitter.emit('enteringNewSegment', segID + 1);
@@ -418,12 +434,14 @@ export function getGameState() {
 
 export function updateGameState(delta) {
   state.timeElapsed += delta;
-  state.timeElapsed = round(state.timeElapsed, 4)
+  state.timeElapsed = round(state.timeElapsed, 4);
   updateBaseRPM();
   updateEndpointRPM();
   calculateSpeedApprox();
-  updateTorque();
-  consumeFuel();
+  if (state.mech.status.flags.ignition) {
+    updateTorque();
+    consumeFuel();
+  };
   updateHeat();
 }
 
@@ -434,8 +452,7 @@ function createAsymmetricTorque({
   rate,
   ascendFactor = 1,
   descendFactor = 1,
-  minValue = 0,
-  minClampX = 1
+  minValue = 0
 }) {
 
   const rateAscend  = rate * ascendFactor;
@@ -452,12 +469,7 @@ function createAsymmetricTorque({
       // sharper fall
       val = peak - rateDescend * dx * dx;
     }
-
-    // floor it to minValue if x ≥ minClampX
-    if (x >= minClampX && val < minValue) {
-      return minValue;
-    }
-    // otherwise never go below zero
-    return val > 0 ? val : 0;
+    
+    return val > minValue ? val : minValue;
   };
 }

@@ -46,8 +46,8 @@ export default class ControlPanel extends Interactable {
         speedRPM: new Gauge({
           body: this.body,
           x: 7 + 12*3, y: 8 - 12*2, radius: 40,
-          maxValue: 20 + Math.floor(state.mech.engine.maxSpeed / 20) * 20,
-          divisions: 4,
+          maxValue: 20*10,
+          divisions: 5,
           redZoneStart: 1.1,
           pointerColor: 'dark-cyan', label: 'Speed',
         })

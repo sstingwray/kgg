@@ -176,10 +176,10 @@ class MusicManager {
   constructor() {
     this.thresholds = {
       kickOne:     0.05,
-      kickTwo:     10,  
+      kickTwo:     2,  
       hihatClosed: 0,
-      hihatOpen:   5,
-      stab:        15,
+      hihatOpen:   1,
+      stab:        3,
       lead:        Infinity,
     };
     this.players = new Tone.Players({
@@ -440,8 +440,8 @@ export function setupMusicManager() {
 }
 
 function rpmToBpm(endpointRPM) {
-  const MIN_RPM = 0, MAX_RPM = 12;
-  const MIN_BPM = 40, MAX_BPM = 140;
+  const MIN_RPM = 0, MAX_RPM = 10;
+  const MIN_BPM = 80, MAX_BPM = 140;
 
   const clamped = clamp(endpointRPM, MIN_RPM, MAX_RPM);
     
