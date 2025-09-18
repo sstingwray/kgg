@@ -14,12 +14,8 @@ router.get('/pnp-main', function(req, res, next) {
   res.render('pnp-main', { title: 'PnP Tools' });
 });
 
-router.get('/experimental-v1', function(req, res, next) {
-  res.render('experimental-v1', { title: 'Experimental' });
-});
-
-router.get('/experimental-v2', function(req, res, next) {
-  res.render('experimental-v2', { title: 'Experimental' });
+router.get('/experimental', function(req, res, next) {
+  res.render('experimental', { title: 'Experimental' });
 });
 
 module.exports = router;
