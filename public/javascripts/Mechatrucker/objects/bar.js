@@ -35,12 +35,8 @@ export default class Bar extends Interactable {
     if (this.event) emitter.subscribe(this.event, this.callback.bind(this));
   }
 
-  reactToState(value) {
-    this.value = clamp(value, this.min, this.max);
-  }
-
   render(context) {
-    
+    this.update();
     const frac = (this.value - this.min) / (this.max - this.min);
     const angle = (this.angleDeg * Math.PI) / 180;
 

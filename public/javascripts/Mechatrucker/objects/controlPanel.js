@@ -36,20 +36,14 @@ export default class ControlPanel extends Interactable {
       },
       gauges: {
         gaugePRM: new Gauge({
-          body: this.body,
-          x: 5 + 12*14, y: 8 - 12*2, radius: 34,
-          maxValue: state.mech.engine.maxBaseRPM,
-          divisions: state.mech.engine.maxBaseRPM,
-          redZoneStart: 0.8,
-          pointerColor: 'dark-cyan', label: 'RPM',
+          id: 'gaugePRM', body: this.body, x: 5 + 12*14, y: 8 - 12*2, radius: 34,
+          getValue: () => { return state.mech.status.movement.rpm }, maxValue: state.mech.engine.maxBaseRPM,
+          divisions: state.mech.engine.maxBaseRPM, redZoneStart: 0.8, pointerColor: 'dark-cyan', label: 'RPM',
         }),
         speedRPM: new Gauge({
-          body: this.body,
-          x: 7 + 12*3, y: 8 - 12*2, radius: 40,
-          maxValue: 20*10,
-          divisions: 5,
-          redZoneStart: 1.1,
-          pointerColor: 'dark-cyan', label: 'Speed',
+          id: 'speedRPM', body: this.body, x: 7 + 12*3, y: 8 - 12*2, radius: 40,
+          getValue: () => { return state.mech.status.movement.speed }, maxValue: 20*7,
+          divisions: 7, redZoneStart: 1.1, pointerColor: 'dark-cyan', label: 'Speed',
         })
       },
       buttons: {
@@ -117,15 +111,12 @@ export default class ControlPanel extends Interactable {
     this.drawCentralPanelStatic(state, physicsElements.centralPanel, biggerContext);
 
     this.elements.levers.gearShiftLever.render(biggerContext);
-    this.elements.gauges.gaugePRM.render(state.mech.status.baseRPM, biggerContext);
-    this.elements.gauges.speedRPM.render(state.mech.status.movement.speedApprox, biggerContext);
+    this.elements.gauges.gaugePRM.render(biggerContext);
+    this.elements.gauges.speedRPM.render(biggerContext);
     this.elements.buttons.ignitionBtn.render(biggerContext);
     this.elements.lights.clutchLight.render(biggerContext);
-    this.elements.bars.fuelBar.update();
     this.elements.bars.fuelBar.render(biggerContext);
-    this.elements.bars.energyBar.update();
     this.elements.bars.energyBar.render(biggerContext);
-    this.elements.bars.coolantBar.update();
     this.elements.bars.coolantBar.render(biggerContext);
     this.elements.modules.coolantDispenser.dial.render(biggerContext);
   }

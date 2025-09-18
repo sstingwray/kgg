@@ -80,10 +80,16 @@ export function renderUI(renderer, physicsElements) {
   const ctx = renderer.context;
   const state = getGameState();
   const leftMonitorValues = [
-    { debug: true,  label:'[DEBUG]Torque', pct: round(state.mech.status.torque, 3) },
+    { debug: true,  label:'[DEBUG]Torque', pct: state.mech.status.movement.torque },
+    { debug: true,  label:'[DEBUG]Gait', pct: state.mech.status.movement.gait },
+    { debug: true,  label:'[DEBUG]Speed', pct: state.mech.status.movement.speed },
+    /*{ debug: true,  label:'[DEBUG]R', pct: JSON.stringify(state.mech.engine.gears['R']) },
+    { debug: true,  label:'[DEBUG]N', pct: JSON.stringify(state.mech.engine.gears['N']) },
+    { debug: true,  label:'[DEBUG]1st', pct: JSON.stringify(state.mech.engine.gears['1st']) },
+    { debug: true,  label:'[DEBUG]2nd', pct: JSON.stringify(state.mech.engine.gears['2nd']) },
+    { debug: true,  label:'[DEBUG]3rd', pct: JSON.stringify(state.mech.engine.gears['3rd']) },*/
     { debug: true,  label:'[DEBUG]Heat:',   pct: state.mech.status.bars.heat },
     { debug: true,  label:'[DEBUG]Current distance:',   pct: state.mech.location.x },
-    { debug: true,  label:'[DEBUG]Current segment:',   pct: state.mech.location.segmentID },
     { debug: true,  label:'',   pct: JSON.stringify(state.map[state.mech.location.segmentID]) },
   ];
   const rightMonitorValues = [

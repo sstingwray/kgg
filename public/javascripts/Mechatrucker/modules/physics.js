@@ -111,7 +111,7 @@ export function initPhysics(engine, assets, dimensions) {
   ]);
 
   //bind to events
-  emitter.subscribe('engineWorking', engineShake.bind(this, engine));
+  //emitter.subscribe('engineWorking', engineShake.bind(this, engine));
   emitter.subscribe('stepMade', stepShake.bind(this, engine));
 
   emitter.emit('[LOG][physics] Physics initialized.');
@@ -311,7 +311,7 @@ function createThermometer (params) {
 }
 
 function engineShake(engine, value) {
-  const force = value * 0.0001;
+  const force = value * 0.0000001;
 
   Matter.Composite.allBodies(engine.world).forEach(body => {
     if (body.string) {
@@ -330,8 +330,8 @@ function engineShake(engine, value) {
   })
 }
 
-function stepShake(engine, value) {
-  const force = value.currentStepDistance * 0.0005;
+function stepShake(engine, event) {
+  const force = event * 0.005;
 
   Matter.Composite.allBodies(engine.world).forEach(body => {
     if (body.string) {

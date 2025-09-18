@@ -2,8 +2,8 @@ import emitter from './eventEmitter.js';
 import { round, randRange } from '../utils/helpers.js';
 
 const LOGGING = true;
-const TORQUE_RAMP_RATE = 0.05;
 const RPM_RAMP_RATE = 0.05;
+const SPEED_RAMP_RATE = 0.1;
 const MASS_INDEX_BASE = 1;
 const FUEL_CONS_MOD = 0.01;
 const HEAT_GEN_MOD = 0.001;
@@ -18,6 +18,7 @@ const state = {
       stability: 4,
       traction: 1,
       stepLength: 20,
+      stepRate: 2,
       emptyWeight: 50,
       maximumLoad: 250,
       heatDissRate: 0.5
@@ -30,34 +31,60 @@ const state = {
     },
     engine: {
       overdriveThreshold: 10,
-      peakTorque: 6,
+      peakTorqueBase: 3,
+      maxSpeed: 120,
       peakTorqueRPM: 4,
       maxBaseRPM: 6,
       gears: {
         'R': {
           ratio: round(1 / 2.18, 4),
+          peakTorque: 2,
+          torqueFunc: null,
+          stepRecovery: 2,
+          transmitting: 1,
+          direction: -1,
+
           torqueFn: null,
-          transmitting: -1
         },
         'N': {
           ratio: 1,
-          torqueFn: null,
+          peakTorque: 6,
+          torqueFunc: null,
+          stepRecovery: 1,
           transmitting: 0,
+          direction: 1,
+
+          torqueFn: null,
         },
         '1st': {
           ratio: round(1 / 2.18, 4),
-          torqueFn: null,
+          peakTorque: 5,
+          torqueFunc: null,
+          stepRecovery: 2,
           transmitting: 1,
+          direction: 1,
+
+          torqueFn: null,
         },
         '2nd': {
           ratio: round(1 / 1.32, 4),
-          torqueFn: null,
+          peakTorque: 4,
+          torqueFunc: null,
+          stepRecovery: 3,
           transmitting: 1,
+          direction: 1,
+
+          torqueFn: null,
         },
         '3rd': {
           ratio: round(1 / 0.9, 4),
-          torqueFn: null,
+          peakTorque: 2,
+          torqueFunc: null,
+          stepRecovery: 4,
           transmitting: 1,
+          direction: 1,
+
+          torqueFn: null,
         }
       }
     },
@@ -77,16 +104,18 @@ const state = {
         fuel: null,
       },
       energyOutput: 0,
-      baseRPM: 0,
-      torque: 0,
-      maxEndpointRPM: 0,
-      maxSpeed: 0,
-      speedResistanceFactor: 0,
-      gear: 'N',
-      endpointRPM: 0,
       movement: {
-        stepAccumulator: 0,
-        speedApprox: 0,
+        gear: null,
+        torque: 0,
+        momentum: 0,
+        gait: 0,
+        lastStep: {
+          stepNumber: null,
+          gear: null,
+          recoveryAccum: null
+        },
+        rpm: 0,
+        speed: 0,
         stepCount: 0,
       },
       modules: {
@@ -115,39 +144,64 @@ export function setupGameState() {
   state.mech.status.bars.fuel = state.mech.reactor.maxFuel;
   state.mech.status.modules.coolantCanister.amount = state.mech.modules.coolantCanister.maxCapacity;
   state.mech.status.bars.heat = round( state.mech.reactor.maxHeat / 2, 0);
-  state.mech.status.maxEndpointRPM = state.mech.engine.gears['3rd'].ratio * state.mech.engine.maxBaseRPM;
-  state.mech.status.maxSpeed = state.mech.status.maxEndpointRPM * state.mech.chassis.stepLength;
+  state.mech.status.movement.gear = state.mech.engine.gears['N'];
   //setting up gears
+  state.mech.engine.gears['R'].peakTorque = round(state.mech.engine.peakTorqueBase * (1 / state.mech.engine.gears['R'].ratio), 0);
+  state.mech.engine.gears['R'].torqueFunc = getEnergyToTorqueFunc({
+    rate: 0.5, floor: 1, ceiling: state.mech.engine.gears['R'].peakTorque
+  });
   state.mech.engine.gears['R'].torqueFn = createAsymmetricTorque ({
-    peak: round(state.mech.engine.maxBaseRPM / 3, 0),
+    peak: state.mech.engine.gears['R'].peakTorque,
     center: state.mech.engine.peakTorqueRPM, width: 3,
     rate: 0.8, ascendFactor: 0.5, descendFactor: 2,
     minValue: 1
   });
+
+  state.mech.engine.gears['N'].peakTorque = round(state.mech.engine.peakTorqueBase * (1 / state.mech.engine.gears['N'].ratio), 0);
+  state.mech.engine.gears['N'].torqueFunc = getEnergyToTorqueFunc({
+    rate: 0.5, floor: 1, ceiling: state.mech.engine.gears['N'].peakTorque
+  });
   state.mech.engine.gears['N'].torqueFn = createAsymmetricTorque ({
-    peak: state.mech.engine.maxBaseRPM,
+    peak: state.mech.engine.gears['N'].peakTorque,
     center: state.mech.engine.peakTorqueRPM, width: 4,
     rate: 0.5, ascendFactor: 0.7, descendFactor: 2,
     minValue: 1
   });
+
+  state.mech.engine.gears['1st'].peakTorque = round(state.mech.engine.peakTorqueBase * (1 / state.mech.engine.gears['1st'].ratio), 0);
+  state.mech.engine.gears['1st'].torqueFunc = getEnergyToTorqueFunc({
+    rate: 0.5, floor: 1, ceiling: state.mech.engine.gears['1st'].peakTorque
+  });
   state.mech.engine.gears['1st'].torqueFn = createAsymmetricTorque ({
-    peak: state.mech.engine.maxBaseRPM - 1,
+    peak: state.mech.engine.gears['1st'].peakTorque,
     center: state.mech.engine.peakTorqueRPM, width: 3,
     rate: 0.8, ascendFactor: 0.6, descendFactor: 2,
     minValue: 1
   });
+
+  state.mech.engine.gears['2nd'].peakTorque = round(state.mech.engine.peakTorqueBase * (1 / state.mech.engine.gears['2nd'].ratio), 0);
+  state.mech.engine.gears['2nd'].torqueFunc = getEnergyToTorqueFunc({
+    rate: 0.5, floor: 1, ceiling: state.mech.engine.gears['2nd'].peakTorque
+  });
   state.mech.engine.gears['2nd'].torqueFn = createAsymmetricTorque ({
-    peak: state.mech.engine.maxBaseRPM - 2,
+    peak: state.mech.engine.gears['2nd'].peakTorque,
     center: state.mech.engine.peakTorqueRPM, width: 2,
     rate: 1, ascendFactor: 0.3, descendFactor: 2,
     minValue: 1
   });
+
+  state.mech.engine.gears['3rd'].peakTorque = round(state.mech.engine.peakTorqueBase * (1 / state.mech.engine.gears['3rd'].ratio), 0);
+  state.mech.engine.gears['3rd'].torqueFunc = getEnergyToTorqueFunc({
+    rate: 0.5, floor: 1, ceiling: state.mech.engine.gears['3rd'].peakTorque
+  });
   state.mech.engine.gears['3rd'].torqueFn = createAsymmetricTorque ({
-    peak: state.mech.engine.maxBaseRPM - 3,
+    peak: state.mech.engine.gears['3rd'].peakTorque,
     center: state.mech.engine.peakTorqueRPM, width: 2,
     rate: 1.2, ascendFactor: 0.1, descendFactor: 2,
     minValue: 1
   });
+
+  setLastStep();
 
   //setting up a map
   state.map = generateTerrainMap();
@@ -155,16 +209,80 @@ export function setupGameState() {
   //settin up listeners
   emitter.subscribe('ignitionToggle', updateIgnition.bind(this));
   emitter.subscribe('clutchToggle', updateClutch.bind(this));
-  emitter.subscribe('gearShift', updateGear.bind(this));
+  emitter.subscribe('gearShift', setGear.bind(this));
   emitter.subscribe('outputInput', setEnergyOutput.bind(this));
   emitter.subscribe('coolantCanisterValveChange', updateCoolantCanisterValve.bind(this));
-  emitter.subscribe('beat', updateLocation.bind(this));
+  emitter.subscribe('beat', tryStep.bind(this));
+  emitter.subscribe('stepMade', updateLocation.bind(this));
   emitter.emit('[LOG][gameManager] Game state is set', state);
 }
 
 export function generateTerrainMap(seed = 0) {
   const terrainData = {
-    types: [],
+    types: [
+      {
+        id: '', smoothness: 0, resistance: 0, traction: 0,
+        features: []
+      },
+    ],
+    features: [
+      {
+        id: 'sporeCloud', name: 'Spore Cloud', modifies: null, value: null,
+        description: `stub`,
+        affectedBars: [
+          {
+            bar: 'heat', beatsToActivate: 3, fn: () => { return 1 },
+            msg: `Airvents are clogged by the spores and rapidly growing mycelium.`,
+            trigger: 'preCleanse',
+          },
+        ],
+        cleanseConditions: [
+          {
+            module: 'coolantCanister', fn: (value) => { return value > 0.2 },
+            msg: `Blowing subzero coolant throught the mech seems to kill the spores.`,
+          }
+        ]
+      },
+      {
+        id: 'electroVineTangle', name: 'Electro-vine Tangle', modifies: null, value: null,
+        description: `stub.`,
+        affectedBars: [
+          {
+            bar: 'mechIntegrity', beatsToActivate: 1, fn: () => { return -1 },
+            msg: `Electric shock from impacts is causing widespread damage to the mech's systems.`,
+            trigger: 'preCleanse',
+          },
+        ],
+        cleanseConditions: [
+          {
+            module: 'stub', fn: (value) => { return value > 2 },
+            msg: `Active shielding seems to hold against the shock for now.`
+          }
+        ]
+      },
+      {
+        id: 'acidicPool', name: 'Acidic Pool', modifies: null, value: null,
+        description: `While .`,
+        affectedBars: [
+          {
+            bar: 'crewHealth', beatsToActivate: 2, fn: () => { return 1 },
+            msg: `Toxic fumes are slowly but surely poisoning you.`,
+            trigger: 'preCleanse',
+          },
+          {
+            bar: 'heat', beatsToActivate: 4, fn: () => { return 1 },
+            msg: `While clean from the toxins, the cockpit is getting significantly hotter.`,
+            trigger: 'postCleanse',
+          },
+        ],
+        cleanseConditions: [
+          {
+            module: 'stub', fn: (value) => { return value > 2 },
+            msg: `Sealing the cockpit stops the fumes from entering.`
+          }
+        ]
+      },
+    ]
   };
   const map = [];
   const segmentCount = 20;
@@ -179,6 +297,7 @@ export function generateTerrainMap(seed = 0) {
     const type = terrainData.types[randRange(0, terrainData.types.length)];
     const resistance = Math.floor(rand() * 3) + 1;
     const friction = Math.floor(rand() * 3) + 1;
+
 
     // Resistance-based color coding
     let resistanceColor = "green";
@@ -239,126 +358,98 @@ function setEnergyOutput(value) {
   emitter.emit('outputChange', state.mech.status.energyOutput);
 }
 
-function updateGear (gear) {
-  const currentOutput = state.mech.status.energyOutput;
+function setGear (gear) {
+  //const currentOutput = state.mech.status.energyOutput;
   state.mech.status.gear = gear;
-  setEnergyOutput(1);
+  state.mech.status.movement.gear = state.mech.engine.gears[gear];
+  /*setEnergyOutput(1);
   setTimeout(() => {
     setEnergyOutput(currentOutput);
-  }, GEARSHIFT_DELAY);
+  }, GEARSHIFT_DELAY);*/
 }
 
-function updateBaseRPM() {
-  const maxEnergyOutput = state.mech.reactor.maxOutput;
-  const energyOutput = state.mech.status.energyOutput;
-  const maxRPM = state.mech.engine.maxBaseRPM;
-  const energyBasedRPM = round((energyOutput / maxEnergyOutput) * maxRPM, 3);
-
-  const baseRPM = state.mech.status.baseRPM;
-  const targetBaseRPM = energyBasedRPM;
-
-  const canTransmit = !state.mech.status.flags.clutch && state.mech.status.gear !== "N";
-
-  const torque = state.mech.status.torque;
-  const momentum = round(MASS_INDEX_BASE * (state.mech.status.movement.speedApprox / state.mech.status.maxSpeed), 3);
-  const resistance = canTransmit ? state.map[state.mech.location.segmentID].resistance : 0;
-  const canClimb = round(torque + momentum - resistance, 3) > 0 ? true : false;
-  const torqueDelta = Math.abs(state.mech.status.torque - resistance);
-  const engineAcceleration = round(1 + torqueDelta / 10, 3);
-  const inertia = round(baseRPM / targetBaseRPM, 3);
-  const rate = round(RPM_RAMP_RATE * inertia + RPM_RAMP_RATE * engineAcceleration, 3);
-
-  if (canClimb) {
-    //if can climb, either ramp up, decay or settle
-    if (targetBaseRPM > baseRPM) {
-      if (targetBaseRPM - baseRPM > rate) state.mech.status.baseRPM += rate
-    } else if (baseRPM > targetBaseRPM) {
-      if (baseRPM - targetBaseRPM > rate) state.mech.status.baseRPM -= rate
-    } else state.mech.status.baseRPM = targetBaseRPM;
-  } else {
-    //if cannot climb, either stall or decay
-    if (baseRPM <= 0) {
-      state.mech.status.baseRPM = 0;
-      if (state.mech.status.flags.ignition) setTimeout(() => {
-        if (state.mech.status.baseRPM == 0) {
-          emitter.emit('stalled', true);
-          emitter.emit('ignitionToggle', false);
-        };
-      }, STALL_DELAY);
-    } else state.mech.status.baseRPM -= rate;
-  }
-
-  state.mech.status.baseRPM = round(state.mech.status.baseRPM, 3);
-
-  emitter.emit('engineWorking', state.mech.status.baseRPM);
-
-  LOGGING && energyOutput !== state.mech.status.baseRPM ?
-    emitter.emit('[LOG][gameManager] baseRPM', {
-      value: state.mech.status.baseRPM,
-      maxEnergyOutput, energyOutput, maxRPM, energyBasedRPM, targetBaseRPM,
-      canTransmit, torque, momentum, resistance, canClimb, torqueDelta, engineAcceleration, inertia, rate
-    }) : null;
-}
-
-function updateTorque() {
-  const gear = state.mech.status.gear;
-  const baseRPM = state.mech.status.baseRPM;
-  const targetTorque = round(state.mech.engine.gears[gear].torqueFn(baseRPM), 4);
-  const torque = state.mech.status.torque
-
-  if (targetTorque > torque) state.mech.status.torque += TORQUE_RAMP_RATE;
-  else state.mech.status.torque = targetTorque;
-
-  LOGGING && torque !== state.mech.status.torque ?
-    emitter.emit('[LOG][gameManager] torque', {
-      value:  state.mech.status.torque,
-      gear, baseRPM, targetTorque,
-    }) : null;
-}
-
-function updateEndpointRPM() {
-  const baseRPM = state.mech.status.baseRPM;
-  const endpointRPM = state.mech.status.endpointRPM;
-  const gear = state.mech.engine.gears[state.mech.status.gear];
-  const targetEndpointRPM = baseRPM * gear.ratio;
-  const canTransmit = !state.mech.status.flags.clutch && state.mech.status.gear !== "N";
-
-  const rate = RPM_RAMP_RATE;
-  
-  if (canTransmit) {
-    state.mech.status.endpointRPM = targetEndpointRPM;
-  } else {
-    if (endpointRPM - rate > 0) state.mech.status.endpointRPM -= rate
-    else state.mech.status.endpointRPM = 0;
+function setLastStep() {
+  state.mech.status.movement.lastStep = {
+    stepNumber: state.mech.status.movement.stepCount,
+    gear: state.mech.status.movement.gear,
+    recoveryAccum: state.mech.status.movement.gear.stepRecovery
   };
-
-  if (state.mech.status.endpointRPM > 0.001) {
-    state.mech.status.endpointRPM = round(state.mech.status.endpointRPM, 3);
-    emitter.emit('mechMoving', state.mech.status.endpointRPM);
-  } else {
-    state.mech.status.endpointRPM = 0;
-    emitter.emit('mechStopped', state.mech.status.movement.stepCount);
-  }
-    
-  LOGGING && endpointRPM !== state.mech.status.endpointRPM ?
-    emitter.emit('[LOG][gameManager] endpointRPM', {
-      value: state.mech.status.endpointRPM,
-      baseRPM, gear, targetEndpointRPM, canTransmit
-    }) : null;
 }
 
-function calculateSpeedApprox () {
-  const currentSpeed = state.mech.status.movement.speedApprox;
-  const endpointRPM = state.mech.status.endpointRPM;
-  const stepLength = state.mech.chassis.stepLength;
+function getTorque (energyOutput, maxEnergyOutput, gear) {
+  return round((energyOutput / maxEnergyOutput) * gear.peakTorque, 3);
+}
 
-  state.mech.status.movement.speedApprox = endpointRPM * stepLength;
+function getMomentum (speed, maxSpeed) {
+  return round(MASS_INDEX_BASE * (speed / maxSpeed), 3);
+}
 
-  LOGGING && currentSpeed !== state.mech.status.movement.speedApprox ?
-    emitter.emit('[LOG][gameManager] speedApprox', {
-      value: state.mech.status.movement.speedApprox,
-      endpointRPM, stepLength
-    }) : null;
+function getResistance (gear, clutchState, segmentID) {
+  return round(gear.transmitting == 0 || !clutchState ? 0 : state.map[segmentID].resistance, 3);
+}
+
+function getStepDistance (gear) {
+  return round(gear.direction * gear.ratio * state.mech.chassis.stepLength, 3);
+}
+
+function getRPM (base, energyOutput, maxEnergy) {
+  const energyFactor = round(energyOutput / maxEnergy, 3);
+ 
+  return round(base * energyFactor, 3);
+}
+
+function getSmoothRPM () {
+  const targetRPM = getRPM(
+    state.mech.engine.maxBaseRPM,
+    state.mech.status.energyOutput,
+    state.mech.reactor.maxOutput
+  );
+  const currentRPM = state.mech.status.movement.rpm;
+  
+  return round(getSmoothRate({
+    target: targetRPM, current: currentRPM,
+    rate: RPM_RAMP_RATE, ascent: 3 }), 3);
+}
+
+function getSpeed (rpm, gait) {
+  return round(rpm * gait, 3);
+}
+
+function getSmoothSpeed () {
+  const targetSpeed = getSpeed(
+    state.mech.status.movement.rpm,
+    state.mech.status.movement.gait
+  );
+  const currentSpeed = state.mech.status.movement.speed
+
+  return round(getSmoothRate({
+    target: targetSpeed, current: currentSpeed,
+    rate: SPEED_RAMP_RATE, ascent: 3 }), 3);
+}
+
+function tryStep () {
+  const torque = getTorque(state.mech.status.energyOutput, state.mech.reactor.maxOutput, state.mech.status.movement.gear);
+  const momentum = getMomentum(state.mech.status.movement.speed, state.mech.engine.maxSpeed);
+  const resistance = getResistance(state.mech.status.movement.gear, state.mech.status.flags.clutch, state.mech.location.segmentID);
+  const canTransmit = !state.mech.status.flags.clutch && state.mech.status.movement.gear.transmitting !== 0;
+  const canClimb = torque + momentum - resistance > 0;
+  const targetGait = canTransmit && canClimb ? getStepDistance(state.mech.status.movement.gear) : 0;
+  const currentGait = state.mech.status.movement.gait;
+  const targetRate = state.mech.chassis.stepRate * state.mech.status.movement.gear.ratio;
+   
+  state.mech.status.movement.gait = getSmoothRate({ 
+    target: targetGait, current: currentGait,
+    rate: targetRate, ascent: 3, descent: 3 });
+
+  if (state.mech.status.movement.gait > 0) {
+    state.mech.status.movement.stepCount++;
+    emitter.emit('stepMade', state.mech.status.movement.gait, true);
+  };
+  
+
+  LOGGING ? emitter.emit('[LOG][gameManager] tryStep', {
+    torque, momentum, resistance, canTransmit, canClimb, targetGait, currentGait, targetRate
+  }) : null;
 }
 
 function consumeFuel() {
@@ -399,18 +490,17 @@ function updateHeat() {
 
   state.mech.status.bars.heat = round(state.mech.status.bars.heat, 4);
 
-  //emitter.emit('heatUpdate', state.mech.status.bars.heat);
+  emitter.emit('heatUpdate', state.mech.status.bars.heat);
 }
 
 function updateCoolantCanisterValve(value) {
   state.mech.status.modules.coolantCanister.valve = value;
 }
 
-function updateLocation() {
-  if (state.mech.status.movement.speedApprox == 0) return;
+function updateLocation(stepLength) {
   const segID = state.mech.location.segmentID
   const loc = state.map[segID];
-  const x = round(state.mech.location.x + state.mech.chassis.stepLength, 4);
+  const x = round(state.mech.location.x + stepLength, 4);
 
   if (segID < (state.map.length - 1)) {
     emitter.emit('[LOG][gameManager] Location update', { segID, loc, x });
@@ -425,7 +515,6 @@ function updateLocation() {
   } else {
     emitter.emit('finishedMap', true);
   }
-
 }
 
 export function getGameState() {
@@ -435,13 +524,22 @@ export function getGameState() {
 export function updateGameState(delta) {
   state.timeElapsed += delta;
   state.timeElapsed = round(state.timeElapsed, 4);
-  updateBaseRPM();
-  updateEndpointRPM();
-  calculateSpeedApprox();
+  state.mech.status.movement.rpm = getSmoothRPM();
+  state.mech.status.movement.speed = getSmoothSpeed();
+  state.mech.status.movement.torque = getTorque(
+    state.mech.status.energyOutput,
+    state.mech.reactor.maxOutput,
+    state.mech.status.movement.gear
+  );
+  state.mech.status.movement.momentum = getMomentum(
+    state.mech.status.movement.speed,
+    state.mech.engine.maxSpeed
+  );
+
   if (state.mech.status.flags.ignition) {
-    updateTorque();
     consumeFuel();
   };
+
   updateHeat();
 }
 
@@ -472,4 +570,21 @@ function createAsymmetricTorque({
     
     return val > minValue ? val : minValue;
   };
+}
+
+function getEnergyToTorqueFunc ({ rate, floor, ceiling }) {
+  return (input) => {
+    const x = Math.max(0, input);
+    const logarithmic = Math.log1p(rate * x);
+    const normalized = logarithmic / ( 1 + logarithmic);
+    const scaled = floor + normalized * (ceiling - floor);
+    return scaled;
+  }
+}
+
+function getSmoothRate ({ target, current, rate, ascent = 1, descent = 1 }) {  
+  if (target - current >= 0)
+    if (target - current >= rate * ascent) return round(current + rate * ascent, 3); else return target;
+  else
+    if (current - target >= rate * descent) return round(current - rate * descent, 3); else return target;
 }

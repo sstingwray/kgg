@@ -5,18 +5,18 @@ import { getRGBA } from "../utils/helpers.js";
 export default class Interactable {
 
   constructor(options = {}) {
-    this.id        = options.id;
-    this.body      = options.body;
+    this.id        = options.id || 'None';
+    this.body      = options.body || {};
     this.localPos  = { x: options.x, y: options.y };
-    this.shape     = options.shape;
+    this.shape     = options.shape || 'circle';
     this.radius    = options.radius || null;
     this.width     = options.width || null;
     this.height    = options.height || null;
-    this.event     = options.eventType;
+    this.event     = options.eventType || '';
     this.callback  = options.callback || (() => { console.log(`Fired placeholder event callback for ${ this.id }.`) });
     this.onClick   = options.onClick  || (() => { console.log(`Fired placeholder onClick for ${ this.id }.`) });
-    this.value     = options.value;
-    this.getValue  = options.getValue;
+    this.value     = options.value || 0;
+    this.getValue  = options.getValue || (() => {});
     this.x         = 0;
     this.y         = 0;
 

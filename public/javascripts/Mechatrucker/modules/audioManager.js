@@ -38,8 +38,9 @@ export function setupAudio() {
   });
   emitter.subscribe('gearShift', playGearShiftSound.bind(this));
   emitter.subscribe('engineWorking', updateEngineLoopPlaybackRate.bind(this));
-  emitter.subscribe('mechMoving', musicManager.updateRPM.bind(this));
-  emitter.subscribe('mechStopped', musicManager.stopMusic.bind(this));
+  emitter.subscribe('outputChange', musicManager.updateBPM.bind(this));
+  emitter.subscribe('stepMade', musicManager.muteParts.bind(this, false));
+  emitter.subscribe('stepFailed', musicManager.muteParts.bind(this, true));
   //emitter.subscribe('outputChange', placeholder.bind(this));
   initCoolantCanisterSound();
 }
@@ -174,17 +175,20 @@ function playStepSound() {
 
 class MusicManager {
   constructor() {
+    this.bpm = 60;
     this.thresholds = {
-      kickOne:     0.05,
-      kickTwo:     2,  
+      kickOne:     120,
+      kickTwo:     80,
+      kickThree:   61,
       hihatClosed: 0,
-      hihatOpen:   1,
-      stab:        3,
+      hihatOpen:   70,
+      stab:        100,
       lead:        Infinity,
     };
     this.players = new Tone.Players({
       kickOne:    '/sounds/music/kick_1.wav',
       kickTwo:    '/sounds/music/kick_2.wav',
+      kickThree:  '/sounds/music/kick_4.wav',
       hihatClosed:'/sounds/music/hi_hat_open.wav',
       hihatOpen:  '/sounds/music/hi_hat_closed.wav',
       acid:       '/sounds/music/acid.wav',
@@ -194,12 +198,14 @@ class MusicManager {
     //volumes
     this.players.player('mechStep').volume.value = VOLUME_SETTINGS.step;
     //channels
-    this.kickOneCh   = new Tone.Channel(0, 0).toDestination();
-    this.kickTwoCh   = new Tone.Channel(0, 0).toDestination();
+    this.kickOneCh      = new Tone.Channel(0, 0).toDestination();
+    this.kickTwoCh      = new Tone.Channel(0, 0).toDestination();
+    this.kickThreeCh    = new Tone.Channel(0, 0).toDestination();
+    
     this.hihatClosedCh  = new Tone.Channel(0, 0).toDestination();
-    this.hihatOpenCh  = new Tone.Channel(0, 0).toDestination();
-    this.stabCh      = new Tone.Channel(0, 0).toDestination();
-    this.leadCh      = new Tone.Channel(0, 0).toDestination();
+    this.hihatOpenCh    = new Tone.Channel(0, 0).toDestination();
+    this.stabCh         = new Tone.Channel(0, 0).toDestination();
+    this.leadCh         = new Tone.Channel(0, 0).toDestination();
     //effects
     this.distortion     = new Tone.Distortion(0.8);
     this.chebyshev      = new Tone.Chebyshev(20);
@@ -229,19 +235,20 @@ class MusicManager {
 
     //<== metronome
     this.metronomeEvents = [
-      { time: '0:0:0', value: true },
-      { time: '0:1:0', value: true },
-      { time: '0:2:0', value: true },
-      { time: '0:3:0', value: true },
+      { time: '0:0:0', value: true,  event: ''},
+      { time: '0:1:0', value: false, event: ''},
+      { time: '0:2:0', value: false,  event: ''},
+      { time: '0:3:0', value: false, event: ''},
     ];
 
     // metronome ==/>
-    const metronome = new Tone.Part((time, { value }) => {
-      if (value) emitter.emit(`beat`, round(performance.now() / 100, 2));
+    const metronome = new Tone.Part((time, { value, event }) => {
+      if (value) emitter.emit(`beat`, round(time, 3));
     }, this.metronomeEvents).start('0:0:0');
 
     metronome.loop = true;
     metronome.loopEnd = '1m';
+    
     //<== kick
     //Part 1
     this.kickOneEvents = [
@@ -255,7 +262,7 @@ class MusicManager {
     const kickOnePart = new Tone.Part((time, { value }) => {
       if (value) {
         this.players.player('kickOne').start(time);
-        this.players.player('mechStep').start(time);
+        //this.players.player('mechStep').start(time);
       };
     }, this.kickOneEvents).start('0:0:0');
 
@@ -281,6 +288,21 @@ class MusicManager {
 
     kickTwoPart.loop = true;
     kickTwoPart.loopEnd = '2m';
+
+    //Part 3
+    this.kickThreeEvents = [
+      { time: '0:0:0', value: true },
+      { time: '0:1:0', value: false },
+      { time: '0:2:0', value: false },
+      { time: '0:3:0', value: false },
+    ];
+    this.players.player('kickThree').chain( this.kickThreeCh );
+    const kickThreePart = new Tone.Part((time, { value }) => {
+      if (value) this.players.player('kickThree').start(time);
+    }, this.kickThreeEvents).start('0:0:0');
+
+    kickThreePart.loop = true;
+    kickThreePart.loopEnd = '1m';
     // kick ==/>
 
     //<== hihats
@@ -398,39 +420,30 @@ class MusicManager {
       };
     }, this.riffEvents).start('0:0:0');
 
-    leadPart.loop = true;
-    leadPart.loopEnd = '2m';
+    //leadPart.loop = true;
+    //leadPart.loopEnd = '2m';
     //lead ==/>
 
-    this.updateRPM = this.updateRPM.bind(this);
-    this.stopMusic = this.stopMusic.bind(this);
-  }
+    this.kickOneCh.mute  = true;
+    this.kickTwoCh.mute  = true;
+    this.kickThreeCh.mute  = true;
+    this.hihatOpenCh.mute = true;
+    this.stabCh.mute  = true;
+    this.leadCh.mute  = true;
 
-  updateRPM(endpointRPM) {        
-    const bpm = rpmToBpm(endpointRPM);
-        
-    Tone.Transport.bpm.rampTo(bpm, 0.2);
+    this.updateBPM = (value) => {        
+      this.bpm = valueToBpm(value);
+      Tone.Transport.bpm.rampTo(this.bpm, 0.2);
+    }
 
-    this.kickOneCh.mute  = endpointRPM < this.thresholds.kickOne;
-    this.kickTwoCh.mute  = endpointRPM < this.thresholds.kickTwo;
-    this.hihatClosedCh.mute = endpointRPM < this.thresholds.hihatClosed;
-    this.hihatOpenCh.mute = endpointRPM < this.thresholds.hihatOpen;
-    this.stabCh.mute  = endpointRPM < this.thresholds.stab;
-    this.leadCh.mute  = endpointRPM < this.thresholds.lead;
-  }
-
-  stopMusic() {
-    const endpointRPM = 0;
-    const bpm = rpmToBpm(endpointRPM);
-        
-    Tone.Transport.bpm.rampTo(bpm, 0.2);
-
-    this.kickOneCh.mute  = endpointRPM < this.thresholds.kickOne;
-    this.kickTwoCh.mute  = endpointRPM < this.thresholds.kickTwo;
-    this.hihatClosedCh.mute = endpointRPM < this.thresholds.hihatClosed;
-    this.hihatOpenCh.mute = endpointRPM < this.thresholds.hihatOpen;
-    this.stabCh.mute  = endpointRPM < this.thresholds.stab;
-    this.leadCh.mute  = endpointRPM < this.thresholds.lead;
+    this.muteParts = (event = null) => {
+      this.kickOneCh.mute     = event || this.bpm < this.thresholds.kickOne;
+      this.kickTwoCh.mute     = event || this.bpm < this.thresholds.kickTwo;
+      this.kickThreeCh.mute   = event || this.bpm < this.thresholds.kickThree;
+      //this.hihatClosedCh.mute = false || this.bpm < this.thresholds.hihatClosed;
+      this.hihatOpenCh.mute   = event || this.bpm < this.thresholds.hihatOpeh;
+      this.stabCh.mute        = event || this.bpm < this.thresholds.stab;
+    }
   }
 }
 
@@ -439,11 +452,11 @@ export function setupMusicManager() {
   return manager;
 }
 
-function rpmToBpm(endpointRPM) {
-  const MIN_RPM = 0, MAX_RPM = 10;
-  const MIN_BPM = 80, MAX_BPM = 140;
-
-  const clamped = clamp(endpointRPM, MIN_RPM, MAX_RPM);
+function valueToBpm(value) {
+  const minValue = 0, maxValue = 20;
+  const minBPM = 60, maxBPM = 140;
+  const clamped = clamp(value, minValue, maxValue);
+  const targetBPM = minBPM + (clamped / maxValue) * (maxBPM - minBPM);
     
-  return MIN_BPM + (clamped / MAX_RPM) * (MAX_BPM - MIN_BPM);
+  return targetBPM;
 }

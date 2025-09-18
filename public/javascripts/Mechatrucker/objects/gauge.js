@@ -3,20 +3,26 @@ import { localToWorld, getRGBA } from '../utils/helpers.js';
 
 export default class Gauge extends Interactable {
   constructor(options) {
-    super();
-    this.body         = options.body;
-    this.localPos     = { x: options.x, y: options.y };
-    this.radius       = options.radius;
-    this.maxValue     = options.maxValue;
+    super({
+      id:            options.id,
+      body:          options.body,
+      x:             options.x,
+      y:             options.y,
+      shape:         options.shape,
+      radius:        options.radius || null,
+      width:         options.width || null,
+      height:        options.height || null,
+      event:         options.eventType,
+      callback:      options.callback || (() => { console.log(`Fired placeholder event callback for ${ this.id }.`) }),
+      onClick:       options.onClick  || (() => { console.log(`Fired placeholder onClick for ${ this.id }.`) }),
+      value:         options.value,
+      getValue:      options.getValue
+    });
+    this.max          = options.maxValue;
     this.divisions    = options.divisions;
     this.redZoneStart = options.redZoneStart;
     this.label        = options.label;
     this.pointerColor = options.pointerColor;
-    this.value        = 0;
-  }
-
-  setValue(v) {
-    this.value = Math.max(0, Math.min(v, this.maxValue));
   }
 
   getWorldCircle() {
@@ -31,8 +37,8 @@ export default class Gauge extends Interactable {
     return px >= x - r && px <= x + r && py >= y - r && py <= y + r;
   }
 
-  render(value, ctx) {
-    this.value = Math.max(0, Math.min(value, this.maxValue));
+  render(ctx) {
+    this.update();
     const { x, y, r } = this.getWorldCircle();
     const startAngle = Math.PI;
     const endAngle   = Math.PI*2;
@@ -69,7 +75,7 @@ export default class Gauge extends Interactable {
       
       // Draw label at each major division
       const labelRadius = r * 0.65;
-      const labelValue  = Math.round(fraction * this.maxValue);
+      const labelValue  = Math.round(fraction * this.max);
       const lx = labelRadius * Math.cos(angle);
       const ly = labelRadius * Math.sin(angle);
       ctx.fillStyle = getRGBA('white', 0.5);
@@ -80,7 +86,7 @@ export default class Gauge extends Interactable {
     }
 
     // ---- Draw pointer ----
-    const valueFraction = value / this.maxValue;
+    const valueFraction = this.value / this.max;
     const pointerAngle  = startAngle + valueFraction * totalArc;
     ctx.strokeStyle = getRGBA(this.pointerColor, 1);
     ctx.lineWidth = 4;
