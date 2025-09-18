@@ -22,7 +22,15 @@ class ToggleButtonComponent extends BaseComponent {
 
     this.button = document.createElement('button');
     this.button.className = 'control-button';
-    this.button.textContent = label;
+    if (this.label.startsWith('<')) {
+      this.button.innerHTML = this.label;
+    } else {
+      if (this.label.startsWith('<')) {
+      this.button.innerHTML = this.label;
+    } else {
+      this.button.textContent = this.label;
+    }
+    }
 
     this.button.addEventListener('click', () => {
       this.state = !this.state;
@@ -36,7 +44,11 @@ class ToggleButtonComponent extends BaseComponent {
 
   updateVisual() {
     this.button.classList.toggle('toggled', this.state);
-    this.button.textContent = this.label;
+    if (this.label.startsWith('<')) {
+      this.button.innerHTML = this.label;
+    } else {
+      this.button.textContent = this.label;
+    }
   }
 
   setValue(val) {
@@ -49,7 +61,45 @@ class ToggleButtonComponent extends BaseComponent {
   }
 
   getValue() {
-    return this.state;
+    return { index: this.index, label: this.labels[this.index] };
+  }
+
+  updateLabel() {
+    if (!this.labelColumn) return;
+    const children = this.labelColumn.querySelectorAll('.gear-stick-label-entry');
+    children.forEach((el, idx) => {
+      el.classList.toggle('active', idx === this.index);
+    });
+  }
+
+  updateLabel() {
+    if (!this.labelColumn) return;
+    const children = this.labelColumn.querySelectorAll('.gear-stick-label-entry');
+    children.forEach((el, idx) => {
+      el.classList.toggle('active', idx === this.index);
+    });
+  }
+
+  updateLabel() {
+    if (!this.labelColumn) return;
+    const children = this.labelColumn.querySelectorAll('.gear-stick-label-entry');
+    children.forEach((el, idx) => {
+      el.classList.toggle('active', idx === this.index);
+    });
+  }
+
+  updateLabel() {
+    if (!this.label) return;
+    this.label.textContent = `Gear: ${this.labels[this.index]}`;
+  }
+
+  updateLabel() {
+    if (!this.label) return;
+    this.label.textContent = `Gear: ${this.labels[this.index]}`;
+  }
+
+  updateLabel() {
+    this.label.textContent = `Gear: ${this.labels[this.index]}`;
   }
 }
 
@@ -59,81 +109,25 @@ class ButtonComponent extends BaseComponent {
     super();
     this.button = document.createElement('button');
     this.button.className = 'control-button';
-    this.button.textContent = label;
+    if (label.startsWith('<')) {
+      this.button.innerHTML = label;
+    } else {
+      this.button.textContent = label;
+    }
     this.button.addEventListener('click', () => onClick());
     this.wrapper.appendChild(this.button);
   }
 
   setLabel(text) {
-    this.button.textContent = text;
+    if (text.startsWith('<')) {
+      this.button.innerHTML = text;
+    } else {
+      this.button.textContent = text;
+    }
   }
 
   click() {
     this.button.click();
-  }
-}
-
-// === GEAR KNOB COMPONENT ===
-class GearKnobComponent extends BaseComponent {
-  constructor({
-    labels = ["Reverse", "Neutral", "1st", "2nd", "3rd"],
-    initial = 1,
-    onChange = () => {}
-  } = {}) {
-    super();
-    this.labels = labels;
-    this.index = initial;
-    this.isDisabled = false;
-    this.onChange = onChange;
-
-    const label = document.createElement('label');
-    label.textContent = "Gear";
-    this.wrapper.appendChild(label);
-
-    this.track = document.createElement('div');
-    this.track.className = 'gear-track';
-    this.knob = document.createElement('div');
-    this.knob.className = 'gear-knob';
-    this.track.appendChild(this.knob);
-    this.wrapper.appendChild(this.track);
-
-    this.track.addEventListener('click', (e) => {
-      if (this.isDisabled) return;
-      const rect = this.track.getBoundingClientRect();
-      const relX = e.clientX - rect.left;
-      const slotWidth = rect.width / this.labels.length;
-      const newIndex = Math.floor(relX / slotWidth);
-      if (newIndex !== this.index) {
-        this.index = newIndex;
-        this.updatePosition();
-        this.onChange(this.labels[this.index], this.index);
-      }
-    });
-
-    this.updatePosition();
-  }
-
-  updatePosition() {
-    const percent = (this.index + 0.5) / this.labels.length * 100;
-    this.knob.style.left = `${percent}%`;
-    this.knob.setAttribute('data-label', this.labels[this.index]);
-  }
-
-  setValue(idx) {
-    if (idx >= 0 && idx < this.labels.length) {
-      this.index = idx;
-      this.updatePosition();
-    }
-  }
-
-  getValue() {
-    return { label: this.labels[this.index], index: this.index };
-  }
-
-  setDisabled(disabled) {
-    this.isDisabled = disabled;
-    this.track.classList.toggle('disabled', disabled);
-    this.knob.style.opacity = disabled ? 0.4 : 1.0;
   }
 }
 
@@ -194,16 +188,34 @@ class LeverComponent extends BaseComponent {
     this.knob.textContent = label;
     this.lever.appendChild(this.knob);
 
-    this.lever.addEventListener('click', (e) => {
+    let isDragging = false;
+
+    this.lever.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      handleMove(e);
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (isDragging) handleMove(e);
+    });
+
+    window.addEventListener('mouseup', () => {
+      if (isDragging) isDragging = false;
+    });
+
+    const handleMove = (e) => {
       const rect = this.lever.getBoundingClientRect();
       const relY = e.clientY - rect.top;
       const percent = relY / rect.height;
       let newValue = (1 - percent) * (this.max - this.min) + this.min;
       if (this.discrete) newValue = Math.round(newValue);
-      this.value = Math.max(this.min, Math.min(this.max, newValue));
-      this.onChange(this.value);
-      this.updatePosition();
-    });
+      newValue = Math.max(this.min, Math.min(this.max, newValue));
+      if (newValue !== this.value) {
+        this.value = newValue;
+        this.onChange(this.value);
+        this.updatePosition();
+      }
+    };
 
     this.wrapper.appendChild(this.lever);
     this.updatePosition();
@@ -222,7 +234,71 @@ class LeverComponent extends BaseComponent {
     const percent = (this.value - this.min) / (this.max - this.min);
     const top = (1 - percent) * 100;
     this.knob.style.top = `${top}%`;
-    this.knob.textContent = this.value;
+  }
+}
+
+// === GEAR STICK COMPONENT ===
+class GearStickComponent extends BaseComponent {
+  constructor({ labels = ["Reverse", "Neutral", "1st", "2nd", "3rd"], initial = 1, onChange = () => {} } = {}) {
+    super();
+    this.labels = labels;
+    this.index = initial;
+    this.onChange = onChange;
+
+    this.track = document.createElement('div');
+    this.track.className = 'gear-stick-track';
+
+    this.knob = document.createElement('div');
+    this.knob.className = 'gear-stick-knob';
+    this.track.appendChild(this.knob);
+
+    this.track.addEventListener('click', (e) => {
+      const rect = this.track.getBoundingClientRect();
+      const relY = e.clientY - rect.top;
+      const slotHeight = rect.height / this.labels.length;
+      const newIndex = Math.floor(relY / slotHeight);
+      this.setValue(newIndex);
+      this.onChange(this.labels[newIndex], newIndex);
+    });
+
+    this.labelColumn = document.createElement('div');
+    this.labelColumn.className = 'gear-stick-label-column';
+    this.labels.forEach((label, i) => {
+      const span = document.createElement('span');
+      span.textContent = label[0];
+      span.className = 'gear-stick-label-entry';
+      this.labelColumn.appendChild(span);
+    });
+
+    const layout = document.createElement('div');
+    layout.className = 'gear-stick-layout';
+    layout.appendChild(this.labelColumn);
+    layout.appendChild(this.track);
+
+    this.wrapper.appendChild(layout);
+    this.setValue(initial);
+    this.updateLabel();
+  }
+
+  setValue(index) {
+    if (index < 0 || index >= this.labels.length) return;
+    this.index = index;
+    const percent = (index + 0.5) / this.labels.length;
+    this.knob.style.top = `${percent * 100}%`;
+    this.knob.setAttribute('data-label', this.labels[this.index]);
+    this.updateLabel();
+  }
+
+  updateLabel() {
+    if (!this.labelColumn) return;
+    const children = this.labelColumn.querySelectorAll('.gear-stick-label-entry');
+    children.forEach((el, idx) => {
+      el.classList.toggle('active', idx === this.index);
+    });
+  }
+
+  getValue() {
+    return { index: this.index, label: this.labels[this.index] };
   }
 }
 
@@ -231,7 +307,7 @@ export {
   BaseComponent,
   ButtonComponent,
   ToggleButtonComponent,
-  GearKnobComponent,
+  GearStickComponent,
   SliderComponent,
   LeverComponent
-};
+ };

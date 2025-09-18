@@ -1,0 +1,62 @@
+<svg width="38" height="128" viewBox="0 0 38 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_197_2)">
+<rect x="2" y="-2" width="34" height="124" rx="2" transform="matrix(1 0 0 -1 1.19209e-07 124)" fill="#343434"/>
+<rect x="2" y="-2" width="34" height="124" rx="2" transform="matrix(1 0 0 -1 1.19209e-07 124)" stroke="#555555" stroke-width="4"/>
+<g clip-path="url(#clip1_197_2)">
+<path d="M17 32C17 30.8954 17.8954 30 19 30C20.1046 30 21 30.8954 21 32V100C21 101.105 20.1046 102 19 102C17.8954 102 17 101.105 17 100V32Z" fill="#555555"/>
+<rect width="4" height="4" transform="translate(17 98)" fill="#A52A2A"/>
+</g>
+<path d="M10 109C10 104.029 14.0294 100 19 100C23.9706 100 28 104.029 28 109C28 113.971 23.9706 118 19 118C14.0294 118 10 113.971 10 109Z" fill="#A52A2A"/>
+<rect width="2" height="32" transform="matrix(0 -1 1 0 3 24)" fill="#555555"/>
+<rect width="8" height="20" transform="translate(3 3)" fill="#555555"/>
+<rect width="8" height="20" transform="translate(27 3)" fill="#555555"/>
+<rect width="1" height="2" transform="matrix(0 -1 1 0 13 95)" fill="#008B8B"/>
+<rect width="1" height="2" transform="matrix(0 -1 1 0 23 95)" fill="#008B8B"/>
+<rect width="1" height="2" transform="matrix(0 -1 1 0 13 91)" fill="#008B8B"/>
+<rect width="1" height="2" transform="matrix(0 -1 1 0 23 91)" fill="#008B8B"/>
+<rect width="1" height="3" transform="matrix(0 -1 1 0 12 87)" fill="#008B8B"/>
+<rect width="1" height="3" transform="matrix(0 -1 1 0 23 87)" fill="#008B8B"/>
+<rect width="1" height="3" transform="matrix(0 -1 1 0 12 83)" fill="#008B8B"/>
+<rect width="1" height="3" transform="matrix(0 -1 1 0 23 83)" fill="#008B8B"/>
+<rect width="1" height="4" transform="matrix(0 -1 1 0 11 79)" fill="#008B8B"/>
+<rect width="1" height="4" transform="matrix(0 -1 1 0 23 79)" fill="#008B8B"/>
+<rect width="1" height="4" transform="matrix(0 -1 1 0 11 75)" fill="#008B8B"/>
+<rect width="1" height="4" transform="matrix(0 -1 1 0 23 75)" fill="#008B8B"/>
+<rect width="1" height="5" transform="matrix(0 -1 1 0 10 71)" fill="#F2F3F4"/>
+<rect width="1" height="5" transform="matrix(0 -1 1 0 23 71)" fill="#F2F3F4"/>
+<rect width="1" height="5" transform="matrix(0 -1 1 0 10 67)" fill="#F2F3F4"/>
+<rect width="1" height="5" transform="matrix(0 -1 1 0 23 67)" fill="#F2F3F4"/>
+<rect width="1" height="5" transform="matrix(0 -1 1 0 10 63)" fill="#F2F3F4"/>
+<rect width="1" height="5" transform="matrix(0 -1 1 0 23 63)" fill="#F2F3F4"/>
+<rect width="1" height="6" transform="matrix(0 -1 1 0 9 59)" fill="#A52A2A"/>
+<rect width="1" height="6" transform="matrix(0 -1 1 0 23 59)" fill="#A52A2A"/>
+<rect width="1" height="6" transform="matrix(0 -1 1 0 9 55)" fill="#A52A2A"/>
+<rect width="1" height="6" transform="matrix(0 -1 1 0 23 55)" fill="#A52A2A"/>
+<rect width="1" height="7" transform="matrix(0 -1 1 0 8 51)" fill="#A52A2A"/>
+<rect width="1" height="7" transform="matrix(0 -1 1 0 23 51)" fill="#A52A2A"/>
+<rect width="1" height="7" transform="matrix(0 -1 1 0 8 47)" fill="#A52A2A"/>
+<rect width="1" height="7" transform="matrix(0 -1 1 0 23 47)" fill="#A52A2A"/>
+<rect width="1" height="8" transform="matrix(0 -1 1 0 7 43)" fill="#A52A2A"/>
+<rect width="1" height="8" transform="matrix(0 -1 1 0 23 43)" fill="#A52A2A"/>
+<rect width="1" height="8" transform="matrix(0 -1 1 0 7 39)" fill="#A52A2A"/>
+<rect width="1" height="8" transform="matrix(0 -1 1 0 23 39)" fill="#A52A2A"/>
+<rect width="1" height="9" transform="matrix(0 -1 1 0 6 35)" fill="#A52A2A"/>
+<rect width="1" height="9" transform="matrix(0 -1 1 0 23 35)" fill="#A52A2A"/>
+<rect width="18" height="18" transform="matrix(1 0 0 -1 10 22)" fill="#555555"/>
+<g clip-path="url(#clip2_197_2)">
+<path d="M24.2905 9.46289C22.3364 7.50999 19.4192 7.50999 17.4651 9.46289C15.5109 11.4158 15.5109 14.5811 17.4651 16.534C19.4192 18.4869 22.3364 18.4869 24.2905 16.534C24.6813 16.1434 25.3161 16.1434 25.7069 16.534C26.0977 16.9246 26.0977 17.5589 25.7069 17.9494C22.9711 20.6835 18.7877 20.6835 16.0519 17.9494C13.316 15.2154 13.316 10.7846 16.0519 8.05055C18.7877 5.31648 22.9711 5.31648 25.7069 8.05055C26.0977 8.44113 26.0977 9.07544 25.7069 9.46602C25.3161 9.8566 24.6813 9.8566 24.2905 9.46602V9.46289Z" fill="#D4AF37"/>
+</g>
+<rect x="12.5" y="6.5" width="2" height="2" rx="1" stroke="#D4AF37"/>
+</g>
+<defs>
+<clipPath id="clip0_197_2">
+<rect width="38" height="128" fill="white"/>
+</clipPath>
+<clipPath id="clip1_197_2">
+<path d="M17 32C17 30.8954 17.8954 30 19 30C20.1046 30 21 30.8954 21 32V100C21 101.105 20.1046 102 19 102C17.8954 102 17 101.105 17 100V32Z" fill="white"/>
+</clipPath>
+<clipPath id="clip2_197_2">
+<rect width="12" height="16" fill="white" transform="translate(14 4)"/>
+</clipPath>
+</defs>
+</svg>
